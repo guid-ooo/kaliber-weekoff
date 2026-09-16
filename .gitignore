@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Python
+__pycache__/
+*.py[cod]
+
+# QLab writes a new backup every couple of minutes while the workspace is open
+*.qlab5backup
+Weekoff backups/
+
+# Blender incremental saves
+*.blend[0-9]
