@@ -7,7 +7,7 @@ if ! command -v python3 >/dev/null; then
 fi
 
 open "WeekOff.key"
-open "Weekoff/Weekoff.qlab5"
+open "WeekOff/WeekOff.qlab5"
 
 echo "Wachten tot Keynote de presentatie geopend heeft..."
 until osascript -e 'tell application "Keynote" to count of documents' 2>/dev/null | grep -qv '^0$'; do
@@ -21,4 +21,4 @@ echo "  Sluit dit venster om te stoppen."
 echo "=============================================="
 echo
 
-exec python3 keynote_dmx_bridge.py
+exec python3 assets/keynote_dmx_bridge.py

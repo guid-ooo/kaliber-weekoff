@@ -15,3 +15,6 @@ Weekoff backups/
 
 # Blender incremental saves
 *.blend[0-9]
+
+assets/**/*.mov
+assets/lubro-floorplan/Untitled.png
