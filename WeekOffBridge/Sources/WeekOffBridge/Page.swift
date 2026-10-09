@@ -55,13 +55,12 @@ body.la-open .sheet{right:min(520px,92vw)}
 .scene.dof:hover{opacity:1}
 .add{border:1px dashed var(--g300);border-radius:16px;display:grid;place-items:center;color:var(--gray);min-height:180px;cursor:pointer}
 .add:hover{border-color:var(--isit);color:var(--isit)}
-.pads{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;max-width:600px}
+.pads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;max-width:600px}
 .pad{aspect-ratio:1;border-radius:16px;border:1px solid var(--g400);background:var(--blackish);padding:13px;display:flex;flex-direction:column;cursor:pointer;transition:.12s}
 .pad:hover{border-color:var(--isit);transform:translateY(-2px)}
 .pad.leeg{border-style:dashed;color:var(--gray);align-items:center;justify-content:center;font-size:14px}
-.pad .nm{margin-top:auto;font-size:15px;line-height:1.25}
-.pad .sub{font-size:12px;color:var(--gray);margin-top:3px}
-.pad .teken{font-size:17px;line-height:1;opacity:.75}
+.pad .nm{margin-top:auto;font-size:15px;line-height:1.2;overflow-wrap:anywhere}
+.pad .sub{font-size:12px;color:var(--gray);margin-top:3px;overflow-wrap:anywhere}
 .pad.apparaat .nm{color:var(--pink)}
 .pad.aan{border-color:var(--isit);box-shadow:0 0 0 1px var(--isit),0 0 24px #d1ff0033}
 .pad[draggable]{cursor:grab}
@@ -400,9 +399,7 @@ function renderPads() {
     card.ondragend = () => { card.classList.remove('sleep'); setTimeout(() => { gesleept = false; }, 0); };
     onthaal(card);
     card.onclick = () => { if (gesleept) return; open = {type: 'pad', id: key}; navigeer(); renderSheet(); };
-    const teken = el('span', {className: 'teken', textContent: isApparaat ? '🔦' : '🔈'});
     card.append(
-      teken,
       el('span', {className: 'nm', textContent: pad.label || (pad.sample || '').split('/').pop() || 'Pad'}),
       el('span', {className: 'sub', textContent: isApparaat ? (pad.mode === 'toggle' ? 'aan-uit schakelen' : 'zolang ingedrukt') : Math.round(pad.volume ?? 100) + '%'})
     );
