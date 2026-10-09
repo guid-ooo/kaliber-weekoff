@@ -78,6 +78,14 @@ border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
 .sw{width:30px;height:30px;border-radius:9px;border:2px solid transparent;cursor:pointer}
 .sw.aan{border-color:var(--berry)}
 .swatches{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.discoVlak,.sw.disco{background:linear-gradient(110deg,#e23b3b,#ff7a1a,#d1ff00,#2fbf71,#00a1ff,#dfa8ff,#e23b3b);background-size:300% 100%;
+animation:discoKleur 3s linear infinite, discoBeat .5s ease-out infinite}
+@keyframes discoKleur{from{background-position:0% 50%}to{background-position:300% 50%}}
+@keyframes discoBeat{0%{transform:scale(1.07)}45%{transform:scale(1)}100%{transform:scale(1)}}
+.sw.disco{border-color:var(--g300);position:relative;opacity:.9}
+.sw.disco:after{content:"";position:absolute;inset:3px;border-radius:5px;background:radial-gradient(circle at 30% 30%,#ffffffcc,transparent 60%)}
+.sw.disco:hover{opacity:1;border-color:var(--gray)}
+.sw.disco.aan{border-color:var(--berry);opacity:1}
 .sw.meer{background:conic-gradient(from 0deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);border-color:var(--g300);
 box-shadow:inset 0 0 0 2px var(--blackish);opacity:.85;transition:.12s}
 .sw.meer:hover{opacity:1;border-color:var(--gray)}
@@ -210,6 +218,7 @@ const rgb2hs = (r, g, b) => {
 function sceneColor(scene, f) {
   const v = p => scene.values[f.id + '.' + p] ?? 0;
   if (kind(f) === 'rgb') {
+    if (v('disco') > 0) return 'DISCO';
     const m = Math.max(v('red'), v('green'), v('blue'));
     if (!m) return '#101c1c';
     return 'rgb(' + [v('red'), v('green'), v('blue')].map(x => Math.round(x / 100 * 255)).join(',') + ')';
@@ -291,8 +300,11 @@ function renderScenes() {
     card.dataset.tag = tag;
     card.onclick = () => { open = {type: 'scene', id: tag}; navigeer(); renderSheet(); };
     const prev = el('div', {className: 'prev'});
-    fixtureList().forEach(f => prev.append(el('span', {style: 'background:' + sceneColor(scene, f)})));
-    const aantal = fixtureList().filter(f => f.channels.some(c => (scene.values[f.id + '.' + c] ?? 0) > 0)).length;
+    fixtureList().forEach(f => {
+      const kleur = sceneColor(scene, f);
+      prev.append(kleur === 'DISCO' ? el('span', {className: 'discoVlak'}) : el('span', {style: 'background:' + kleur}));
+    });
+    const aantal = fixtureList().filter(f => (scene.values[f.id + '.disco'] ?? 0) > 0 || f.channels.some(c => (scene.values[f.id + '.' + c] ?? 0) > 0)).length;
     card.append(prev, el('div', {className: 'sbody'}, [
       el('div', {className: 'sname'}, [document.createTextNode(tag), live ? el('span', {className: 'badge', textContent: 'speelt nu'}) : null]),
       el('div', {className: 'meta'}, [
@@ -336,7 +348,10 @@ function renderScenes() {
       card.dataset.tag = tag;
       card.onclick = () => { open = {type: 'scene', id: tag}; navigeer(); renderSheet(); };
       const prev = el('div', {className: 'prev'});
-      fixtureList().forEach(f => prev.append(el('span', {style: 'background:' + sceneColor(scene, f)})));
+      fixtureList().forEach(f => {
+        const kleur = sceneColor(scene, f);
+        prev.append(kleur === 'DISCO' ? el('span', {className: 'discoVlak'}) : el('span', {style: 'background:' + kleur}));
+      });
       card.append(prev, el('div', {className: 'sbody'}, [
         el('div', {className: 'sname'}, [document.createTextNode(tag)]),
         el('div', {className: 'meta'}, [el('span', {textContent: herkomst[tag] || 'geen presentatie', style: 'color:var(--pink)'})]),
@@ -398,18 +413,23 @@ function renderTijdlijn() {
       if (vorige && vorige[1] >= g.slide - 1) vorige[1] = Math.max(vorige[1], eind);
       else stukken.push([g.slide, eind]);
     });
-    const niveau = f => Math.max(0, ...f.channels.map(c => scene.values[f.id + '.' + c] ?? 0));
+    const niveau = f => Math.max(0, scene.values[f.id + '.disco'] ?? 0, ...f.channels.map(c => scene.values[f.id + '.' + c] ?? 0));
     const fels = fixtureList().slice().sort((a, b) => niveau(b) - niveau(a))[0];
-    const hoofdkleur = fels && niveau(fels) > 0 ? sceneColor(scene, fels) : '#223130';
+    let hoofdkleur = fels && niveau(fels) > 0 ? sceneColor(scene, fels) : '#223130';
+    const isDisco = hoofdkleur === 'DISCO';
+    if (isDisco) hoofdkleur = '#223130';
     stukken.forEach(([a, b]) => {
       const links = (a - 1) / totaal * 100, breed = (b - a + 1) / totaal * 100;
-      const vlak = el('div', {className: 'vlak', style: `left:${links}%;width:${breed}%;background:${hoofdkleur}`});
+      const vlak = el('div', {className: 'vlak' + (isDisco ? ' discoVlak' : ''), style: `left:${links}%;width:${breed}%` + (isDisco ? '' : `;background:${hoofdkleur}`)});
       if (breed > 12) vlak.textContent = a === b ? 'dia ' + a : a + '–' + b;
       spoor.append(vlak);
     });
 
     const lampjes = el('div', {className: 'lampjes'});
-    fixtureList().forEach(f => lampjes.append(el('i', {style: 'background:' + sceneColor(scene, f)})));
+    fixtureList().forEach(f => {
+      const kleur = sceneColor(scene, f);
+      lampjes.append(kleur === 'DISCO' ? el('i', {className: 'discoVlak'}) : el('i', {style: 'background:' + kleur}));
+    });
 
     rij.append(naam, spoor, lampjes, el('div', {className: 'meta2', textContent: (bereik(tag) || '') + ' · ' + scene.fade + ' sec'}));
     host.append(rij);
@@ -482,18 +502,41 @@ function deviceBox(f, values) {
   if (k === 'rgb') {
     const sw = el('div', {className: 'swatches'});
     const current = [get('red'), get('green'), get('blue')];
-    COLORS.forEach(([hex, naam]) => {
+    const helder = Math.max(...current);
+    let beste = -1, besteAfstand = Infinity;
+    if (helder > 0) {
+      COLORS.forEach(([hex], i) => {
+        const [r, g, b] = hex2rgb(hex);
+        const afstand = Math.hypot(current[0] - r * helder, current[1] - g * helder, current[2] - b * helder);
+        if (afstand < besteAfstand) { besteAfstand = afstand; beste = i; }
+      });
+      if (besteAfstand > 12) beste = -1;
+    }
+    COLORS.forEach(([hex, naam], i) => {
       const [r, g, b] = hex2rgb(hex);
-      const dot = el('div', {className: 'sw', title: naam, style: 'background:' + hex});
-      const bright = Math.max(...current) || 100;
-      if (Math.max(...current) > 0 && Math.abs(current[0] - r * bright) < 6 && Math.abs(current[1] - g * bright) < 6 && Math.abs(current[2] - b * bright) < 6) dot.classList.add('aan');
+      const dot = el('div', {className: 'sw' + (i === beste ? ' aan' : ''), title: naam, style: 'background:' + hex});
       dot.onclick = () => {
-        const level = Math.max(...[get('red'), get('green'), get('blue')]) || 100;
+        const level = Math.max(...current) || 100;
+        set('disco', 0);
         set('red', Math.round(r * level)); set('green', Math.round(g * level)); set('blue', Math.round(b * level));
         renderSheet();
       };
       sw.append(dot);
     });
+
+    const disco = get('disco') > 0;
+    const discoSwatch = el('div', {className: 'sw disco' + (disco ? ' aan' : ''), title: 'disco'});
+    discoSwatch.onclick = () => {
+      if (disco) { set('disco', 0); }
+      else {
+        const niveau = Math.max(get('red'), get('green'), get('blue')) || 100;
+        ['red', 'green', 'blue'].forEach(c => set(c, 0));
+        set('disco', niveau);
+      }
+      renderSheet();
+    };
+    sw.append(discoSwatch);
+
     const meer = el('div', {className: 'sw meer' + (wheelOpen[f.id] ? ' aan' : ''), title: 'meer kleuren'});
     meer.onclick = () => { wheelOpen[f.id] = !wheelOpen[f.id]; renderSheet(); };
     sw.append(meer);
@@ -524,8 +567,16 @@ function deviceBox(f, values) {
     };
     box.append(wheel);
 
-    const level = Math.max(get('red'), get('green'), get('blue'));
+    const level = disco ? get('disco') : Math.max(get('red'), get('green'), get('blue'));
     const range = el('input', {type: 'range', min: 0, max: 100, value: level});
+    if (disco) {
+      range.oninput = () => {
+        set('disco', Number(range.value));
+        box.querySelector('.row span:last-child').textContent = range.value + '%';
+      };
+      box.append(range, el('div', {className: 'row'}, [el('span', {textContent: 'helderheid · disco'}), el('span', {textContent: level + '%'})]));
+      return box;
+    }
     range.oninput = () => {
       const was = Math.max(get('red'), get('green'), get('blue')) || 100;
       const factor = range.value / (was || 100);

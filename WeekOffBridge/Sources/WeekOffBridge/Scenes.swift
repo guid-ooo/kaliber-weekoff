@@ -68,6 +68,21 @@ struct ShowConfig: Codable, Equatable {
         pads?["\(channel):\(note)"] ?? pads?["\(note)"]
     }
 
+    func effecten(for tags: [String]) -> [(rood: Int, groen: Int, blauw: Int, niveau: Double)] {
+        var uit: [(Int, Int, Int, Double)] = []
+        for tag in tags {
+            guard let scene = scenes[tag] else { continue }
+            for (pad, niveau) in scene.values where pad.hasSuffix(".disco") {
+                let naam = String(pad.dropLast(6))
+                guard let r = dmxChannel(for: naam + ".red"),
+                      let g = dmxChannel(for: naam + ".green"),
+                      let b = dmxChannel(for: naam + ".blue") else { continue }
+                uit.append((r, g, b, min(max(niveau, 0), 100) / 100 * 255))
+            }
+        }
+        return uit.map { (rood: $0.0, groen: $0.1, blauw: $0.2, niveau: $0.3) }
+    }
+
     func levels(_ values: [String: Double]) -> [Int: Double] {
         var out: [Int: Double] = [:]
         for (path, percent) in values {

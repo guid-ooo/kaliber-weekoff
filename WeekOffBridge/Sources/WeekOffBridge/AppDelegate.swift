@@ -26,6 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var tick = 0
     private var deck: [(tag: String, slide: Int, skipped: Bool)] = []
     private var blacked = false
+    private var voorbeeldTot = Date.distantPast
     private var tagsByPlaybackSlide: [Int: [String]] = [:]
     private var deckName = ""
     private var getagd: [(slide: Int, tags: [String])] = []
@@ -225,6 +226,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func handle(_ slide: SlideState) {
         guard !slide.skipped, !slide.tags.isEmpty else { return }
+        if Date() < voorbeeldTot {
+            lastTags = nil
+            return
+        }
         guard slide.tags != lastTags else { return }
         lastTags = slide.tags
         blacked = false
@@ -299,6 +304,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
                   let tag = body["tag"] else { return .notFound }
             lastTags = nil
+            voorbeeldTot = Date().addingTimeInterval(10)
             applyLights([tag])
             return .json(Data("{\"ok\":true,\"artnet\":\(backend.usesArtNet)}".utf8))
 
@@ -309,6 +315,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return .json(Data("{\"ok\":true}".utf8))
 
         case ("POST", "/api/panic"):
+            voorbeeldTot = .distantPast
             blacked = false
             blackout(reason: "handmatig")
             return .json(Data("{\"ok\":true}".utf8))
@@ -344,6 +351,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             "held": Array(heldPads.keys),
             "artnetActive": lights.isRunning,
             "blackout": blacked,
+            "voorbeeld": Date() < voorbeeldTot,
             "deck": deck.map { ["tag": $0.tag, "slide": $0.slide, "skipped": $0.skipped] },
             "deckName": deckName,
             "getagd": getagd.map { ["slide": $0.slide, "tags": $0.tags] },
@@ -442,7 +450,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard let config else { return }
         guard let result = config.levels(for: tags) else { return }
         guard !result.levels.isEmpty || result.unknown.count < tags.count else { return }
-        lights.apply(levels: result.levels, fade: result.fade)
+        lights.apply(levels: result.levels, fade: result.fade, effecten: config.effecten(for: tags))
     }
 
     private func updateTitle() {

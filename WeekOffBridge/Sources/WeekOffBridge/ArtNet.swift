@@ -57,6 +57,9 @@ final class LightEngine {
     private var fadeStart = Date.distantPast
     private var fadeDuration: Double = 0
     private var overlay: [Int: Double] = [:]
+    private var effecten: [(rood: Int, groen: Int, blauw: Int, niveau: Double)] = []
+    private var gestart = Date()
+    var bpm: Double = 120
 
     private(set) var isRunning = false
 
@@ -82,8 +85,10 @@ final class LightEngine {
         isRunning = false
     }
 
-    func apply(levels: [Int: Double], fade: Double) {
+    func apply(levels: [Int: Double], fade: Double, effecten: [(rood: Int, groen: Int, blauw: Int, niveau: Double)] = []) {
         queue.async {
+            self.effecten = effecten
+            self.gestart = Date()
             self.from = self.currentLevels()
             var next = [Double](repeating: 0, count: 512)
             for (channel, value) in levels where (1...512).contains(channel) {
@@ -102,25 +107,56 @@ final class LightEngine {
     }
 
     func snapshot() -> [Double] {
-        queue.sync {
-            var values = currentLevels()
-            for (channel, value) in overlay where (1...512).contains(channel) {
-                values[channel - 1] = value
+        queue.sync { samenstellen() }
+    }
+
+    private func samenstellen() -> [Double] {
+        var values = currentLevels()
+
+        if !effecten.isEmpty {
+            let perTel = 60.0 / bpm
+            let tellen = Date().timeIntervalSince(gestart) / perTel
+            let tel = Int(floor(tellen))
+            let fase = tellen - floor(tellen)
+            let maatslag = ((tel % 4) + 4) % 4
+
+            let aanzet = maatslag == 0 ? 1.0 : 0.72
+            let envelop = aanzet * (0.18 + 0.82 * pow(1 - fase, 1.6))
+            let (r, g, b) = Self.hueNaarRGB(Double(tel) * 57)
+
+            for effect in effecten {
+                for (kanaal, deel) in [(effect.rood, r), (effect.groen, g), (effect.blauw, b)]
+                where (1...512).contains(kanaal) {
+                    values[kanaal - 1] = deel * effect.niveau * envelop
+                }
             }
-            return values
         }
+        for (channel, value) in overlay where (1...512).contains(channel) {
+            values[channel - 1] = value
+        }
+        return values
     }
 
     func setOverlay(_ levels: [Int: Double]) {
         queue.async { self.overlay = levels }
     }
 
+    private static func hueNaarRGB(_ hoek: Double) -> (Double, Double, Double) {
+        let h = hoek.truncatingRemainder(dividingBy: 360) / 60
+        let x = 1 - abs(h.truncatingRemainder(dividingBy: 2) - 1)
+        switch Int(h) {
+        case 0: return (1, x, 0)
+        case 1: return (x, 1, 0)
+        case 2: return (0, 1, x)
+        case 3: return (0, x, 1)
+        case 4: return (x, 0, 1)
+        default: return (1, 0, x)
+        }
+    }
+
     private func frame() {
         guard let sender else { return }
-        var values = currentLevels()
-        for (channel, value) in overlay where (1...512).contains(channel) {
-            values[channel - 1] = value
-        }
+        let values = samenstellen()
         sender.send(values.map { UInt8(min(max($0.rounded(), 0), 255)) })
     }
 }
