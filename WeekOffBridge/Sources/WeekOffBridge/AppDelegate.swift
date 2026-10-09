@@ -42,6 +42,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var configLine = "scenes.json niet geladen"
     private var configStamp: Date?
     private var heldPads: [String: [Int: Double]] = [:]
+    private var toggled: Set<String> = []
+    private var lastNote: (note: UInt8, channel: UInt8, at: Date)?
     private var padLine = "geen pad"
     private var backend: Backend = .qlab {
         didSet {
@@ -191,6 +193,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case ("GET", "/"):
             return .html(Page.html)
 
+        case ("GET", let path) where path.hasPrefix("/fonts/"):
+            let name = String(path.dropFirst("/fonts/".count))
+            guard !name.contains(".."),
+                  let url = Bundle.main.url(forResource: "fonts/" + (name as NSString).deletingPathExtension, withExtension: "woff2"),
+                  let data = try? Data(contentsOf: url) else { return .notFound }
+            return WebResponse(status: "200 OK", type: "font/woff2", body: data)
+
         case ("GET", "/api/config"):
             guard let config, let data = try? encoder.encode(config) else { return .notFound }
             return .json(data)
@@ -201,6 +210,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             }
             try? ConfigStore.save(incoming)
             loadConfig()
+            return .json(Data("{\"ok\":true}".utf8))
+
+        case ("GET", "/api/learn"):
+            guard let last = lastNote, Date().timeIntervalSince(last.at) < 5 else {
+                return .json(Data("{\"note\":null}".utf8))
+            }
+            return .json(Data("{\"note\":\(last.note),\"channel\":\(last.channel)}".utf8))
+
+        case ("POST", "/api/pad"):
+            guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
+                  let key = body["pad"], let config, let pad = config.pads?[key] else { return .notFound }
+            if let sample = pad.sample { audio.play(sample) }
             return .json(Data("{\"ok\":true}".utf8))
 
         case ("GET", "/api/state"):
@@ -237,6 +258,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             }
         }
         var payload: [String: Any] = [
+            "lastNote": lastNote.map { ["note": Int($0.note), "channel": Int($0.channel), "age": Date().timeIntervalSince($0.at)] } as Any,
+            "held": Array(heldPads.keys),
+            "artnetActive": lights.isRunning,
             "slide": state?.slide as Any,
             "tags": state?.tags ?? [],
             "midi": midi.sourceCount,
@@ -251,17 +275,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func handle(_ note: MIDINote) {
-        guard let config, let pad = config.pad(channel: note.channel, note: note.note) else { return }
+        if note.isOn { lastNote = (note.note, note.channel, Date()) }
+        guard let config, let pad = config.pad(channel: note.channel, note: note.note) else {
+            if note.isOn { padLine = "pad \(note.note) (niet gekoppeld)" ; refreshMenu() }
+            return
+        }
         let key = "\(note.channel):\(note.note)"
 
         if note.isOn {
             if let sample = pad.sample { audio.play(sample, velocity: note.velocity) }
             if let dmx = pad.dmx {
-                heldPads[key] = config.levels(dmx)
+                if pad.isToggle {
+                    if toggled.contains(key) {
+                        toggled.remove(key)
+                        heldPads[key] = nil
+                    } else {
+                        toggled.insert(key)
+                        heldPads[key] = config.levels(dmx)
+                    }
+                } else {
+                    heldPads[key] = config.levels(dmx)
+                }
                 pushOverlay()
             }
             padLine = "pad \(note.note) (vel \(note.velocity))"
-        } else if pad.hold ?? false, heldPads.removeValue(forKey: key) != nil {
+        } else if pad.isHold, heldPads.removeValue(forKey: key) != nil {
             pushOverlay()
             padLine = "pad \(note.note) los"
         }

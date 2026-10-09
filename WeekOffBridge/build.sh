@@ -10,7 +10,9 @@ swift build -c release --scratch-path "$OUT"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
+mkdir -p "$APP/Contents/Resources/fonts"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
+cp Resources/fonts/*.woff2 "$APP/Contents/Resources/fonts/"
 cp "$OUT/release/$NAME" "$APP/Contents/MacOS/$NAME"
 codesign --force --sign - "$APP"
 

@@ -1,8 +1,24 @@
 import Foundation
 
 struct Fixture: Codable, Equatable {
-    let address: Int
-    let channels: [String]
+    var address: Int
+    var channels: [String]
+    var kind: String?
+    var label: String?
+    var note: String?
+
+    var type: FixtureKind { FixtureKind(rawValue: kind ?? "") ?? .inferred(from: channels) }
+}
+
+enum FixtureKind: String {
+    case rgb, warmcool, dimmer, schakelaar
+
+    static func inferred(from channels: [String]) -> FixtureKind {
+        let set = Set(channels.map { $0.lowercased() })
+        if set.isSuperset(of: ["red", "green", "blue"]) { return .rgb }
+        if set.isSuperset(of: ["warm", "cool"]) { return .warmcool }
+        return channels.count == 1 ? .dimmer : .dimmer
+    }
 }
 
 struct Scene: Codable, Equatable {
@@ -11,9 +27,22 @@ struct Scene: Codable, Equatable {
 }
 
 struct Pad: Codable, Equatable {
+    var label: String?
     var sample: String?
     var dmx: [String: Double]?
     var hold: Bool?
+    var mode: String?
+
+    var isToggle: Bool { mode == "toggle" }
+    var isHold: Bool { !isToggle && (hold ?? true) }
+}
+
+struct MidiConfig: Codable, Equatable {
+    var origin: Int
+    var padsPerBank: Int
+    var banks: Int
+
+    static let `default` = MidiConfig(origin: 36, padsPerBank: 16, banks: 3)
 }
 
 struct ArtNetConfig: Codable, Equatable {
@@ -27,6 +56,7 @@ struct ShowConfig: Codable, Equatable {
     let fixtures: [String: Fixture]
     let scenes: [String: Scene]
     var pads: [String: Pad]?
+    var midi: MidiConfig?
 
     func pad(channel: UInt8, note: UInt8) -> Pad? {
         pads?["\(channel):\(note)"] ?? pads?["\(note)"]
@@ -70,9 +100,9 @@ struct ShowConfig: Codable, Equatable {
     static let fallback = ShowConfig(
         artnet: ArtNetConfig(host: "10.11.46.11", universe: 0, broadcast: true),
         fixtures: [
-            "spot": Fixture(address: 1, channels: ["warm", "cool", "strobe"]),
-            "floods": Fixture(address: 4, channels: ["red", "green", "blue"]),
-            "rookmachine": Fixture(address: 420, channels: ["rook"]),
+            "spot": Fixture(address: 1, channels: ["warm", "cool", "strobe"], kind: "warmcool", label: "Spot", note: "warm licht vooraan"),
+            "floods": Fixture(address: 4, channels: ["red", "green", "blue"], kind: "rgb", label: "Floods", note: "de drie grote lampen"),
+            "rookmachine": Fixture(address: 420, channels: ["rook"], kind: "schakelaar", label: "Rookmachine", note: "blaast rook zolang hij aan staat"),
         ],
         scenes: [
             "start": Scene(fade: 2, values: ["spot.warm": 18, "spot.cool": 9]),
@@ -84,8 +114,9 @@ struct ShowConfig: Codable, Equatable {
             "blackout": Scene(fade: 1, values: [:]),
         ],
         pads: [
-            "44": Pad(sample: nil, dmx: ["rookmachine.rook": 100], hold: true),
-        ]
+            "44": Pad(label: "Rookmachine", sample: nil, dmx: ["rookmachine.rook": 100], hold: true, mode: "hold"),
+        ],
+        midi: .default
     )
 }
 
