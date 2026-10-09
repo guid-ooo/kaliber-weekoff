@@ -6,6 +6,8 @@ struct Fixture: Codable, Equatable {
     var kind: String?
     var label: String?
     var note: String?
+    var inScenes: Bool?
+    var inPads: Bool?
 
     var type: FixtureKind { FixtureKind(rawValue: kind ?? "") ?? .inferred(from: channels) }
 }
@@ -100,9 +102,9 @@ struct ShowConfig: Codable, Equatable {
     static let fallback = ShowConfig(
         artnet: ArtNetConfig(host: "10.11.46.11", universe: 0, broadcast: true),
         fixtures: [
-            "spot": Fixture(address: 1, channels: ["warm", "cool", "strobe"], kind: "warmcool", label: "Spot", note: "warm licht vooraan"),
-            "floods": Fixture(address: 4, channels: ["red", "green", "blue"], kind: "rgb", label: "Floods", note: "de drie grote lampen"),
-            "rookmachine": Fixture(address: 420, channels: ["rook"], kind: "schakelaar", label: "Rookmachine", note: "blaast rook zolang hij aan staat"),
+            "spot": Fixture(address: 1, channels: ["warm", "cool", "strobe"], kind: "warmcool", label: "Spot", note: "warm licht vooraan", inScenes: true, inPads: false),
+            "floods": Fixture(address: 4, channels: ["red", "green", "blue"], kind: "rgb", label: "Floods", note: "de drie grote lampen", inScenes: true, inPads: false),
+            "rookmachine": Fixture(address: 420, channels: ["rook"], kind: "schakelaar", label: "Rookmachine", note: "blaast rook zolang hij aan staat", inScenes: false, inPads: true),
         ],
         scenes: [
             "start": Scene(fade: 2, values: ["spot.warm": 18, "spot.cool": 9]),

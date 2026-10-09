@@ -55,6 +55,11 @@ main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
 .sw{width:30px;height:30px;border-radius:9px;border:2px solid transparent;cursor:pointer}
 .sw.aan{border-color:var(--berry)}
 .swatches{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.sw.meer{background:conic-gradient(from 0deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);position:relative}
+.sw.meer.aan{border-color:var(--berry)}
+.wheel{width:132px;height:132px;border-radius:50%;margin:4px auto 10px;position:relative;cursor:crosshair;border:1px solid var(--g300);
+background:radial-gradient(circle,#fff 0%,#fff0 70%),conic-gradient(from 90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+.wheel i{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #0008;pointer-events:none}
 input[type=range]{width:100%;accent-color:var(--isit);margin:10px 0 2px}
 input[type=text],input[type=number]{background:var(--g800);border:1px solid var(--g300);color:var(--berry);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;letter-spacing:var(--ls);width:100%}
 .row{display:flex;justify-content:space-between;font-size:13px;color:var(--gray)}
@@ -99,17 +104,29 @@ td{padding:8px;border-top:1px solid var(--g400)}
 <div id="tech" class="hidden"></div>
 <script>
 let config = null, state = {}, dirty = false, tab = 'scenes', bank = 0, open = null, learning = null;
-let sigScenes = '', sigPads = '';
+let sigScenes = '', sigPads = '', wheelOpen = {};
 
 const el = (t, p = {}, k = []) => { const n = Object.assign(document.createElement(t), p); k.forEach(c => c && n.append(c)); return n; };
 const setNote = (t, c = 'gray') => { const n = document.getElementById('note'); n.textContent = t; n.style.color = c === 'ok' ? 'var(--isit)' : 'var(--gray)'; };
 const dirtyNow = () => { dirty = true; setNote('niet opgeslagen'); };
 const midi = () => config.midi || {origin: 36, padsPerBank: 16, banks: 3};
-const fixtureList = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
+const fixtureAll = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
+const fixtureList = (waar = 'scenes') => fixtureAll().filter(f => waar === 'scenes' ? f.inScenes !== false : f.inPads !== false);
 const kind = f => f.kind || (f.channels.includes('red') ? 'rgb' : f.channels.includes('warm') ? 'warmcool' : f.channels.length === 1 ? 'schakelaar' : 'dimmer');
 
 const COLORS = [['#e23b3b','rood'],['#ff7a1a','oranje'],['#d1ff00','lime'],['#2fbf71','groen'],['#00a1ff','blauw'],['#dfa8ff','roze'],['#fffcf2','wit']];
 const hex2rgb = h => [1,3,5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
+const hsv2rgb = (h, s) => {
+  const f = n => { const k = (n + h / 60) % 6; return 1 - s * Math.max(0, Math.min(k, 4 - k, 1)); };
+  return [f(5), f(3), f(1)];
+};
+const rgb2hs = (r, g, b) => {
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  if (!max) return [0, 0];
+  let h = 0;
+  if (d) h = max === r ? 60 * (((g - b) / d) % 6) : max === g ? 60 * ((b - r) / d + 2) : 60 * ((r - g) / d + 4);
+  return [(h + 360) % 360, d / max];
+};
 
 function sceneColor(scene, f) {
   const v = p => scene.values[f.id + '.' + p] ?? 0;
@@ -238,7 +255,36 @@ function deviceBox(f, values) {
       };
       sw.append(dot);
     });
+    const meer = el('div', {className: 'sw meer' + (wheelOpen[f.id] ? ' aan' : ''), title: 'meer kleuren'});
+    meer.onclick = () => { wheelOpen[f.id] = !wheelOpen[f.id]; renderSheet(); };
+    sw.append(meer);
     box.append(sw);
+
+    const wheel = el('div', {className: 'wheel'});
+    const marker = el('i');
+    wheel.append(marker);
+    const place = () => {
+      const [r, g, b] = ['red', 'green', 'blue'].map(c => get(c));
+      const [h, sat] = rgb2hs(r / 100, g / 100, b / 100);
+      const radius = sat * 46, angle = h * Math.PI / 180;
+      marker.style.left = (66 + Math.cos(angle) * radius) + 'px';
+      marker.style.top = (66 + Math.sin(angle) * radius) + 'px';
+      marker.style.opacity = Math.max(r, g, b) > 0 ? 1 : 0.25;
+    };
+    place();
+    if (!wheelOpen[f.id]) wheel.style.display = 'none';
+    wheel.onclick = e => {
+      const rect = wheel.getBoundingClientRect();
+      const dx = e.clientX - rect.left - rect.width / 2, dy = e.clientY - rect.top - rect.height / 2;
+      const dist = Math.min(Math.hypot(dx, dy) / (rect.width / 2), 1);
+      const hue = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360;
+      const level = Math.max(get('red'), get('green'), get('blue')) || 100;
+      const [r, g, b] = hsv2rgb(hue, dist);
+      set('red', Math.round(r * level)); set('green', Math.round(g * level)); set('blue', Math.round(b * level));
+      renderSheet();
+    };
+    box.append(wheel);
+
     const level = Math.max(get('red'), get('green'), get('blue'));
     const range = el('input', {type: 'range', min: 0, max: 100, value: level});
     range.oninput = () => {
@@ -358,7 +404,7 @@ function renderSheet() {
       sample.onchange = () => { const v = sample.value.trim(); if (v) pad.sample = v; else delete pad.sample; dirtyNow(); };
       cols.append(el('div', {className: 'box'}, [el('h3', {textContent: 'Geluid'}), el('p', {textContent: 'bestand op deze computer'}), sample]));
     } else {
-      fixtureList().forEach(f => cols.append(deviceBox(f, pad.dmx)));
+      fixtureList('pads').forEach(f => cols.append(deviceBox(f, pad.dmx)));
     }
     sheet.append(cols);
 
@@ -380,8 +426,8 @@ function renderTech() {
   host.className = '';
   host.innerHTML = '';
   const rows = el('table');
-  rows.append(el('tr', {}, ['Naam', 'Soort', 'DMX-adres', 'Kanalen', 'Nu'].map(h => el('th', {textContent: h}))));
-  fixtureList().forEach(f => {
+  rows.append(el('tr', {}, ['Naam', 'Soort', 'DMX-adres', 'Kanalen', 'Scenes', 'Soundboard', 'Nu'].map(h => el('th', {textContent: h}))));
+  fixtureAll().forEach(f => {
     const naam = el('input', {type: 'text', value: f.naam});
     naam.onchange = () => { config.fixtures[f.id].label = naam.value; dirtyNow(); };
     const soort = el('input', {type: 'text', value: kind(f)});
@@ -390,8 +436,15 @@ function renderTech() {
     adres.onchange = () => { config.fixtures[f.id].address = Number(adres.value); dirtyNow(); renderTech(); };
     const live = (state.channels || []).filter(c => c.name.startsWith(f.id + '.'));
     const meter = el('div', {className: 'bar'}, [el('i', {style: 'width:' + Math.round(Math.max(0, ...live.map(c => c.value)) / 255 * 100) + '%'})]);
+    const vink = (veld) => {
+      const aan = config.fixtures[f.id][veld] !== false;
+      const t = el('div', {className: 'toggle' + (aan ? ' aan' : '')}, [el('i')]);
+      t.onclick = () => { config.fixtures[f.id][veld] = !aan; dirtyNow(); renderTech(); sigScenes = ''; sigPads = ''; };
+      return t;
+    };
     rows.append(el('tr', {}, [el('td', {}, [naam]), el('td', {}, [soort]), el('td', {}, [adres]),
-      el('td', {className: 'mono', textContent: f.address + '–' + (f.address + f.channels.length - 1)}), el('td', {}, [meter])]));
+      el('td', {className: 'mono', textContent: f.address + '–' + (f.address + f.channels.length - 1)}),
+      el('td', {}, [vink('inScenes')]), el('td', {}, [vink('inPads')]), el('td', {}, [meter])]));
   });
 
   const host2 = el('div', {className: 'backdrop'});
