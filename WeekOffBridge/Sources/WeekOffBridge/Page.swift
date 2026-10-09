@@ -61,7 +61,8 @@ body.la-open .sheet{right:min(520px,92vw)}
 .pad.leeg{border-style:dashed;color:var(--gray);align-items:center;justify-content:center;font-size:14px}
 .pad .nm{margin-top:auto;font-size:15px;line-height:1.25}
 .pad .sub{font-size:12px;color:var(--gray);margin-top:3px}
-.pad.apparaat{border-color:var(--pink)}.pad.apparaat .nm{color:var(--pink)}
+.pad .teken{font-size:17px;line-height:1;opacity:.75}
+.pad.apparaat .nm{color:var(--pink)}
 .pad.aan{border-color:var(--isit);box-shadow:0 0 0 1px var(--isit),0 0 24px #d1ff0033}
 .pad[draggable]{cursor:grab}
 .pad.sleep{opacity:.4;cursor:grabbing}
@@ -399,9 +400,11 @@ function renderPads() {
     card.ondragend = () => { card.classList.remove('sleep'); setTimeout(() => { gesleept = false; }, 0); };
     onthaal(card);
     card.onclick = () => { if (gesleept) return; open = {type: 'pad', id: key}; navigeer(); renderSheet(); };
+    const teken = el('span', {className: 'teken', textContent: isApparaat ? '💡' : '🔈'});
     card.append(
+      teken,
       el('span', {className: 'nm', textContent: pad.label || (pad.sample || '').split('/').pop() || 'Pad'}),
-      el('span', {className: 'sub', textContent: isApparaat ? (pad.mode === 'toggle' ? 'aan-uit schakelen' : 'zolang ingedrukt') : 'geluid · ' + Math.round(pad.volume ?? 100) + '%'})
+      el('span', {className: 'sub', textContent: isApparaat ? (pad.mode === 'toggle' ? 'aan-uit schakelen' : 'zolang ingedrukt') : Math.round(pad.volume ?? 100) + '%'})
     );
     grid.append(card);
   }
