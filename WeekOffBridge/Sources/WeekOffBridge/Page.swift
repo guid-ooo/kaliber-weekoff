@@ -53,6 +53,9 @@ main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
 .banks{display:flex;gap:8px;margin-bottom:18px;align-items:center}
 .sheet{position:fixed;inset:auto 0 0 0;background:var(--blackish);border-top:1px solid var(--g400);border-radius:20px 20px 0 0;padding:22px 30px;box-shadow:0 -24px 70px #000a;max-height:72vh;overflow:auto}
 .sheet h2{font-size:26px}
+.titelrij{display:flex;align-items:center;gap:10px}
+.potlood{border:1px solid transparent;color:var(--gray);border-radius:999px;width:32px;height:32px;padding:0;font-size:15px;line-height:1}
+.potlood:hover{border-color:var(--isit);color:var(--isit)}
 .sub{color:var(--gray);font-size:14px;margin:2px 0 18px}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px}
 .box{background:var(--g800);border:1px solid var(--g400);border-radius:14px;padding:15px}
@@ -460,7 +463,18 @@ function renderSheet() {
     const scene = config.scenes[open.id];
     if (!scene) { open = null; return; }
     const opDia = (state.deck || []).find(d => d.tag === open.id);
-    sheet.append(el('h2', {textContent: open.id}), el('div', {className: 'sub',
+    const potlood = el('button', {className: 'potlood', title: 'naam wijzigen', textContent: '✎'});
+    potlood.onclick = () => {
+      const n = prompt('Nieuwe naam (dit is ook de #tag in Keynote)', open.id);
+      if (!n) return;
+      const key = n.trim().toLowerCase().replace(/^#/, '').replace(/[^a-z0-9_.-]/g, '');
+      if (!key || config.scenes[key]) return;
+      config.scenes[key] = config.scenes[open.id];
+      delete config.scenes[open.id];
+      open.id = key;
+      dirtyNow(); navigeer(true); sigScenes = ''; renderScenes(); renderSheet();
+    };
+    sheet.append(el('div', {className: 'titelrij'}, [el('h2', {textContent: open.id}), potlood]), el('div', {className: 'sub',
       textContent: opDia ? 'Start op dia ' + opDia.slide + (opDia.skipped ? ' (overgeslagen, start dus niet)' : '') : 'Staat nergens in de presentatie — zet #' + open.id + ' in de notities van een dia'}));
     const cols = el('div', {className: 'cols'});
     fixtureList().forEach(f => cols.append(deviceBox(f, scene.values)));
@@ -473,15 +487,6 @@ function renderSheet() {
       b.onclick = () => { scene.fade = sec; dirtyNow(); renderSheet(); };
       foot.append(b);
     });
-    const rename = el('button', {textContent: 'Naam wijzigen'});
-    rename.onclick = () => {
-      const n = prompt('Nieuwe naam', open.id);
-      if (!n) return;
-      const key = n.trim().toLowerCase().replace(/^#/, '').replace(/[^a-z0-9_.-]/g, '');
-      if (!key || config.scenes[key]) return;
-      config.scenes[key] = scene; delete config.scenes[open.id]; open.id = key;
-      dirtyNow(); renderScenes(); renderSheet();
-    };
     const del = el('button', {textContent: 'Verwijderen'});
     del.onclick = () => { delete config.scenes[open.id]; dirty = true; sluit(); };
     const test = el('button', {textContent: 'Uitproberen'});
@@ -492,7 +497,7 @@ function renderSheet() {
     };
     const done = el('button', {textContent: 'Klaar', className: 'p'});
     done.onclick = sluit;
-    foot.append(el('span', {className: 'spacer'}), rename, del, test, done);
+    foot.append(el('span', {className: 'spacer'}), del, test, done);
     sheet.append(foot);
   } else {
     const pad = (config.pads || {})[open.id];
