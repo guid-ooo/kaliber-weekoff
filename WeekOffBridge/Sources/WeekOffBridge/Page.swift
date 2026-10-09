@@ -112,7 +112,7 @@ td{padding:8px;border-top:1px solid var(--g400)}
 <div id="tech" class="hidden"></div>
 <script>
 let config = null, state = {}, dirty = false, tab = 'scenes', bank = 0, open = null, learning = null;
-let sigScenes = '', sigPads = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false;
+let sigScenes = '', sigPads = '', sigSheet = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false;
 
 const stable = v => {
   if (v === null || typeof v !== 'object') return JSON.stringify(v);
@@ -737,6 +737,8 @@ async function poll() {
     if (tab === 'scenes') {
       if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
     } else if (nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
+    const sheetSig = open ? open.type + open.id + stable(state.deck || []) : '';
+    if (sheetSig !== sigSheet) { sigSheet = sheetSig; if (!dirty) renderSheet(); }
     if (!dirty && stable(state.config) !== stable(config)) { config = state.config; renderSheet(); }
   } catch (e) {}
 }
