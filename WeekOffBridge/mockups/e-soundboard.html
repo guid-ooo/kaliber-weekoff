@@ -1,0 +1,84 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>E — Soundboard</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+header{padding:20px 32px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:22px}
+h1{font-size:22px}
+nav{display:flex;gap:6px}
+nav span{padding:7px 16px;border-radius:999px;font-size:14px;color:var(--gray-500);cursor:pointer;border:1px solid transparent}
+nav span.sel{color:var(--isit-green);border-color:var(--isit-green)}
+.status{margin-left:auto;display:flex;gap:12px;align-items:center;font-size:14px;color:var(--gray-500)}
+.status b{color:var(--berry);font-weight:450}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);box-shadow:0 0 12px var(--isit-green)}
+button{background:transparent;border:1px solid var(--green-300);color:var(--berry);border-radius:999px;padding:8px 16px;font-size:14px;cursor:pointer}
+button:hover{border-color:var(--isit-green)}
+button.p{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+main{padding:30px 32px;max-width:1000px;margin:0 auto}
+.lead{color:var(--gray-500);margin:0 0 22px;font-size:17px}
+.banks{display:flex;gap:8px;margin-bottom:18px;align-items:center}
+.pads{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:620px}
+.pad{aspect-ratio:1;border-radius:16px;border:1px solid var(--green-400);background:var(--blackish);padding:14px;display:flex;flex-direction:column;cursor:pointer;transition:.12s}
+.pad:hover{border-color:var(--isit-green);transform:translateY(-2px)}
+.pad.leeg{border-style:dashed;color:var(--gray-500);align-items:center;justify-content:center;font-size:14px}
+.pad .ico{font-size:22px}
+.pad .nm{margin-top:auto;font-size:15px;line-height:1.25}
+.pad .sub{font-size:12px;color:var(--gray-500);margin-top:3px}
+.pad.rook{border-color:var(--pink)}
+.pad.rook .nm{color:var(--pink)}
+.pad.actief{border-color:var(--isit-green);box-shadow:0 0 0 1px var(--isit-green),0 0 26px #d1ff0033}
+.hint{color:var(--gray-500);font-size:14px;margin-top:20px;max-width:620px}
+.sheet{position:fixed;inset:auto 0 0 0;background:var(--blackish);border-top:1px solid var(--green-400);border-radius:22px 22px 0 0;padding:24px 32px;box-shadow:0 -24px 70px #000a}
+.sheet h2{font-size:26px}
+.sub2{color:var(--gray-500);font-size:14px;margin:2px 0 18px}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.box{background:var(--green-800);border:1px solid var(--green-400);border-radius:14px;padding:16px}
+.box h3{font-size:17px;margin-bottom:8px}
+.box p{margin:0 0 12px;color:var(--gray-500);font-size:13px}
+.drop{border:1px dashed var(--green-300);border-radius:11px;padding:18px;text-align:center;color:var(--gray-500);font-size:13px}
+.choice{display:flex;gap:8px;flex-wrap:wrap}
+.choice span{padding:7px 13px;border:1px solid var(--green-300);border-radius:999px;font-size:13px;color:var(--gray-500);cursor:pointer}
+.choice span.sel{border-color:var(--isit-green);color:var(--isit-green)}
+.learn{display:flex;gap:10px;align-items:center;margin-top:10px}
+.key{font-family:'SF Mono',monospace;font-size:12px;color:var(--gray-500);background:#ffffff08;border:1px solid var(--green-300);border-radius:7px;padding:4px 9px}
+.foot{display:flex;gap:10px;margin-top:18px;align-items:center}
+.spacer{margin-left:auto}
+</style></head><body>
+<header><h1>WeekOff</h1>
+<nav><span>Scenes</span><span class="sel">Soundboard</span></nav>
+<div class="status"><span class="dot"></span> JP-mini <b>verbonden</b><button>⚙ Techniek</button></div></header>
+<main>
+<p class="lead">Elke knop hieronder is een pad op het kastje. Sleep een geluid op een knop, of klik om te wijzigen.</p>
+<div class="banks"><span style="color:var(--gray-500);font-size:14px">bank</span><button class="p">1</button><button>2</button><button>3</button></div>
+<div class="pads">
+  <div class="pad"><span class="ico">📣</span><span class="nm">Airhorn</span><span class="sub">geluid</span></div>
+  <div class="pad actief"><span class="ico">✨</span><span class="nm">Rizz</span><span class="sub">speelt nu</span></div>
+  <div class="pad"><span class="ico">😬</span><span class="nm">Bo-womp</span><span class="sub">geluid</span></div>
+  <div class="pad leeg">+ leeg</div>
+  <div class="pad"><span class="ico">🥁</span><span class="nm">Drumroll</span><span class="sub">geluid</span></div>
+  <div class="pad leeg">+ leeg</div>
+  <div class="pad leeg">+ leeg</div>
+  <div class="pad leeg">+ leeg</div>
+  <div class="pad rook"><span class="ico">💨</span><span class="nm">Rookmachine</span><span class="sub">zolang ingedrukt</span></div>
+  <div class="pad"><span class="ico">🎉</span><span class="nm">Applaus</span><span class="sub">geluid</span></div>
+  <div class="pad leeg">+ leeg</div>
+  <div class="pad leeg">+ leeg</div>
+  <div class="pad" style="border-color:#00a1ff"><span class="ico">🎬</span><span class="nm" style="color:#00a1ff">Shoutouts</span><span class="sub">scene starten</span></div>
+  <div class="pad" style="border-color:#00a1ff"><span class="ico">🎬</span><span class="nm" style="color:#00a1ff">Zwart</span><span class="sub">scene starten</span></div>
+  <div class="pad leeg">+ leeg</div>
+  <div class="pad leeg">+ leeg</div>
+</div>
+<p class="hint">Een knop kan een geluid afspelen, een scene starten, of een apparaat aanzetten zolang je hem vasthoudt. De knoppen staan precies zoals op het kastje. Druk op een pad en de knop hierboven licht op — zo zie je meteen welke het is.</p>
+</main>
+<div class="sheet">
+  <h2>Rookmachine</h2><div class="sub2">Pad linksonder, bank 1</div>
+  <div class="cols">
+    <div class="box"><h3>Wat doet deze knop?</h3><p>kies één van de drie</p>
+      <div class="choice"><span>Geluid</span><span>Scene</span><span class="sel">Apparaat</span></div>
+      <p style="margin:12px 0 0;color:var(--gray-500);font-size:13px">Apparaat: <b style="color:var(--berry);font-weight:450">Rookmachine</b></p></div>
+    <div class="box"><h3>Hoe lang?</h3><p>bepaalt wat er bij loslaten gebeurt</p>
+      <div class="choice"><span class="sel">Zolang ingedrukt</span><span>Eén keer afspelen</span></div></div>
+    <div class="box"><h3>Welke knop op het kastje?</h3><p>druk op het pad om te koppelen</p>
+      <div class="learn"><button>Pad leren…</button><span class="key">bank 1 · knop 9</span></div></div>
+  </div>
+  <div class="foot"><button>Verwijderen</button><span class="spacer"></span><button>Uitproberen</button><button class="p">Klaar</button></div>
+</div>
+</body></html>
