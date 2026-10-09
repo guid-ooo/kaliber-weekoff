@@ -52,7 +52,8 @@ border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
 .scene.dof:hover{opacity:1}
 .add{border:1px dashed var(--g300);border-radius:16px;display:grid;place-items:center;color:var(--gray);min-height:180px;cursor:pointer}
 .add:hover{border-color:var(--isit);color:var(--isit)}
-.pads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;max-width:600px}
+.pads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;max-width:600px;margin:0 auto}
+#view-pads>.lead,#view-pads>.banks{max-width:600px;margin-left:auto;margin-right:auto}
 .pad{aspect-ratio:1;min-height:0;overflow:hidden;border-radius:16px;border:1px solid var(--g400);background:var(--blackish);padding:13px;display:flex;flex-direction:column;cursor:pointer;transition:.12s}
 .pad:hover{border-color:var(--isit);transform:translateY(-2px)}
 .pad.leeg{border-style:dashed;color:var(--gray);align-items:center;justify-content:center;font-size:14px}
