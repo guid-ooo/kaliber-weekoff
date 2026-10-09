@@ -141,9 +141,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                     self.blackout(reason: self.statusLine)
                     break
                 }
+                let effectief = self.effectiveTags(for: slide)
                 self.statusLine = slide.skipped ? "dia \(slide.slide) (overgeslagen)" : "dia \(slide.slide)"
-                self.state = slide
-                self.handle(slide)
+                self.state = SlideState(slide: slide.slide, skipped: slide.skipped, tags: effectief)
+                self.handle(SlideState(slide: slide.slide, skipped: slide.skipped, tags: effectief))
             }
             self.updateTitle()
         }
@@ -192,14 +193,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         tagsByPlaybackSlide.keys.filter { $0 <= slide }.max().flatMap { tagsByPlaybackSlide[$0] } ?? []
     }
 
+    private func effectiveTags(for slide: SlideState) -> [String] {
+        guard !slide.skipped else { return slide.tags }
+        return slide.tags.isEmpty ? inheritedTags(before: slide.slide) : slide.tags
+    }
+
     private func handle(_ slide: SlideState) {
-        guard !slide.skipped else { return }
-        var slide = slide
-        if slide.tags.isEmpty {
-            let inherited = inheritedTags(before: slide.slide)
-            guard !inherited.isEmpty else { return }
-            slide = SlideState(slide: slide.slide, skipped: false, tags: inherited)
-        }
+        guard !slide.skipped, !slide.tags.isEmpty else { return }
         guard slide.tags != lastTags else { return }
         lastTags = slide.tags
         blacked = false

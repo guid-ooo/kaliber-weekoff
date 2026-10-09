@@ -73,7 +73,13 @@ struct ShowConfig: Codable, Equatable {
         return out
     }
 
+    static let darkTags: Set<String> = ["uit", "donker", "blackout", "zwart"]
+
     func levels(for tags: [String]) -> (levels: [Int: Double], fade: Double, unknown: [String])? {
+        let dark = tags.filter { Self.darkTags.contains($0) && scenes[$0] == nil }
+        if !dark.isEmpty, tags.allSatisfy({ scenes[$0] == nil }) {
+            return ([:], 1, [])
+        }
         var matched: [Scene] = []
         var unknown: [String] = []
         for tag in tags {
