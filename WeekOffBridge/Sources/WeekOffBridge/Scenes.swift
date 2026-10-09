@@ -34,6 +34,10 @@ struct Pad: Codable, Equatable {
     var dmx: [String: Double]?
     var hold: Bool?
     var mode: String?
+    var volume: Double?
+    var type: String?
+
+    var isApparaat: Bool { type == "apparaat" || (type == nil && !(dmx ?? [:]).isEmpty) }
 
     var isToggle: Bool { mode == "toggle" }
     var isHold: Bool { !isToggle && (hold ?? true) }

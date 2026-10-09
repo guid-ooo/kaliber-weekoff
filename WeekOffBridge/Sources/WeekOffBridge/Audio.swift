@@ -69,11 +69,12 @@ final class SamplePlayer {
         return true
     }
 
-    func play(_ path: String, velocity: UInt8 = 127) {
+    func play(_ path: String, velocity: UInt8 = 127, level: Double = 100) {
         guard preload(path), let voice = lock.withLock({ voices[path] }) else { return }
         if !engine.isRunning { try? engine.start() }
         voice.node.stop()
-        voice.node.volume = min(max(Self.volume(forVelocity: velocity) * voice.gain, 0), 1)
+        let schaal = Float(min(max(level, 0), 100) / 100)
+        voice.node.volume = min(max(Self.volume(forVelocity: velocity) * voice.gain * schaal, 0), 1)
         voice.node.scheduleBuffer(voice.buffer, at: nil, completionHandler: nil)
         voice.node.play()
     }

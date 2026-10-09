@@ -278,7 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case ("POST", "/api/pad"):
             guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
                   let key = body["pad"], let config, let pad = config.pads?[key] else { return .notFound }
-            if let sample = pad.sample { audio.play(sample) }
+            if let sample = pad.sample { audio.play(sample, level: pad.volume ?? 100) }
             return .json(Data("{\"ok\":true}".utf8))
 
         case ("GET", "/api/state"):
@@ -307,6 +307,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                   let raw = body["backend"], let option = Backend(rawValue: raw) else { return .notFound }
             backend = option
             return .json(Data("{\"ok\":true}".utf8))
+
+        case ("GET", let path) where !path.hasPrefix("/api/"):
+            return .html(Page.html)
 
         default:
             return .notFound
@@ -355,7 +358,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let key = "\(note.channel):\(note.note)"
 
         if note.isOn {
-            if let sample = pad.sample { audio.play(sample, velocity: note.velocity) }
+            if let sample = pad.sample { audio.play(sample, velocity: note.velocity, level: pad.volume ?? 100) }
             if let dmx = pad.dmx {
                 if pad.isToggle {
                     if toggled.contains(key) {

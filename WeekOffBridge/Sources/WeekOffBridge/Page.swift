@@ -112,7 +112,7 @@ td{padding:8px;border-top:1px solid var(--g400)}
 <div id="tech" class="hidden"></div>
 <script>
 let config = null, state = {}, dirty = false, tab = 'scenes', bank = 0, open = null, learning = null;
-let sigScenes = '', sigPads = '', wheelOpen = {}, techOpen = {};
+let sigScenes = '', sigPads = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false;
 
 const stable = v => {
   if (v === null || typeof v !== 'object') return JSON.stringify(v);
@@ -129,13 +129,24 @@ async function bewaar() {
 }
 const dirtyNow = () => {
   dirty = true;
+  if (open) { setNote('nog niet bewaard'); return; }
   setNote('bewaren…');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(bewaar, 600);
 };
+async function sluit() {
+  const moest = dirty;
+  open = null; learning = null;
+  navigeer();
+  if (moest) await bewaar();
+  sigScenes = ''; sigPads = '';
+  renderSheet();
+  if (tab === 'scenes') renderScenes(); else renderPads();
+}
 const midi = () => config.midi || {origin: 36, padsPerBank: 16, banks: 3};
 const fixtureAll = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
 const fixtureList = (waar = 'scenes') => fixtureAll().filter(f => waar === 'scenes' ? f.inScenes !== false : f.inPads !== false);
+const padIsApparaat = p => p.type ? p.type === 'apparaat' : !!(p.dmx && Object.keys(p.dmx).length);
 const kind = f => f.kind || (f.channels.includes('red') ? 'rgb' : f.channels.includes('warm') ? 'warmcool' : f.channels.length === 1 ? 'schakelaar' : 'dimmer');
 
 const KANAALNAMEN = [
@@ -239,7 +250,7 @@ function renderScenes() {
     const live = (state.tags || []).includes(tag);
     const card = el('div', {className: 'scene' + (live ? ' actief' : '')});
     card.dataset.tag = tag;
-    card.onclick = () => { open = {type: 'scene', id: tag}; renderSheet(); };
+    card.onclick = () => { open = {type: 'scene', id: tag}; navigeer(); renderSheet(); };
     const prev = el('div', {className: 'prev'});
     fixtureList().forEach(f => prev.append(el('span', {style: 'background:' + sceneColor(scene, f)})));
     const aantal = fixtureList().filter(f => f.channels.some(c => (scene.values[f.id + '.' + c] ?? 0) > 0)).length;
@@ -261,7 +272,7 @@ function renderScenes() {
     kaart.onclick = () => {
       config.scenes[d.tag] = {fade: 2, values: {}};
       dirtyNow(); sigScenes = ''; renderScenes();
-      open = {type: 'scene', id: d.tag}; renderSheet();
+      open = {type: 'scene', id: d.tag}; navigeer(); renderSheet();
     };
     host.append(kaart);
   }
@@ -284,7 +295,7 @@ function renderScenes() {
       const scene = config.scenes[tag];
       const card = el('div', {className: 'scene dof'});
       card.dataset.tag = tag;
-      card.onclick = () => { open = {type: 'scene', id: tag}; renderSheet(); };
+      card.onclick = () => { open = {type: 'scene', id: tag}; navigeer(); renderSheet(); };
       const prev = el('div', {className: 'prev'});
       fixtureList().forEach(f => prev.append(el('span', {style: 'background:' + sceneColor(scene, f)})));
       card.append(prev, el('div', {className: 'sbody'}, [
@@ -325,20 +336,20 @@ function renderPads() {
       const empty = el('div', {className: 'pad leeg', textContent: '+ leeg'});
       empty.onclick = () => {
         config.pads = config.pads || {};
-        config.pads[padKeyFor(i)] = {label: 'Nieuw', mode: 'hold', dmx: {}};
+        config.pads[padKeyFor(i)] = {label: 'Nieuw', mode: 'hold', type: 'geluid', dmx: {}};
         dirtyNow(); renderPads();
-        open = {type: 'pad', id: padKeyFor(i)}; renderSheet();
+        open = {type: 'pad', id: padKeyFor(i)}; navigeer(); renderSheet();
       };
       grid.append(empty);
       continue;
     }
     const {key, pad} = found;
-    const isApparaat = pad.dmx && Object.keys(pad.dmx).length;
+    const isApparaat = padIsApparaat(pad);
     const card = el('div', {className: 'pad' + (isApparaat ? ' apparaat' : '') + (held ? ' aan' : '')});
-    card.onclick = () => { open = {type: 'pad', id: key}; renderSheet(); };
+    card.onclick = () => { open = {type: 'pad', id: key}; navigeer(); renderSheet(); };
     card.append(
       el('span', {className: 'nm', textContent: pad.label || (pad.sample || '').split('/').pop() || 'Pad'}),
-      el('span', {className: 'sub', textContent: isApparaat ? (pad.mode === 'toggle' ? 'aan-uit schakelen' : 'zolang ingedrukt') : 'geluid'})
+      el('span', {className: 'sub', textContent: isApparaat ? (pad.mode === 'toggle' ? 'aan-uit schakelen' : 'zolang ingedrukt') : 'geluid · ' + Math.round(pad.volume ?? 100) + '%'})
     );
     grid.append(card);
   }
@@ -472,14 +483,15 @@ function renderSheet() {
       dirtyNow(); renderScenes(); renderSheet();
     };
     const del = el('button', {textContent: 'Verwijderen'});
-    del.onclick = () => { delete config.scenes[open.id]; open = null; dirtyNow(); renderScenes(); renderSheet(); };
+    del.onclick = () => { delete config.scenes[open.id]; dirty = true; sluit(); };
     const test = el('button', {textContent: 'Uitproberen'});
     test.onclick = async () => {
+      if (dirty) await bewaar();
       const r = await (await fetch('/api/preview', {method: 'POST', body: JSON.stringify({tag: open.id})})).json();
       setNote(r.artnet ? 'scene speelt' : 'zet Art-Net aan in Techniek', r.artnet ? 'ok' : 'gray');
     };
     const done = el('button', {textContent: 'Klaar', className: 'p'});
-    done.onclick = () => { open = null; renderSheet(); };
+    done.onclick = sluit;
     foot.append(el('span', {className: 'spacer'}), rename, del, test, done);
     sheet.append(foot);
   } else {
@@ -495,12 +507,14 @@ function renderSheet() {
     naam.oninput = () => { pad.label = naam.value; dirtyNow(); };
     const b1 = el('div', {className: 'box'}, [el('h3', {textContent: 'Naam'}), el('p', {textContent: 'zoals het op de knop staat'}), naam]);
 
-    const isApparaat = pad.dmx && Object.keys(pad.dmx).length > 0;
+    const isApparaat = padIsApparaat(pad);
     const soort = el('div', {className: 'choice'});
     ['Geluid', 'Apparaat'].forEach(s => {
       const b = el('button', {textContent: s, className: (s === 'Apparaat') === isApparaat ? 'sel' : ''});
       b.onclick = () => {
-        if (s === 'Geluid') { pad.dmx = {}; } else { delete pad.sample; pad.dmx = pad.dmx || {}; }
+        pad.type = s === 'Apparaat' ? 'apparaat' : 'geluid';
+        if (pad.type === 'apparaat') { delete pad.sample; delete pad.volume; pad.dmx = pad.dmx || {}; }
+        else pad.dmx = {};
         dirtyNow(); renderSheet();
       };
       soort.append(b);
@@ -531,10 +545,16 @@ function renderSheet() {
       };
       const weg = el('button', {textContent: 'Wissen'});
       weg.onclick = () => { delete pad.sample; dirtyNow(); renderSheet(); };
+      const vol = pad.volume ?? 100;
+      const volSlider = el('input', {type: 'range', min: 0, max: 100, value: vol});
+      const volUit = el('span', {textContent: Math.round(vol) + '%'});
+      volSlider.oninput = () => { pad.volume = Number(volSlider.value); volUit.textContent = volSlider.value + '%'; dirtyNow(); };
       cols.append(el('div', {className: 'box'}, [
         el('h3', {textContent: 'Geluid'}),
         el('p', {textContent: naamVanBestand || 'nog geen bestand gekozen'}),
-        el('div', {style: 'display:flex;gap:8px;flex-wrap:wrap'}, [kies, pad.sample ? weg : null])]));
+        el('div', {style: 'display:flex;gap:8px;flex-wrap:wrap'}, [kies, pad.sample ? weg : null]),
+        pad.sample ? volSlider : null,
+        pad.sample ? el('div', {className: 'row'}, [el('span', {textContent: 'volume'}), volUit]) : null]));
     } else {
       fixtureList('pads').forEach(f => cols.append(deviceBox(f, pad.dmx)));
     }
@@ -542,11 +562,11 @@ function renderSheet() {
 
     const foot = el('div', {className: 'foot'});
     const del = el('button', {textContent: 'Verwijderen'});
-    del.onclick = () => { delete config.pads[open.id]; open = null; dirtyNow(); renderPads(); renderSheet(); };
+    del.onclick = () => { delete config.pads[open.id]; dirty = true; sluit(); };
     const test = el('button', {textContent: 'Uitproberen'});
-    test.onclick = () => fetch('/api/pad', {method: 'POST', body: JSON.stringify({pad: open.id})});
+    test.onclick = async () => { if (dirty) await bewaar(); fetch('/api/pad', {method: 'POST', body: JSON.stringify({pad: open.id})}); };
     const done = el('button', {textContent: 'Klaar', className: 'p'});
-    done.onclick = () => { open = null; learning = null; renderSheet(); };
+    done.onclick = sluit;
     foot.append(del, el('span', {className: 'spacer'}), test, done);
     sheet.append(foot);
   }
@@ -619,7 +639,7 @@ function renderTech() {
   const host2 = el('div', {className: 'backdrop'});
   const modal = el('div', {className: 'modal'});
   const close = el('button', {textContent: '✕'});
-  close.onclick = () => { host.className = 'hidden'; };
+  close.onclick = () => { techZichtbaar = false; host.className = 'hidden'; navigeer(); };
   modal.append(el('div', {className: 'mhead'}, [
     el('div', {}, [el('h2', {textContent: 'Techniek'}), el('p', {textContent: 'Alleen nodig bij het opbouwen van de set'})]),
     el('span', {className: 'spacer'}), close]));
@@ -649,13 +669,43 @@ function renderTech() {
   body.append(el('p', {className: 'hint', textContent: 'Waar gaat het licht heen?'}), out);
   modal.append(body);
   host2.append(modal);
-  host2.onclick = e => { if (e.target === host2) host.className = 'hidden'; };
+  host2.onclick = e => { if (e.target === host2) { techZichtbaar = false; host.className = 'hidden'; navigeer(); } };
   host.append(host2);
 }
+
+function url() {
+  if (techZichtbaar) return '/techniek';
+  if (open) return (open.type === 'scene' ? '/scene/' : '/pad/') + encodeURIComponent(open.id);
+  return tab === 'pads' ? '/soundboard' : '/scenes';
+}
+function navigeer(vervang = false) {
+  const pad = url();
+  if (location.pathname === pad) return;
+  history[vervang ? 'replaceState' : 'pushState']({}, '', pad);
+}
+function pasUrlToe() {
+  const delen = decodeURIComponent(location.pathname).split('/').filter(Boolean);
+  techZichtbaar = delen[0] === 'techniek';
+  if (delen[0] === 'scene' && delen[1]) { tab = 'scenes'; open = {type: 'scene', id: delen[1]}; }
+  else if (delen[0] === 'pad' && delen[1]) { tab = 'pads'; open = {type: 'pad', id: delen[1]}; }
+  else { open = null; tab = delen[0] === 'soundboard' ? 'pads' : 'scenes'; }
+  tekenAlles();
+}
+function tekenAlles() {
+  document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
+  document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
+  document.getElementById('view-scenes').className = tab === 'scenes' ? '' : 'hidden';
+  document.getElementById('view-pads').className = tab === 'pads' ? '' : 'hidden';
+  if (config) { renderScenes(); renderPads(); renderSheet(); }
+  if (techZichtbaar) renderTech(); else document.getElementById('tech').className = 'hidden';
+}
+window.onpopstate = pasUrlToe;
 
 document.getElementById('tab-scenes').onclick = () => { tab = 'scenes'; syncTabs(); };
 document.getElementById('tab-pads').onclick = () => { tab = 'pads'; syncTabs(); };
 function syncTabs() {
+  if (open && dirty) bewaar();
+  navigeer();
   document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
   document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
   document.getElementById('view-scenes').className = tab === 'scenes' ? '' : 'hidden';
@@ -663,7 +713,7 @@ function syncTabs() {
   open = null; renderSheet();
 }
 document.getElementById('panic').onclick = async () => { await fetch('/api/panic', {method: 'POST'}); setNote('alles uit', 'ok'); };
-document.getElementById('openTech').onclick = renderTech;
+document.getElementById('openTech').onclick = () => { techZichtbaar = true; navigeer(); renderTech(); };
 window.onbeforeunload = () => { if (dirty) { clearTimeout(saveTimer); navigator.sendBeacon('/api/config', JSON.stringify(config)); } };
 
 async function poll() {
@@ -691,7 +741,13 @@ async function poll() {
   } catch (e) {}
 }
 
-(async () => { config = await (await fetch('/api/config')).json(); renderScenes(); renderPads(); setInterval(poll, 500); poll(); })();
+(async () => {
+  config = await (await fetch('/api/config')).json();
+  pasUrlToe();
+  navigeer(true);
+  setInterval(poll, 500);
+  poll();
+})();
 </script>
 </body></html>
 """#
