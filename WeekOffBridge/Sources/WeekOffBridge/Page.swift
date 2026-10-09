@@ -109,6 +109,11 @@ td{padding:8px;border-top:1px solid var(--g400)}
 let config = null, state = {}, dirty = false, tab = 'scenes', bank = 0, open = null, learning = null;
 let sigScenes = '', sigPads = '', wheelOpen = {}, techOpen = {};
 
+const stable = v => {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v);
+  if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+  return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+};
 const el = (t, p = {}, k = []) => { const n = Object.assign(document.createElement(t), p); k.forEach(c => c && n.append(c)); return n; };
 const setNote = (t, c = 'gray') => { const n = document.getElementById('note'); n.textContent = t; n.style.color = c === 'ok' ? 'var(--isit)' : 'var(--gray)'; };
 const dirtyNow = () => { dirty = true; setNote('niet opgeslagen'); };
@@ -225,7 +230,7 @@ function renderScenes() {
     host.append(kaart);
   }
 
-  sigScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures) + JSON.stringify(state.deck || []);
+  sigScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []);
   const add = el('div', {className: 'add', textContent: '+ Nieuwe scene'});
   add.onclick = () => {
     const naam = prompt('Naam van de scene (dit is ook de #tag in Keynote)');
@@ -247,7 +252,7 @@ function padFor(index) {
 }
 
 function renderPads() {
-  sigPads = JSON.stringify(config.pads) + bank + JSON.stringify(state.held || []);
+  sigPads = stable(config.pads) + bank + stable(state.held || []);
   const banks = document.getElementById('banks');
   banks.innerHTML = '';
   banks.append(el('span', {textContent: 'bank', style: 'color:var(--gray);font-size:14px'}));
@@ -616,12 +621,12 @@ async function poll() {
         learning = null; dirtyNow(); setNote('pad gekoppeld', 'ok'); renderPads(); renderSheet();
       }
     }
-    const nextScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures) + JSON.stringify(state.deck || []);
-    const nextPads = JSON.stringify(config.pads) + bank + JSON.stringify(state.held || []);
+    const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []);
+    const nextPads = stable(config.pads) + bank + stable(state.held || []);
     if (tab === 'scenes') {
       if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
     } else if (nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
-    if (!dirty && JSON.stringify(state.config) !== JSON.stringify(config)) { config = state.config; renderSheet(); }
+    if (!dirty && stable(state.config) !== stable(config)) { config = state.config; renderSheet(); }
   } catch (e) {}
 }
 
