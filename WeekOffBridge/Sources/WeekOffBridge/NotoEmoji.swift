@@ -40,6 +40,14 @@ enum NotoEmoji {
         }.resume()
     }
 
+    static let favorieten = ["🎉", "📣", "💨", "🥁", "✨", "😬", "🔥", "🔦", "🔈"]
+
+    static func warmOp(_ emojis: [String]) {
+        for emoji in Set(emojis) where bestand(voor: emoji) == nil {
+            haalOp(emoji)
+        }
+    }
+
     static func frames(_ url: URL) -> (beelden: [CGImage], duur: Double)? {
         guard let data = try? Data(contentsOf: url),
               let bron = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }

@@ -196,6 +196,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case .success(let loaded):
             config = loaded
             lights.configure(loaded.artnet)
+            NotoEmoji.warmOp(NotoEmoji.favorieten + (loaded.pads?.values.compactMap(\.emoji) ?? []))
+            for pad in loaded.pads?.values ?? [:].values {
+                if let sample = pad.sample { audio.preload(sample) }
+            }
             configLine = "\(loaded.scenes.count) scenes, \(loaded.artnet.host)"
         case .failure(let error):
             config = nil

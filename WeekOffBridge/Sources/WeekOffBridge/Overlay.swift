@@ -17,7 +17,9 @@ final class EmojiOverlay {
         }
     }
 
-    private func toonFilm(_ film: (beelden: [CGImage], duur: Double), seconden: Double) {
+    private func toonFilm(_ film: (beelden: [CGImage], duur: Double), seconden gevraagd: Double) {
+        let rondes = max(1, (gevraagd / film.duur).rounded())
+        let seconden = film.duur * rondes
         for scherm in NSScreen.screens {
             let zijde = min(scherm.frame.height * 0.22, 260)
             let marge: CGFloat = 56
