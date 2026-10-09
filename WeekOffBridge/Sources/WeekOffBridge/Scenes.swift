@@ -1,0 +1,97 @@
+import Foundation
+
+struct Fixture: Codable, Equatable {
+    let address: Int
+    let channels: [String]
+}
+
+struct Scene: Codable, Equatable {
+    let fade: Double
+    let values: [String: Double]
+}
+
+struct ArtNetConfig: Codable, Equatable {
+    let host: String
+    let universe: Int
+    let broadcast: Bool
+}
+
+struct ShowConfig: Codable, Equatable {
+    let artnet: ArtNetConfig
+    let fixtures: [String: Fixture]
+    let scenes: [String: Scene]
+
+    func levels(for tags: [String]) -> (levels: [Int: Double], fade: Double, unknown: [String])? {
+        var matched: [Scene] = []
+        var unknown: [String] = []
+        for tag in tags {
+            if let scene = scenes[tag] { matched.append(scene) } else { unknown.append(tag) }
+        }
+        guard !matched.isEmpty else { return unknown.isEmpty ? nil : ([:], 0, unknown) }
+
+        var levels: [Int: Double] = [:]
+        for scene in matched {
+            for (path, percent) in scene.values {
+                guard let channel = dmxChannel(for: path) else { continue }
+                levels[channel] = min(max(percent, 0), 100) / 100 * 255
+            }
+        }
+        return (levels, matched.map(\.fade).max() ?? 0, unknown)
+    }
+
+    func dmxChannel(for path: String) -> Int? {
+        let parts = path.split(separator: ".", maxSplits: 1).map(String.init)
+        guard let fixture = fixtures[parts[0]] else { return nil }
+        if parts.count == 1 { return fixture.address }
+        guard let offset = fixture.channels.firstIndex(of: parts[1]) else { return nil }
+        return fixture.address + offset
+    }
+
+    static let fallback = ShowConfig(
+        artnet: ArtNetConfig(host: "10.11.46.11", universe: 0, broadcast: true),
+        fixtures: [
+            "spot": Fixture(address: 1, channels: ["warm", "cool", "strobe"]),
+            "floods": Fixture(address: 4, channels: ["red", "green", "blue"]),
+            "rookmachine": Fixture(address: 420, channels: ["rook"]),
+        ],
+        scenes: [
+            "start": Scene(fade: 2, values: ["spot.warm": 18, "spot.cool": 9]),
+            "twak": Scene(fade: 2, values: ["spot.warm": 74]),
+            "samenvatting": Scene(fade: 2, values: ["spot.warm": 74]),
+            "demo": Scene(fade: 2, values: ["spot.warm": 60, "floods.blue": 40]),
+            "shoutouts": Scene(fade: 1, values: ["floods.red": 100]),
+            "dilemma": Scene(fade: 2, values: ["spot.cool": 60, "floods.blue": 60]),
+            "blackout": Scene(fade: 1, values: [:]),
+        ]
+    )
+}
+
+enum ConfigStore {
+    static var url: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("WeekOffBridge", isDirectory: true)
+        try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        return base.appendingPathComponent("scenes.json")
+    }
+
+    static func loadOrCreate() -> Result<ShowConfig, Error> {
+        let path = url
+        if !FileManager.default.fileExists(atPath: path.path) {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            if let data = try? encoder.encode(ShowConfig.fallback) {
+                try? data.write(to: path)
+            }
+        }
+        do {
+            let data = try Data(contentsOf: path)
+            return .success(try JSONDecoder().decode(ShowConfig.self, from: data))
+        } catch {
+            return .failure(error)
+        }
+    }
+
+    static var modified: Date? {
+        try? FileManager.default.attributesOfItem(atPath: url.path)[.modificationDate] as? Date
+    }
+}

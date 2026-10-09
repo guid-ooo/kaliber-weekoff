@@ -1,7 +1,21 @@
 import AppKit
 
+enum Backend: String, CaseIterable {
+    case qlab, artnet, both
+    var label: String {
+        switch self {
+        case .qlab: return "QLab"
+        case .artnet: return "Art-Net"
+        case .both: return "Allebei"
+        }
+    }
+    var usesQLab: Bool { self != .artnet }
+    var usesArtNet: Bool { self != .qlab }
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let runner = ScriptRunner()
+    private let lights = LightEngine()
     private var statusItem: NSStatusItem!
     private var timer: Timer?
     private var menuIsOpen = false
@@ -21,9 +35,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var lastTags: [String]?
     private var statusLine = "Niet verbonden"
     private var lastFired = "nog niets"
+    private var config: ShowConfig?
+    private var configLine = "scenes.json niet geladen"
+    private var configStamp: Date?
+    private var backend: Backend = .qlab {
+        didSet {
+            UserDefaults.standard.set(backend.rawValue, forKey: "backend")
+            backend.usesArtNet ? lights.start() : lights.stop()
+            refreshMenu()
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         selectedID = UserDefaults.standard.string(forKey: "selectedDocumentID")
+        backend = Backend(rawValue: UserDefaults.standard.string(forKey: "backend") ?? "") ?? .qlab
+        loadConfig()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.title = "◇"
         refreshMenu()
@@ -68,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func poll() {
         tick += 1
         if tick % 8 == 0, !menuIsOpen { loadDocuments() }
+        if tick % 8 == 0, configStamp != ConfigStore.modified { loadConfig() }
 
         guard Keynote.isRunning else {
             statusLine = "Keynote draait niet"
@@ -100,6 +127,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    private func loadConfig() {
+        configStamp = ConfigStore.modified
+        switch ConfigStore.loadOrCreate() {
+        case .success(let loaded):
+            config = loaded
+            lights.configure(loaded.artnet)
+            configLine = "\(loaded.scenes.count) scenes, \(loaded.artnet.host)"
+        case .failure(let error):
+            config = nil
+            configLine = "scenes.json fout: \(error.localizedDescription)"
+        }
+        refreshMenu()
+    }
+
     private func handle(_ slide: SlideState) {
         guard !slide.skipped else { return }
         guard slide.tags != lastTags else { return }
@@ -107,6 +148,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard !slide.tags.isEmpty else { return }
 
         let tags = slide.tags
+        if backend.usesArtNet { applyLights(tags) }
+        guard backend.usesQLab else { return }
         runner.run(QLab.startScript(tags: tags)) { [weak self] result in
             guard let self else { return }
             switch result {
@@ -125,6 +168,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             }
             self.refreshMenu()
         }
+    }
+
+    private func applyLights(_ tags: [String]) {
+        guard let config else { return }
+        guard let result = config.levels(for: tags) else { return }
+        guard !result.levels.isEmpty || result.unknown.count < tags.count else { return }
+        lights.apply(levels: result.levels, fade: result.fade)
     }
 
     private func updateTitle() {
@@ -161,6 +211,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
 
         menu.addItem(.separator())
+        menu.addItem(header("Uitvoer"))
+        for option in Backend.allCases {
+            let item = NSMenuItem(title: option.label, action: #selector(selectBackend(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = option.rawValue
+            item.state = option == backend ? .on : .off
+            menu.addItem(item)
+        }
+        menu.addItem(disabled(configLine))
+        let edit = NSMenuItem(title: "scenes.json openen", action: #selector(openConfig), keyEquivalent: "")
+        edit.target = self
+        menu.addItem(edit)
+
+        menu.addItem(.separator())
         menu.addItem(header("Status"))
         menu.addItem(disabled(statusLine))
         menu.addItem(disabled("laatste cue: \(lastFired)"))
@@ -193,5 +257,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func selectDocument(_ sender: NSMenuItem) {
         selectedID = sender.representedObject as? String
+    }
+
+    @objc private func selectBackend(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let option = Backend(rawValue: raw) else { return }
+        backend = option
+    }
+
+    @objc private func openConfig() {
+        NSWorkspace.shared.open(ConfigStore.url)
     }
 }
