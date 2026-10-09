@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let audio = SamplePlayer()
     private let midi = MIDIListener()
     private let web = WebServer(port: 8733)
+    private let overlay = EmojiOverlay()
     private var statusItem: NSStatusItem!
     private var timer: Timer?
     private var menuIsOpen = false
@@ -279,6 +280,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
                   let key = body["pad"], let config, let pad = config.pads?[key] else { return .notFound }
             if let sample = pad.sample { audio.play(sample, level: pad.volume ?? 100) }
+            if let emoji = pad.emoji { overlay.toon(emoji) }
             return .json(Data("{\"ok\":true}".utf8))
 
         case ("GET", "/api/state"):
@@ -359,6 +361,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         if note.isOn {
             if let sample = pad.sample { audio.play(sample, velocity: note.velocity, level: pad.volume ?? 100) }
+            if let emoji = pad.emoji { overlay.toon(emoji) }
             if let dmx = pad.dmx {
                 if pad.isToggle {
                     if toggled.contains(key) {

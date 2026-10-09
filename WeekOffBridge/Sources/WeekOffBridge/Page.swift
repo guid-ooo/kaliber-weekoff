@@ -25,14 +25,19 @@ button.p{background:var(--isit);border-color:var(--isit);color:var(--g800);font-
 button.sel{border-color:var(--isit);color:var(--isit)}
 button.sm{padding:5px 12px;font-size:13px}
 main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
-main.naast{max-width:1500px;display:grid;grid-template-columns:1fr minmax(360px,520px);gap:30px;align-items:start}
-main.naast .lead{font-size:15px}
-main.naast .grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
-main.naast .prev{height:68px}
-main.naast .sname{font-size:18px}
-main.naast .pads{gap:10px;max-width:none}
-main.naast .pad{padding:11px;border-radius:13px}
-@media (max-width:1100px){main.naast{grid-template-columns:1fr}}
+.la{position:fixed;top:0;right:0;bottom:0;width:min(520px,92vw);background:var(--blackish);border-left:1px solid var(--g400);
+box-shadow:-24px 0 70px #0008;padding:22px 26px;overflow:auto;z-index:12;transition:transform .22s ease}
+.la.dicht{transform:translateX(102%)}
+.la-kop{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.la-kop h2{font-size:24px}
+.la-kop button{margin-left:auto;border-radius:999px;width:34px;height:34px;padding:0}
+.la .pads{max-width:none}
+.la .lead{font-size:14px;margin:4px 0 18px}
+main{transition:margin-right .22s ease}
+body.la-open main{margin-right:min(520px,92vw);max-width:none}
+body.la-open .sheet{right:min(520px,92vw)}
+.sheet{transition:right .22s ease}
+@media (max-width:900px){body.la-open main{margin-right:0}}
 .lead{color:var(--gray);margin:0 0 22px;font-size:17px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .scene{background:var(--blackish);border:1px solid var(--g400);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s}
@@ -58,6 +63,9 @@ main.naast .pad{padding:11px;border-radius:13px}
 .pad .sub{font-size:12px;color:var(--gray);margin-top:3px}
 .pad.apparaat{border-color:var(--pink)}.pad.apparaat .nm{color:var(--pink)}
 .pad.aan{border-color:var(--isit);box-shadow:0 0 0 1px var(--isit),0 0 24px #d1ff0033}
+.pad[draggable]{cursor:grab}
+.pad.sleep{opacity:.4;cursor:grabbing}
+.pad.doel{border-color:var(--isit);border-style:solid;background:#d1ff000f}
 .banks{display:flex;gap:8px;margin-bottom:18px;align-items:center}
 .sheet{position:fixed;inset:auto 0 0 0;background:var(--blackish);border-top:1px solid var(--g400);border-radius:20px 20px 0 0;padding:22px 30px;box-shadow:0 -24px 70px #000a;max-height:72vh;overflow:auto}
 .sheet h2{font-size:26px}
@@ -105,25 +113,26 @@ td{padding:8px;border-top:1px solid var(--g400)}
 </style></head><body>
 <header>
   <h1>WeekOff</h1>
-  <nav><span id="tab-scenes" class="sel">Scenes</span><span id="tab-pads">Soundboard</span><span id="tab-beide">Naast elkaar</span></nav>
-  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
+  <nav><span id="tab-scenes" class="sel">Scenes</span></nav>
+  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="tab-pads">Soundboard</button><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
 </header>
 <main>
   <div id="view-scenes">
     <p class="lead">Elke scene hoort bij een dia. Klik op een scene om hem aan te passen.</p>
     <div class="grid" id="scenes"></div>
   </div>
-  <div id="view-pads" class="hidden">
-    <p class="lead">Elke knop hieronder is een pad op het kastje. Klik om te wijzigen.</p>
-    <div class="banks" id="banks"></div>
-    <div class="pads" id="padgrid"></div>
-  </div>
 </main>
+<aside id="view-pads" class="la dicht">
+  <div class="la-kop"><h2>Soundboard</h2><button id="la-dicht">✕</button></div>
+  <p class="lead">Elke knop is een pad op het kastje. Sleep om te verplaatsen, klik om te wijzigen.</p>
+  <div class="banks" id="banks"></div>
+  <div class="pads" id="padgrid"></div>
+</aside>
 <div id="sheet"></div>
 <div id="tech" class="hidden"></div>
 <script>
-let config = null, state = {}, dirty = false, tab = 'scenes', bank = 0, open = null, learning = null;
-let sigScenes = '', sigPads = '', sigSheet = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false;
+let config = null, state = {}, dirty = false, bank = 0, open = null, learning = null;
+let sigScenes = '', sigPads = '', sigSheet = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false, laOpen = false;
 
 const stable = v => {
   if (v === null || typeof v !== 'object') return JSON.stringify(v);
@@ -152,8 +161,8 @@ async function sluit() {
   if (moest) await bewaar();
   sigScenes = ''; sigPads = '';
   renderSheet();
-  if (tab !== 'pads') renderScenes();
-  if (tab !== 'scenes') renderPads();
+  renderScenes();
+  renderPads();
 }
 const midi = () => config.midi || {origin: 36, padsPerBank: 16, banks: 3};
 const fixtureAll = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
@@ -329,6 +338,20 @@ function padFor(index) {
     Object.entries(pads).map(([k, p]) => ({key: k, pad: p})).find(e => e.key.endsWith(':' + note)) || null;
 }
 
+function verplaatsPad(vanKey, naarNote) {
+  const pads = config.pads || {};
+  const bron = pads[vanKey];
+  if (!bron) return;
+  const kanaal = vanKey.includes(':') ? vanKey.split(':')[0] + ':' : '';
+  const doelKey = Object.keys(pads).find(k => k === String(naarNote) || k.endsWith(':' + naarNote)) || (kanaal + naarNote);
+  if (doelKey === vanKey) return;
+  const doel = pads[doelKey];
+  delete pads[vanKey];
+  pads[doelKey] = bron;
+  if (doel) pads[vanKey] = doel;
+  dirtyNow(); sigPads = ''; renderPads();
+}
+
 function renderPads() {
   sigPads = stable(config.pads) + bank + stable(state.held || []);
   const banks = document.getElementById('banks');
@@ -344,8 +367,21 @@ function renderPads() {
   for (let i = 0; i < midi().padsPerBank; i++) {
     const found = padFor(i);
     const held = (state.held || []).some(h => h.endsWith(':' + padKeyFor(i)) || h === padKeyFor(i));
+    const note = midi().origin + bank * midi().padsPerBank + i;
+    const onthaal = node => {
+      node.ondragover = e => { e.preventDefault(); node.classList.add('doel'); };
+      node.ondragleave = () => node.classList.remove('doel');
+      node.ondrop = e => {
+        e.preventDefault();
+        node.classList.remove('doel');
+        const van = e.dataTransfer.getData('text/plain');
+        if (van) verplaatsPad(van, note);
+      };
+    };
+
     if (!found) {
       const empty = el('div', {className: 'pad leeg', textContent: '+ leeg'});
+      onthaal(empty);
       empty.onclick = () => {
         config.pads = config.pads || {};
         config.pads[padKeyFor(i)] = {label: 'Nieuw', mode: 'hold', type: 'geluid', dmx: {}};
@@ -357,8 +393,12 @@ function renderPads() {
     }
     const {key, pad} = found;
     const isApparaat = padIsApparaat(pad);
-    const card = el('div', {className: 'pad' + (isApparaat ? ' apparaat' : '') + (held ? ' aan' : '')});
-    card.onclick = () => { open = {type: 'pad', id: key}; navigeer(); renderSheet(); };
+    const card = el('div', {className: 'pad' + (isApparaat ? ' apparaat' : '') + (held ? ' aan' : ''), draggable: true});
+    let gesleept = false;
+    card.ondragstart = e => { gesleept = true; e.dataTransfer.setData('text/plain', key); e.dataTransfer.effectAllowed = 'move'; card.classList.add('sleep'); };
+    card.ondragend = () => { card.classList.remove('sleep'); setTimeout(() => { gesleept = false; }, 0); };
+    onthaal(card);
+    card.onclick = () => { if (gesleept) return; open = {type: 'pad', id: key}; navigeer(); renderSheet(); };
     card.append(
       el('span', {className: 'nm', textContent: pad.label || (pad.sample || '').split('/').pop() || 'Pad'}),
       el('span', {className: 'sub', textContent: isApparaat ? (pad.mode === 'toggle' ? 'aan-uit schakelen' : 'zolang ingedrukt') : 'geluid · ' + Math.round(pad.volume ?? 100) + '%'})
@@ -547,12 +587,26 @@ function renderSheet() {
     });
     const b3 = el('div', {className: 'box'}, [el('h3', {textContent: 'Hoe lang?'}), el('p', {textContent: 'bij loslaten'}), modus]);
 
+    const emoji = el('input', {type: 'text', value: pad.emoji || '', placeholder: 'bijv. 🎉', style: 'font-size:22px;text-align:center;width:90px'});
+    emoji.oninput = () => { const v = emoji.value.trim(); if (v) pad.emoji = v; else delete pad.emoji; dirtyNow(); };
+    const snel = el('div', {className: 'choice', style: 'margin-top:9px'});
+    ['🎉', '📣', '💨', '🥁', '✨', '😬', '🔥'].forEach(e => {
+      const b = el('button', {textContent: e, className: pad.emoji === e ? 'sel' : ''});
+      b.onclick = () => { pad.emoji = e; dirtyNow(); renderSheet(); };
+      snel.append(b);
+    });
+    const bEmoji = el('div', {className: 'box'}, [
+      el('h3', {textContent: 'Emoji op het scherm'}),
+      el('p', {textContent: 'verschijnt groot over alles heen'}),
+      el('div', {style: 'display:flex;gap:9px;align-items:center'}, [emoji, pad.emoji ? el('button', {textContent: 'Wissen', onclick: () => { delete pad.emoji; dirtyNow(); renderSheet(); }}) : null]),
+      snel]);
+
     const leer = el('button', {textContent: learning ? 'Druk op een pad…' : 'Pad leren…', className: learning ? 'sel' : ''});
     leer.onclick = () => { learning = open.id; setNote('druk op een pad op het kastje'); renderSheet(); };
     const b4 = el('div', {className: 'box'}, [el('h3', {textContent: 'Welke knop?'}), el('p', {textContent: 'druk op het pad om te koppelen'}),
       el('div', {style: 'display:flex;gap:9px;align-items:center'}, [leer, el('span', {className: 'key', textContent: 'noot ' + note})])]);
 
-    cols.append(b2, b3, b4);
+    cols.append(b2, b3, b4, bEmoji);
     if (!isApparaat) {
       const naamVanBestand = (pad.sample || '').split('/').pop();
       const kies = el('button', {textContent: pad.sample ? 'Ander bestand kiezen…' : 'Kies bestand…'});
@@ -694,7 +748,7 @@ function renderTech() {
 function url() {
   if (techZichtbaar) return '/techniek';
   if (open) return (open.type === 'scene' ? '/scene/' : '/pad/') + encodeURIComponent(open.id);
-  return tab === 'pads' ? '/soundboard' : tab === 'beide' ? '/overview' : '/scenes';
+  return laOpen ? '/soundboard' : '/scenes';
 }
 function navigeer(vervang = false) {
   const pad = url();
@@ -704,36 +758,29 @@ function navigeer(vervang = false) {
 function pasUrlToe() {
   const delen = decodeURIComponent(location.pathname).split('/').filter(Boolean);
   techZichtbaar = delen[0] === 'techniek';
-  if (delen[0] === 'scene' && delen[1]) { if (tab !== 'beide') tab = 'scenes'; open = {type: 'scene', id: delen[1]}; }
-  else if (delen[0] === 'pad' && delen[1]) { if (tab !== 'beide') tab = 'pads'; open = {type: 'pad', id: delen[1]}; }
-  else { open = null; tab = delen[0] === 'soundboard' ? 'pads' : delen[0] === 'overview' ? 'beide' : 'scenes'; }
+  if (delen[0] === 'scene' && delen[1]) { open = {type: 'scene', id: delen[1]}; laOpen = false; }
+  else if (delen[0] === 'pad' && delen[1]) { open = {type: 'pad', id: delen[1]}; laOpen = true; }
+  else { open = null; laOpen = delen[0] === 'soundboard'; }
   tekenAlles();
 }
 function tekenAlles() {
-  const beide = tab === 'beide';
-  document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
-  document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
-  document.getElementById('tab-beide').className = beide ? 'sel' : '';
-  document.getElementById('view-scenes').className = (beide || tab === 'scenes') ? '' : 'hidden';
-  document.getElementById('view-pads').className = (beide || tab === 'pads') ? '' : 'hidden';
-  document.querySelector('main').className = beide ? 'naast' : '';
+  document.getElementById('tab-scenes').className = 'sel';
+  document.getElementById('tab-pads').className = laOpen ? 'sel' : '';
+  document.getElementById('view-pads').className = 'la' + (laOpen ? '' : ' dicht');
+  document.body.classList.toggle('la-open', laOpen);
   if (config) { renderScenes(); renderPads(); renderSheet(); }
   if (techZichtbaar) renderTech(); else document.getElementById('tech').className = 'hidden';
 }
 window.onpopstate = pasUrlToe;
 
-document.getElementById('tab-scenes').onclick = () => { tab = 'scenes'; syncTabs(); };
-document.getElementById('tab-pads').onclick = () => { tab = 'pads'; syncTabs(); };
-document.getElementById('tab-beide').onclick = () => { tab = 'beide'; syncTabs(); };
+document.getElementById('tab-scenes').onclick = () => { laOpen = false; syncTabs(); };
+document.getElementById('tab-pads').onclick = () => { laOpen = !laOpen; syncTabs(); };
+document.getElementById('la-dicht').onclick = () => { laOpen = false; syncTabs(); };
 function syncTabs() {
   if (open && dirty) bewaar();
-  if (tab !== 'beide') open = null;
+  open = null;
   navigeer();
-  document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
-  document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
-  document.getElementById('view-scenes').className = tab === 'scenes' ? '' : 'hidden';
-  document.getElementById('view-pads').className = tab === 'pads' ? '' : 'hidden';
-  open = null; renderSheet();
+  tekenAlles();
 }
 document.getElementById('panic').onclick = async () => { await fetch('/api/panic', {method: 'POST'}); setNote('alles uit', 'ok'); };
 document.getElementById('openTech').onclick = () => { techZichtbaar = true; navigeer(); renderTech(); };
@@ -757,10 +804,8 @@ async function poll() {
     }
     const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
     const nextPads = stable(config.pads) + bank + stable(state.held || []);
-    if (tab !== 'pads') {
-      if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
-    }
-    if (tab !== 'scenes' && nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
+    if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
+    if (laOpen && nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
     const sheetSig = open ? open.type + open.id + stable(state.deck || []) : '';
     if (sheetSig !== sigSheet) { sigSheet = sheetSig; if (!dirty) renderSheet(); }
     if (!dirty && stable(state.config) !== stable(config)) { config = state.config; renderSheet(); }
