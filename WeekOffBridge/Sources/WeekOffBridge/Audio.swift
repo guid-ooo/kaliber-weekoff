@@ -5,8 +5,6 @@ final class SamplePlayer {
     private let engine = AVAudioEngine()
     private let lock = NSLock()
     private var voices: [String: Voice] = [:]
-    private var scene: Voice?
-    private var sceneKey: String?
 
     private struct Voice {
         let node: AVAudioPlayerNode
@@ -80,37 +78,4 @@ final class SamplePlayer {
         voice.node.play()
     }
 
-    func playScene(_ path: String?, fade: Double) {
-        if sceneKey == path { return }
-        stopScene(fade: fade)
-        sceneKey = path
-        guard let path, let voice = makeVoice(path) else { return }
-        if !engine.isRunning { try? engine.start() }
-        scene = voice
-        voice.node.volume = 0
-        voice.node.scheduleBuffer(voice.buffer, at: nil, completionHandler: nil)
-        voice.node.play()
-        ramp(voice.node, to: min(voice.gain, 1), over: fade)
-    }
-
-    func stopScene(fade: Double) {
-        guard let voice = scene else { return }
-        scene = nil
-        ramp(voice.node, to: 0, over: fade) { [weak self] in
-            voice.node.stop()
-            self?.engine.disconnectNodeOutput(voice.node)
-            self?.engine.detach(voice.node)
-        }
-    }
-
-    private func ramp(_ node: AVAudioPlayerNode, to target: Float, over seconds: Double, then: (() -> Void)? = nil) {
-        let steps = max(Int(seconds * 40), 1)
-        let start = node.volume
-        for step in 1...steps {
-            DispatchQueue.main.asyncAfter(deadline: .now() + seconds * Double(step) / Double(steps)) {
-                node.volume = start + (target - start) * Float(step) / Float(steps)
-                if step == steps { then?() }
-            }
-        }
-    }
 }

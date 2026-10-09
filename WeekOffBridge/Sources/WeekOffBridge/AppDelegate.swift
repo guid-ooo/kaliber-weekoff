@@ -281,9 +281,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard let result = config.levels(for: tags) else { return }
         guard !result.levels.isEmpty || result.unknown.count < tags.count else { return }
         lights.apply(levels: result.levels, fade: result.fade)
-        if let sound = config.audio(for: tags) {
-            audio.playScene(sound.path, fade: sound.fade)
-        }
     }
 
     private func updateTitle() {

@@ -131,19 +131,6 @@ function renderScenes() {
       el('span', {className: 'right'}, [test, copy, del]),
     ]));
 
-    const audio = el('input', {className: 'path', placeholder: 'geen muziek — pad naar audiobestand, of "keep"', value: scene.audio ?? ''});
-    audio.onchange = () => {
-      const v = audio.value.trim();
-      if (v) scene.audio = v; else delete scene.audio;
-      markDirty();
-    };
-    const audioFade = el('input', {type: 'number', step: '0.1', min: '0', value: scene.audioFade ?? 1});
-    audioFade.oninput = () => { scene.audioFade = parseFloat(audioFade.value) || 0; markDirty(); };
-    card.append(el('div', {className: 'inline'}, [
-      el('label', {textContent: 'muziek'}), audio,
-      el('label', {textContent: 'fade'}), audioFade,
-    ]));
-
     paramPaths().forEach(path => card.append(levelRow(scene.values, path)));
     host.append(card);
   }

@@ -8,8 +8,6 @@ struct Fixture: Codable, Equatable {
 struct Scene: Codable, Equatable {
     let fade: Double
     let values: [String: Double]
-    var audio: String?
-    var audioFade: Double?
 }
 
 struct Pad: Codable, Equatable {
@@ -32,16 +30,6 @@ struct ShowConfig: Codable, Equatable {
 
     func pad(channel: UInt8, note: UInt8) -> Pad? {
         pads?["\(channel):\(note)"] ?? pads?["\(note)"]
-    }
-
-    func audio(for tags: [String]) -> (path: String?, fade: Double)? {
-        for tag in tags.reversed() {
-            guard let scene = scenes[tag] else { continue }
-            if let audio = scene.audio {
-                return (audio == "keep" ? nil : audio, scene.audioFade ?? 1)
-            }
-        }
-        return tags.contains(where: { scenes[$0] != nil }) ? (nil, 1) : nil
     }
 
     func levels(_ values: [String: Double]) -> [Int: Double] {
