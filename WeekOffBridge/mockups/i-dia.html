@@ -1,0 +1,75 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>I — Per dia</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+header{padding:16px 28px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:16px;position:sticky;top:0;background:var(--green-800);z-index:4}
+h1{font-size:20px}
+.nu{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--gray-500)}
+.nu b{color:var(--berry);font-weight:450}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);box-shadow:0 0 12px var(--isit-green)}
+button{background:transparent;border:1px solid var(--green-300);color:var(--berry);border-radius:999px;padding:7px 15px;font-size:14px;cursor:pointer}
+button:hover{border-color:var(--isit-green)}
+button.p{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+.lay{display:grid;grid-template-columns:1fr 300px;gap:0;align-items:start}
+main{padding:22px 28px 60px}
+.uitleg{color:var(--gray-500);margin:0 0 18px;font-size:15px}
+.dias{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.dia{border:1px solid var(--green-400);border-radius:12px;overflow:hidden;background:var(--blackish);cursor:pointer}
+.dia:hover{border-color:var(--isit-green)}
+.dia.actief{border-color:var(--isit-green);box-shadow:0 0 0 1px var(--isit-green)}
+.vlak{height:54px;display:flex}
+.vlak span{flex:1}
+.dia .tekst{padding:9px 11px;display:flex;align-items:baseline;gap:7px}
+.dia .n{font-size:11px;color:var(--gray-500);min-width:18px}
+.dia .s{font-size:14px}
+.dia .s.erf{color:var(--gray-500);font-style:italic}
+.zij{border-left:1px solid var(--green-400);min-height:calc(100vh - 57px);padding:18px 18px 40px;background:var(--blackish);position:sticky;top:57px}
+.zij h2{font-size:17px;margin-bottom:12px}
+.pads{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.pad{aspect-ratio:1;border:1px solid var(--green-400);border-radius:12px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;font-size:13px;cursor:pointer;background:#101c1c}
+.pad.leeg{border-style:dashed;color:var(--gray-500);align-items:center;justify-content:center}
+.pad small{color:var(--gray-500);font-size:11px}
+.banken{display:flex;gap:6px;margin-bottom:12px}
+.banken span{width:26px;height:26px;border-radius:50%;border:1px solid var(--green-300);display:grid;place-items:center;font-size:12px;color:var(--gray-500);cursor:pointer}
+.banken span.aan{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+.legenda{margin-top:18px;color:var(--gray-500);font-size:12px;line-height:1.7}
+.legenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+</style></head><body>
+<header><h1>WeekOff</h1>
+<div class="nu"><span class="dot"></span>dia <b>1</b> · <b>start</b> speelt<button>Alles uit</button><button>⚙ Techniek</button></div></header>
+<div class="lay">
+<main>
+  <p class="uitleg">Je presentatie, dia voor dia. Klik een dia om het licht daar aan te passen.</p>
+  <div class="dias">
+    <div class="dia actief"><div class="vlak"><span style="background:#cfcfcf"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">1</span><span class="s">start</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">2</span><span class="s">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">3</span><span class="s erf">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">4</span><span class="s erf">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">5</span><span class="s erf">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">6</span><span class="s erf">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">7</span><span class="s erf">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">8</span><span class="s erf">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#101c1c"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">9</span><span class="s erf">twak</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#0b0f6b"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">10</span><span class="s">spotlight</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#0b0f6b"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">11</span><span class="s erf">spotlight</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#2b3fc9"></span><span style="background:#fdf6ff"></span></div><div class="tekst"><span class="n">12</span><span class="s">dilemma</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#2b3fc9"></span><span style="background:#fdf6ff"></span></div><div class="tekst"><span class="n">13</span><span class="s erf">dilemma</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#ff2d20"></span><span style="background:#101c1c"></span></div><div class="tekst"><span class="n">14</span><span class="s">shoutouts</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#ff2d20"></span><span style="background:#101c1c"></span></div><div class="tekst"><span class="n">15</span><span class="s erf">shoutouts</span></div></div>
+    <div class="dia"><div class="vlak"><span style="background:#cfcfcf"></span><span style="background:#f8dcbb"></span></div><div class="tekst"><span class="n">16</span><span class="s">start</span></div></div>
+  </div>
+  <p class="legenda"><i style="background:var(--isit-green)"></i>eigen scene op deze dia &nbsp;&nbsp; <span style="font-style:italic">schuin</span> = neemt de vorige scene over</p>
+</main>
+<div class="zij">
+  <h2>Soundboard</h2>
+  <div class="banken"><span class="aan">1</span><span>2</span><span>3</span></div>
+  <div class="pads">
+    <div class="pad"><span>🔈 Curb</span><small>100%</small></div>
+    <div class="pad"><span>🔦 test</span><small>aan/uit</small></div>
+    <div class="pad leeg">+</div><div class="pad leeg">+</div>
+    <div class="pad leeg">+</div><div class="pad leeg">+</div>
+    <div class="pad leeg">+</div><div class="pad leeg">+</div>
+  </div>
+  <p class="legenda">Druk op een pad op het kastje om hem hier te laten oplichten.</p>
+</div>
+</div>
+</body></html>

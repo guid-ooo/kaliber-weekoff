@@ -1,0 +1,87 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>G — Tijdlijn + dock</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+header{padding:16px 28px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:18px}
+h1{font-size:20px}
+.nu{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--gray-500)}
+.nu b{color:var(--berry);font-weight:450}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);box-shadow:0 0 12px var(--isit-green)}
+button{background:transparent;border:1px solid var(--green-300);color:var(--berry);border-radius:999px;padding:7px 15px;font-size:14px;cursor:pointer}
+button:hover{border-color:var(--isit-green)}
+button.p{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+main{padding:24px 28px 150px;max-width:1300px;margin:0 auto}
+.balk{display:grid;grid-template-columns:repeat(16,1fr);gap:3px;margin:0 0 26px}
+.balk i{height:7px;border-radius:3px;background:var(--green-400)}
+.balk i.nu{background:var(--isit-green)}
+.rij{display:grid;grid-template-columns:200px 1fr 150px 120px;gap:18px;align-items:center;padding:13px 16px;border:1px solid var(--green-400);border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
+.rij:hover{border-color:var(--isit-green)}
+.rij.actief{border-color:var(--isit-green);box-shadow:0 0 0 1px var(--isit-green)}
+.naam{font-family:var(--font-display);font-size:22px;display:flex;align-items:center;gap:9px}
+.badge{font-family:var(--font-base);font-size:11px;background:var(--isit-green);color:var(--green-800);border-radius:999px;padding:2px 8px;font-weight:500}
+.spoor{position:relative;height:30px;background:#0f1a1a;border-radius:8px;overflow:hidden}
+.vlak{position:absolute;top:0;bottom:0;border-radius:8px;display:flex;align-items:center;padding:0 10px;font-size:12px;color:#0d1a1a;font-weight:500}
+.lampen{display:flex;gap:5px}
+.lampen i{width:26px;height:26px;border-radius:7px}
+.meta{color:var(--gray-500);font-size:13px;text-align:right}
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--blackish);border-top:1px solid var(--green-400);padding:12px 28px;display:flex;gap:16px;align-items:center;box-shadow:0 -18px 50px #0007}
+.dockpads{display:flex;gap:9px;overflow:auto}
+.dpad{min-width:96px;height:62px;border:1px solid var(--green-400);border-radius:11px;padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;background:#101c1c;cursor:pointer}
+.dpad:hover{border-color:var(--isit-green)}
+.dpad.leeg{border-style:dashed;color:var(--gray-500);align-items:center;justify-content:center;font-size:13px}
+.dpad small{color:var(--gray-500);font-size:11px}
+.banken{display:flex;gap:6px}
+.banken span{width:28px;height:28px;border-radius:50%;border:1px solid var(--green-300);display:grid;place-items:center;font-size:13px;color:var(--gray-500);cursor:pointer}
+.banken span.aan{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+</style></head><body>
+<header><h1>WeekOff</h1>
+<div class="nu"><span class="dot"></span>dia <b>1</b> · <b>start</b> speelt<button>⚙ Techniek</button><button>Alles uit</button></div></header>
+<main>
+  <div class="balk">
+    <i class="nu"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="rij actief">
+    <div class="naam">start <span class="badge">nu</span></div>
+    <div class="spoor"><div class="vlak" style="left:0%;width:6.25%;background:#f3d2a7"></div><div class="vlak" style="left:93.75%;width:6.25%;background:#f3d2a7"></div></div>
+    <div class="lampen"><i style="background:#cfcfcf"></i><i style="background:#f8dcbb"></i></div>
+    <div class="meta">dia 1, 16 · 2 sec</div>
+  </div>
+  <div class="rij">
+    <div class="naam">twak</div>
+    <div class="spoor"><div class="vlak" style="left:6.25%;width:50%;background:#f8dcbb">dia 2–9</div></div>
+    <div class="lampen"><i style="background:#f8dcbb"></i></div>
+    <div class="meta">dia 2–9 · 2 sec</div>
+  </div>
+  <div class="rij">
+    <div class="naam">spotlight</div>
+    <div class="spoor"><div class="vlak" style="left:56.25%;width:12.5%;background:#2a2f9e;color:#dfe6ff">10–11</div></div>
+    <div class="lampen"><i style="background:#0b0f6b"></i><i style="background:#f8dcbb"></i></div>
+    <div class="meta">dia 10–11 · 2 sec</div>
+  </div>
+  <div class="rij">
+    <div class="naam">dilemma</div>
+    <div class="spoor"><div class="vlak" style="left:68.75%;width:12.5%;background:#3b4fd8;color:#eef2ff">12–13</div></div>
+    <div class="lampen"><i style="background:#2b3fc9"></i><i style="background:#fdf6ff"></i></div>
+    <div class="meta">dia 12–13 · 2 sec</div>
+  </div>
+  <div class="rij">
+    <div class="naam">shoutouts</div>
+    <div class="spoor"><div class="vlak" style="left:81.25%;width:12.5%;background:#e8352c;color:#fff">14–15</div></div>
+    <div class="lampen"><i style="background:#ff2d20"></i></div>
+    <div class="meta">dia 14–15 · 1 sec</div>
+  </div>
+  <div class="rij" style="border-style:dashed;color:var(--gray-500);justify-items:start">
+    <div class="naam" style="font-size:17px;color:var(--gray-500)">+ Nieuwe scene</div><div></div><div></div><div></div>
+  </div>
+</main>
+<div class="dock">
+  <strong style="font-size:14px">Soundboard</strong>
+  <div class="banken"><span class="aan">1</span><span>2</span><span>3</span></div>
+  <div class="dockpads">
+    <div class="dpad"><span>🔈 Curb</span><small>100%</small></div>
+    <div class="dpad"><span style="color:var(--pink-ish,#dfa8ff)">🔦 test</span><small>aan/uit</small></div>
+    <div class="dpad leeg">+ leeg</div><div class="dpad leeg">+ leeg</div><div class="dpad leeg">+ leeg</div>
+    <div class="dpad leeg">+ leeg</div><div class="dpad leeg">+ leeg</div><div class="dpad leeg">+ leeg</div>
+  </div>
+  <button style="margin-left:auto">Alle 16 tonen</button>
+</div>
+</body></html>

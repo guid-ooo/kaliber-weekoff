@@ -1,0 +1,89 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>H — Lijst + live podium</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+.app{display:grid;grid-template-columns:320px 1fr;height:100vh}
+aside{border-right:1px solid var(--green-400);display:flex;flex-direction:column;background:var(--blackish)}
+.merk{padding:18px 20px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:10px}
+.merk h1{font-size:19px}
+.zoek{margin:12px 14px 6px;padding:8px 12px;border:1px solid var(--green-300);border-radius:9px;color:var(--gray-500);font-size:13px}
+.lijst{flex:1;overflow:auto;padding:6px 10px 14px}
+.kop{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gray-500);padding:12px 8px 6px}
+.item{display:flex;gap:11px;align-items:center;padding:10px 10px;border-radius:11px;cursor:pointer}
+.item:hover{background:#ffffff08}
+.item.aan{background:var(--green-400)}
+.item .kleuren{display:flex;gap:3px}
+.item .kleuren i{width:10px;height:22px;border-radius:3px}
+.item .tekst{min-width:0}
+.item .nm{font-size:15px}
+.item.aan .nm{color:var(--isit-green)}
+.item .sub{font-size:12px;color:var(--gray-500)}
+.item .nu{margin-left:auto;font-size:10px;background:var(--isit-green);color:var(--green-800);border-radius:999px;padding:2px 7px;font-weight:500}
+main{display:flex;flex-direction:column;min-width:0}
+.bovenbalk{padding:13px 24px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:14px;font-size:14px;color:var(--gray-500)}
+.bovenbalk b{color:var(--berry);font-weight:450}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);box-shadow:0 0 12px var(--isit-green)}
+button{background:transparent;border:1px solid var(--green-300);color:var(--berry);border-radius:999px;padding:7px 15px;font-size:14px;cursor:pointer}
+button:hover{border-color:var(--isit-green)}
+button.p{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+.inhoud{flex:1;display:grid;grid-template-rows:auto 1fr;overflow:auto}
+.podium{margin:22px 24px 0;border:1px solid var(--green-400);border-radius:16px;background:radial-gradient(120% 110% at 50% 0%,#14302f,#081514 70%);height:230px;position:relative}
+.lamp{position:absolute;text-align:center;width:90px}
+.bol{width:54px;height:54px;border-radius:50%;margin:0 auto 6px;border:2px solid #ffffff1a}
+.lamp small{font-size:12px;color:var(--gray-500)}
+.regelaars{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:20px 24px 24px}
+.kaart{background:var(--blackish);border:1px solid var(--green-400);border-radius:14px;padding:15px}
+.kaart h3{font-size:17px;margin-bottom:3px}
+.kaart p{margin:0 0 12px;color:var(--gray-500);font-size:12px}
+.sw{display:flex;gap:7px;margin-bottom:10px}
+.sw i{width:28px;height:28px;border-radius:8px;border:2px solid transparent;display:block}
+.sw i.aan{border-color:var(--berry)}
+.schuif{height:7px;border-radius:999px;background:linear-gradient(90deg,var(--green-300),var(--isit-green));position:relative;margin:12px 0 6px}
+.knop{position:absolute;top:-6px;width:19px;height:19px;border-radius:50%;background:var(--berry)}
+.rij{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-500)}
+.voet{padding:12px 24px;border-top:1px solid var(--green-400);display:flex;gap:10px;align-items:center}
+.pads{display:flex;gap:8px;margin-left:auto}
+.pads i{width:34px;height:34px;border-radius:9px;border:1px solid var(--green-300);display:grid;place-items:center;font-size:14px;color:var(--gray-500)}
+.pads i.vol{border-color:var(--berry);color:var(--berry)}
+</style></head><body>
+<div class="app">
+<aside>
+  <div class="merk"><h1>WeekOff</h1></div>
+  <div class="zoek">Zoek scene…</div>
+  <div class="lijst">
+    <div class="kop">In WeekOff</div>
+    <div class="item aan"><span class="kleuren"><i style="background:#cfcfcf"></i><i style="background:#f8dcbb"></i></span><span class="tekst"><div class="nm">start</div><div class="sub">dia 1, 16</div></span><span class="nu">nu</span></div>
+    <div class="item"><span class="kleuren"><i style="background:#101c1c"></i><i style="background:#f8dcbb"></i></span><span class="tekst"><div class="nm">twak</div><div class="sub">dia 2–9</div></span></div>
+    <div class="item"><span class="kleuren"><i style="background:#0b0f6b"></i><i style="background:#f8dcbb"></i></span><span class="tekst"><div class="nm">spotlight</div><div class="sub">dia 10–11</div></span></div>
+    <div class="item"><span class="kleuren"><i style="background:#2b3fc9"></i><i style="background:#fdf6ff"></i></span><span class="tekst"><div class="nm">dilemma</div><div class="sub">dia 12–13</div></span></div>
+    <div class="item"><span class="kleuren"><i style="background:#ff2d20"></i><i style="background:#101c1c"></i></span><span class="tekst"><div class="nm">shoutouts</div><div class="sub">dia 14–15</div></span></div>
+    <div class="kop">Nergens gebruikt (1)</div>
+    <div class="item" style="opacity:.6"><span class="kleuren"><i style="background:#101c1c"></i><i style="background:#101c1c"></i></span><span class="tekst"><div class="nm">uit</div><div class="sub">geen presentatie</div></span></div>
+    <div class="item" style="color:var(--gray-500)"><span class="tekst"><div class="nm">+ Nieuwe scene</div></span></div>
+  </div>
+</aside>
+<main>
+  <div class="bovenbalk"><span class="dot"></span>dia <b>1</b> · scene <b>start</b> · MIDI <b>1</b>
+    <span style="margin-left:auto;display:flex;gap:9px"><button>Soundboard</button><button>Alles uit</button><button>⚙ Techniek</button></span></div>
+  <div class="inhoud">
+    <div class="podium">
+      <div class="lamp" style="left:46%;top:12%"><div class="bol" style="background:radial-gradient(circle at 35% 30%,#fff6e8,#f3d2a7);box-shadow:0 0 56px 18px #f3d2a744"></div><small>Spot 74%</small></div>
+      <div class="lamp" style="left:10%;bottom:14%"><div class="bol" style="background:#1b2524"></div><small>Flood links</small></div>
+      <div class="lamp" style="left:43%;bottom:14%"><div class="bol" style="background:#1b2524"></div><small>Flood midden</small></div>
+      <div class="lamp" style="right:10%;bottom:14%"><div class="bol" style="background:#1b2524"></div><small>Flood rechts</small></div>
+    </div>
+    <div class="regelaars">
+      <div class="kaart"><h3>Floods</h3><p>de drie grote lampen</p>
+        <div class="sw"><i style="background:#e23b3b"></i><i style="background:#ff7a1a"></i><i style="background:#d1ff00"></i><i style="background:#2fbf71"></i><i style="background:#00a1ff"></i><i style="background:#dfa8ff"></i><i class="aan" style="background:#101c1c"></i><i style="background:conic-gradient(from 0deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)"></i></div>
+        <div class="schuif"><div class="knop" style="left:0%"></div></div><div class="rij"><span>helderheid</span><span>uit</span></div></div>
+      <div class="kaart"><h3>Spot</h3><p>warm licht vooraan</p>
+        <div class="schuif"><div class="knop" style="left:70%"></div></div><div class="rij"><span>helderheid</span><span>74%</span></div>
+        <div class="schuif" style="background:linear-gradient(90deg,#ffd9a0,#cfe4ff)"><div class="knop" style="left:18%"></div></div><div class="rij"><span>warm ↔ koel</span><span>warm</span></div></div>
+      <div class="kaart"><h3>Rookmachine</h3><p>alleen op het soundboard</p>
+        <p style="margin-top:14px;color:var(--gray-500)">Deze staat uit in scenes.</p></div>
+    </div>
+  </div>
+  <div class="voet"><span style="color:var(--gray-500);font-size:13px">overgang</span><button>1 sec</button><button style="border-color:var(--isit-green);color:var(--isit-green)">2 sec</button><button>5 sec</button>
+    <span class="pads"><i class="vol">🔈</i><i class="vol">🔦</i><i>+</i><i>+</i><i>+</i><i>+</i></span></div>
+</main>
+</div>
+</body></html>
