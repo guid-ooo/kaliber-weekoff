@@ -342,7 +342,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(disabled("laatste cue: \(lastFired)"))
         menu.addItem(disabled("MIDI: \(midi.sourceCount) bron(nen), \(padLine)"))
         if let state, !state.tags.isEmpty {
-            menu.addItem(disabled("tags: \(state.tags.joined(separator: ", "))"))
+            menu.addItem(disabled("scene: \(state.tags.joined(separator: ", "))"))
         }
 
         menu.addItem(.separator())
