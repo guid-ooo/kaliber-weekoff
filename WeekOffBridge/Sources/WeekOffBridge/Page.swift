@@ -99,6 +99,7 @@ td{padding:8px;border-top:1px solid var(--g400)}
 <div id="tech" class="hidden"></div>
 <script>
 let config = null, state = {}, dirty = false, tab = 'scenes', bank = 0, open = null, learning = null;
+let sigScenes = '', sigPads = '';
 
 const el = (t, p = {}, k = []) => { const n = Object.assign(document.createElement(t), p); k.forEach(c => c && n.append(c)); return n; };
 const setNote = (t, c = 'gray') => { const n = document.getElementById('note'); n.textContent = t; n.style.color = c === 'ok' ? 'var(--isit)' : 'var(--gray)'; };
@@ -126,6 +127,18 @@ function sceneColor(scene, f) {
   return v(f.channels[0]) > 0 ? '#dfa8ff' : '#101c1c';
 }
 
+function updateLiveScenes() {
+  const live = state.tags || [];
+  document.querySelectorAll('#scenes .scene').forEach(card => {
+    const on = live.includes(card.dataset.tag);
+    card.classList.toggle('actief', on);
+    const name = card.querySelector('.sname');
+    const badge = name.querySelector('.badge');
+    if (on && !badge) name.append(el('span', {className: 'badge', textContent: 'speelt nu'}));
+    if (!on && badge) badge.remove();
+  });
+}
+
 function renderScenes() {
   const host = document.getElementById('scenes');
   host.innerHTML = '';
@@ -133,6 +146,7 @@ function renderScenes() {
     const scene = config.scenes[tag];
     const live = (state.tags || []).includes(tag);
     const card = el('div', {className: 'scene' + (live ? ' actief' : '')});
+    card.dataset.tag = tag;
     card.onclick = () => { open = {type: 'scene', id: tag}; renderSheet(); };
     const prev = el('div', {className: 'prev'});
     fixtureList().forEach(f => prev.append(el('span', {style: 'background:' + sceneColor(scene, f)})));
@@ -143,6 +157,7 @@ function renderScenes() {
     ]));
     host.append(card);
   }
+  sigScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures);
   const add = el('div', {className: 'add', textContent: '+ Nieuwe scene'});
   add.onclick = () => {
     const naam = prompt('Naam van de scene (dit is ook de #tag in Keynote)');
@@ -164,6 +179,7 @@ function padFor(index) {
 }
 
 function renderPads() {
+  sigPads = JSON.stringify(config.pads) + bank + JSON.stringify(state.held || []);
   const banks = document.getElementById('banks');
   banks.innerHTML = '';
   banks.append(el('span', {textContent: 'bank', style: 'color:var(--gray);font-size:14px'}));
@@ -447,7 +463,11 @@ async function poll() {
         learning = null; dirtyNow(); setNote('pad gekoppeld', 'ok'); renderPads(); renderSheet();
       }
     }
-    if (tab === 'scenes') renderScenes(); else renderPads();
+    const nextScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures);
+    const nextPads = JSON.stringify(config.pads) + bank + JSON.stringify(state.held || []);
+    if (tab === 'scenes') {
+      if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
+    } else if (nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
     if (!dirty && JSON.stringify(state.config) !== JSON.stringify(config)) { config = state.config; renderSheet(); }
   } catch (e) {}
 }
