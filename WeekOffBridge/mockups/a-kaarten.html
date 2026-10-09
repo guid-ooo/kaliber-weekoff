@@ -1,0 +1,81 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>A — Scenekaarten</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+header{padding:20px 32px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:18px}
+h1{font-size:22px}
+.status{margin-left:auto;display:flex;gap:14px;align-items:center;font-size:14px;color:var(--gray-500)}
+.status b{color:var(--berry);font-weight:450}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);box-shadow:0 0 12px var(--isit-green)}
+main{padding:32px;max-width:1120px;margin:0 auto}
+.lead{color:var(--gray-500);margin:0 0 24px;font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.scene{background:var(--blackish);border:1px solid var(--green-400);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s}
+.scene:hover{border-color:var(--isit-green);transform:translateY(-2px)}
+.scene.actief{border-color:var(--isit-green);box-shadow:0 0 0 1px var(--isit-green)}
+.preview{height:110px;display:flex;gap:2px}
+.preview span{flex:1}
+.body{padding:16px 18px}
+.name{font-family:var(--font-display);font-size:22px;display:flex;align-items:center;gap:10px}
+.badge{font-family:var(--font-base);font-size:11px;background:var(--isit-green);color:var(--green-800);border-radius:999px;padding:3px 9px;font-weight:500;letter-spacing:0}
+.meta{color:var(--gray-500);font-size:14px;margin-top:6px;display:flex;gap:14px;flex-wrap:wrap}
+.add{border:1px dashed var(--green-300);border-radius:16px;display:grid;place-items:center;color:var(--gray-500);min-height:200px;font-size:16px;cursor:pointer}
+.add:hover{border-color:var(--isit-green);color:var(--isit-green)}
+.sheet{position:fixed;inset:auto 0 0 0;background:var(--blackish);border-top:1px solid var(--green-400);border-radius:22px 22px 0 0;padding:26px 32px 24px;box-shadow:0 -24px 70px #000a}
+.sheet h2{font-size:28px}
+.sub{color:var(--gray-500);font-size:14px;margin:2px 0 20px}
+.devices{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.device{background:var(--green-800);border:1px solid var(--green-400);border-radius:14px;padding:16px}
+.device h3{font-size:18px;margin-bottom:2px}
+.device p{margin:0 0 14px;color:var(--gray-500);font-size:13px}
+.swatches{display:flex;gap:8px;margin-bottom:14px}
+.sw{width:32px;height:32px;border-radius:9px;border:2px solid transparent;cursor:pointer}
+.sw.aan{border-color:var(--berry)}
+.slider{height:8px;border-radius:999px;background:linear-gradient(90deg,var(--green-300),var(--isit-green));position:relative;margin:16px 0 8px}
+.knob{position:absolute;top:-6px;width:20px;height:20px;border-radius:50%;background:var(--berry);box-shadow:0 2px 8px #0009}
+.row{display:flex;justify-content:space-between;font-size:13px;color:var(--gray-500)}
+.toggle{width:48px;height:27px;background:var(--green-300);border-radius:999px;position:relative}
+.toggle i{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:var(--berry)}
+.foot{display:flex;gap:10px;margin-top:20px;align-items:center}
+button{background:transparent;border:1px solid var(--green-300);color:var(--berry);border-radius:999px;padding:9px 18px;font-size:14px}
+button:hover{border-color:var(--isit-green)}
+button.sel{border-color:var(--isit-green);color:var(--isit-green)}
+button.p{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+.spacer{margin-left:auto}
+</style></head><body>
+<header><h1>WeekOff licht</h1>
+<div class="status"><span class="dot"></span> dia 16 · scene <b>Samenvatting</b> speelt nu</div></header>
+<main>
+<p class="lead">Elke scene hoort bij een dia in de presentatie. Klik op een scene om hem aan te passen.</p>
+<div class="grid">
+  <div class="scene actief"><div class="preview"><span style="background:#f3d2a7"></span><span style="background:#c9302c"></span><span style="background:#c9302c"></span></div>
+    <div class="body"><div class="name">Samenvatting <span class="badge">speelt nu</span></div><div class="meta"><span>3 lampen</span><span>2 sec overgang</span></div></div></div>
+  <div class="scene"><div class="preview"><span style="background:#f0c48a"></span><span style="background:#101c1c"></span><span style="background:#101c1c"></span></div>
+    <div class="body"><div class="name">Start</div><div class="meta"><span>1 lamp</span><span>2 sec</span><span>♪ Amapola</span></div></div></div>
+  <div class="scene"><div class="preview"><span style="background:#dfa8ff"></span><span style="background:#00a1ff"></span><span style="background:#00a1ff"></span></div>
+    <div class="body"><div class="name">Demo</div><div class="meta"><span>3 lampen</span><span>2 sec</span></div></div></div>
+  <div class="scene"><div class="preview"><span style="background:#101c1c"></span><span style="background:#e23b3b"></span><span style="background:#e23b3b"></span></div>
+    <div class="body"><div class="name">Shoutouts</div><div class="meta"><span>2 lampen</span><span>1 sec</span><span>♪ Jungle</span></div></div></div>
+  <div class="scene"><div class="preview"><span style="background:#101c1c"></span><span style="background:#101c1c"></span><span style="background:#101c1c"></span></div>
+    <div class="body"><div class="name">Zwart</div><div class="meta"><span>alles uit</span><span>1 sec</span></div></div></div>
+  <div class="add">+ Nieuwe scene</div>
+</div>
+</main>
+<div class="sheet">
+  <h2>Samenvatting</h2><div class="sub">Start automatisch op dia 16</div>
+  <div class="devices">
+    <div class="device"><h3>Spot</h3><p>warm licht vooraan</p>
+      <div class="swatches"><div class="sw aan" style="background:#f3d2a7"></div><div class="sw" style="background:#fffcf2"></div><div class="sw" style="background:#bcd4ff"></div></div>
+      <div class="slider"><div class="knob" style="left:68%"></div></div><div class="row"><span>helderheid</span><span>74%</span></div></div>
+    <div class="device"><h3>Floods</h3><p>de drie grote lampen</p>
+      <div class="swatches"><div class="sw" style="background:#e23b3b"></div><div class="sw aan" style="background:#c9302c"></div><div class="sw" style="background:#00a1ff"></div><div class="sw" style="background:#d1ff00"></div><div class="sw" style="background:#dfa8ff"></div></div>
+      <div class="slider"><div class="knob" style="left:88%"></div></div><div class="row"><span>helderheid</span><span>95%</span></div></div>
+    <div class="device"><h3>Rookmachine</h3><p>blaast rook zolang hij aan staat</p>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:20px"><div class="toggle"><i></i></div><span style="color:var(--gray-500);font-size:13px">uit in deze scene</span></div></div>
+    <div class="device"><h3>Muziek</h3><p>start samen met de scene</p>
+      <div style="margin-top:16px;display:flex;gap:10px;align-items:center"><button>Kies bestand…</button><span style="color:var(--gray-500);font-size:13px">geen</span></div></div>
+  </div>
+  <div class="foot"><span style="color:var(--gray-500);font-size:14px">overgang</span>
+    <button>1 sec</button><button class="sel">2 sec</button><button>5 sec</button>
+    <span class="spacer"></span><button>Uitproberen</button><button class="p">Klaar</button></div>
+</div>
+</body></html>

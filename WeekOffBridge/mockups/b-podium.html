@@ -1,0 +1,83 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>B — Podiumweergave</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+.app{display:grid;grid-template-columns:260px 1fr;height:100vh}
+aside{background:var(--blackish);border-right:1px solid var(--green-400);display:flex;flex-direction:column}
+.brand{padding:20px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;justify-content:space-between}
+.brand h1{font-size:20px}
+.iconbtn{background:none;border:1px solid var(--green-300);color:var(--gray-500);border-radius:9px;padding:5px 9px;font-size:13px}
+.iconbtn:hover{border-color:var(--isit-green);color:var(--isit-green)}
+.list{flex:1;overflow:auto;padding:10px}
+.item{padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:11px;cursor:pointer}
+.item:hover{background:#ffffff0a}
+.item.sel{background:var(--green-400)}
+.item .chips{display:flex;gap:3px;margin-left:auto}
+.chip{width:11px;height:18px;border-radius:3px}
+.item span.n{font-size:15px}
+.item.sel span.n{color:var(--isit-green)}
+.playing{font-size:11px;color:var(--green-800);background:var(--isit-green);border-radius:999px;padding:2px 8px}
+.newbtn{margin:10px;padding:11px;border:1px dashed var(--green-300);border-radius:11px;color:var(--gray-500);text-align:center;font-size:14px;cursor:pointer}
+main{display:flex;flex-direction:column;overflow:auto}
+.topbar{padding:14px 28px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:16px;font-size:14px;color:var(--gray-500)}
+.topbar b{color:var(--berry);font-weight:450}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);box-shadow:0 0 12px var(--isit-green)}
+.stage{padding:28px;display:flex;justify-content:center}
+.room{width:min(700px,100%);aspect-ratio:16/7;background:radial-gradient(120% 100% at 50% 0%,#16302f 0%,#0a1716 70%);border:1px solid var(--green-400);border-radius:18px;position:relative;overflow:hidden}
+.lamp{position:absolute;width:86px;text-align:center;cursor:pointer}
+.bulb{width:56px;height:56px;border-radius:50%;margin:0 auto 8px;border:2px solid #ffffff22}
+.lamp small{font-size:12px;color:var(--gray-500)}
+.lamp.sel small{color:var(--isit-green)}
+.ctrl{padding:0 28px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.panel{background:var(--blackish);border:1px solid var(--green-400);border-radius:14px;padding:18px}
+.panel h3{font-size:19px;margin-bottom:2px}
+.panel p{margin:0 0 14px;color:var(--gray-500);font-size:13px}
+.wheel{width:120px;height:120px;border-radius:50%;margin:0 auto 14px;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);position:relative;border:1px solid var(--green-300)}
+.wheel i{position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #0008;top:18%;left:66%}
+.slider{height:8px;border-radius:999px;background:linear-gradient(90deg,var(--green-300),var(--isit-green));position:relative;margin:14px 0 8px}
+.knob{position:absolute;top:-6px;width:20px;height:20px;border-radius:50%;background:var(--berry);box-shadow:0 2px 8px #0009}
+.row{display:flex;justify-content:space-between;font-size:13px;color:var(--gray-500)}
+.toggle{width:48px;height:27px;background:var(--green-300);border-radius:999px;position:relative}
+.toggle.aan{background:var(--isit-green)}
+.toggle i{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:var(--berry)}
+.toggle.aan i{left:24px}
+.footbar{margin-top:auto;padding:14px 28px;border-top:1px solid var(--green-400);display:flex;gap:10px;align-items:center}
+button{background:transparent;border:1px solid var(--green-300);color:var(--berry);border-radius:999px;padding:9px 18px;font-size:14px}
+button.p{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+.spacer{margin-left:auto}
+</style></head><body>
+<div class="app">
+<aside>
+  <div class="brand"><h1>WeekOff</h1><button class="iconbtn">⚙ Techniek</button></div>
+  <div class="list">
+    <div class="item"><span class="n">Start</span><span class="chips"><i class="chip" style="background:#f0c48a"></i><i class="chip" style="background:#101c1c"></i><i class="chip" style="background:#101c1c"></i></span></div>
+    <div class="item sel"><span class="n">Samenvatting</span><span class="playing">nu</span></div>
+    <div class="item"><span class="n">Demo</span><span class="chips"><i class="chip" style="background:#dfa8ff"></i><i class="chip" style="background:#00a1ff"></i><i class="chip" style="background:#00a1ff"></i></span></div>
+    <div class="item"><span class="n">Shoutouts</span><span class="chips"><i class="chip" style="background:#101c1c"></i><i class="chip" style="background:#e23b3b"></i><i class="chip" style="background:#e23b3b"></i></span></div>
+    <div class="item"><span class="n">Dilemma</span><span class="chips"><i class="chip" style="background:#bcd4ff"></i><i class="chip" style="background:#00a1ff"></i><i class="chip" style="background:#00a1ff"></i></span></div>
+    <div class="item"><span class="n">Zwart</span><span class="chips"><i class="chip" style="background:#101c1c"></i><i class="chip" style="background:#101c1c"></i><i class="chip" style="background:#101c1c"></i></span></div>
+  </div>
+  <div class="newbtn">+ Nieuwe scene</div>
+</aside>
+<main>
+  <div class="topbar"><span class="dot"></span> Keynote dia <b>16</b> · scene <b>Samenvatting</b> · JP-mini <b>verbonden</b></div>
+  <div class="stage"><div class="room">
+    <div class="lamp sel" style="left:46%;top:8%"><div class="bulb" style="background:radial-gradient(circle at 35% 30%,#fff3dd,#f3d2a7);box-shadow:0 0 60px 20px #f3d2a755"></div><small>Spot</small></div>
+    <div class="lamp" style="left:8%;bottom:10%"><div class="bulb" style="background:radial-gradient(circle at 35% 30%,#ff6b63,#c9302c);box-shadow:0 0 50px 16px #c9302c55"></div><small>Flood links</small></div>
+    <div class="lamp" style="left:43%;bottom:10%"><div class="bulb" style="background:radial-gradient(circle at 35% 30%,#ff6b63,#c9302c);box-shadow:0 0 50px 16px #c9302c55"></div><small>Flood midden</small></div>
+    <div class="lamp" style="right:8%;bottom:10%"><div class="bulb" style="background:radial-gradient(circle at 35% 30%,#ff6b63,#c9302c);box-shadow:0 0 50px 16px #c9302c55"></div><small>Flood rechts</small></div>
+  </div></div>
+  <div class="ctrl">
+    <div class="panel"><h3>Spot</h3><p>geselecteerd · warm wit</p>
+      <div class="slider"><div class="knob" style="left:68%"></div></div><div class="row"><span>helderheid</span><span>74%</span></div>
+      <div class="slider" style="background:linear-gradient(90deg,#ffd9a0,#cfe4ff)"><div class="knob" style="left:22%"></div></div><div class="row"><span>warm ↔ koel</span><span>warm</span></div></div>
+    <div class="panel"><h3>Floods</h3><p>alle drie tegelijk</p>
+      <div class="wheel"><i></i></div>
+      <div class="slider"><div class="knob" style="left:88%"></div></div><div class="row"><span>helderheid</span><span>95%</span></div></div>
+    <div class="panel"><h3>Rook &amp; muziek</h3><p>extra's bij deze scene</p>
+      <div style="display:flex;gap:12px;align-items:center;margin:16px 0"><div class="toggle"><i></i></div><span style="color:var(--gray-500);font-size:13px">rookmachine uit</span></div>
+      <button>♪ Kies muziek…</button></div>
+  </div>
+  <div class="footbar"><span style="color:var(--gray-500);font-size:14px">overgang 2 sec</span><span class="spacer"></span><button>Uitproberen</button><button class="p">Opslaan</button></div>
+</main>
+</div>
+</body></html>

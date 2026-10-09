@@ -1,0 +1,13 @@
+@font-face{font-family:'Overused Grotesk';src:url('fonts/OverusedGrotesk-VF.woff2') format('woff2-variations');font-weight:300 900;font-display:swap}
+@font-face{font-family:'Feature Display';src:url('fonts/FeatureDisplay-Light.woff2') format('woff2');font-weight:300;font-display:swap}
+:root{
+  --isit-green:#d1ff00;--wine:#411111;--bonaire:#00a1ff;--blackish:#122222;--berry:#fffcf2;--pink:#dfa8ff;
+  --green-800:#071717;--green-400:#2a3838;--green-300:#3e4948;--gray-500:#aaa;
+  --font-base:'Overused Grotesk',sans-serif;--font-display:'Feature Display',serif;
+  --ls:calc(-0.2px + -0.015em);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--green-800);color:var(--berry);font-family:var(--font-base);font-weight:350;letter-spacing:var(--ls);font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:var(--font-display);font-weight:300;letter-spacing:var(--ls);margin:0}
+button{font-family:var(--font-base);letter-spacing:var(--ls);cursor:pointer}
+.mono{font-family:'SF Mono',monospace}

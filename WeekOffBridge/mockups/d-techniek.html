@@ -1,0 +1,51 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>D — Techniek (verborgen menu)</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+body{display:grid;place-items:center;min-height:100vh;padding:28px}
+.modal{width:min(880px,100%);background:var(--blackish);border:1px solid var(--green-400);border-radius:20px;overflow:hidden}
+.mhead{padding:20px 26px;border-bottom:1px solid var(--green-400);display:flex;align-items:center;gap:14px}
+.mhead h2{font-size:26px}
+.mhead p{margin:0;color:var(--gray-500);font-size:13px}
+.close{margin-left:auto;background:none;border:1px solid var(--green-300);color:var(--gray-500);border-radius:999px;width:34px;height:34px}
+.tabs{display:flex;gap:6px;padding:14px 26px 0}
+.tab{padding:8px 16px;border-radius:999px;font-size:14px;color:var(--gray-500);cursor:pointer;border:1px solid transparent}
+.tab.sel{color:var(--isit-green);border-color:var(--isit-green)}
+.content{padding:20px 26px 26px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:450;color:var(--gray-500);font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:0 10px 10px}
+td{padding:10px;border-top:1px solid var(--green-400)}
+input{background:var(--green-800);border:1px solid var(--green-300);color:var(--berry);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;width:100%}
+input.sm{width:84px}
+.mono{font-family:'SF Mono',monospace;font-size:13px;color:var(--gray-500)}
+.pill{font-size:12px;border-radius:999px;padding:3px 10px;border:1px solid var(--green-300);color:var(--gray-500)}
+.pill.ok{border-color:var(--isit-green);color:var(--isit-green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+.field label{display:block;font-size:12px;color:var(--gray-500);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.hint{color:var(--gray-500);font-size:13px;margin:14px 0 0}
+.foot{padding:16px 26px;border-top:1px solid var(--green-400);display:flex;gap:10px;align-items:center}
+button{background:transparent;border:1px solid var(--green-300);color:var(--berry);border-radius:999px;padding:9px 18px;font-size:14px}
+button.p{background:var(--isit-green);border-color:var(--isit-green);color:var(--green-800);font-weight:500}
+.spacer{margin-left:auto}
+.bar{height:6px;background:var(--green-800);border-radius:999px;overflow:hidden;width:90px}
+.bar i{display:block;height:100%;background:var(--isit-green)}
+</style></head><body>
+<div class="modal">
+  <div class="mhead"><div><h2>Techniek</h2><p>Alleen nodig bij het opbouwen van de set</p></div><button class="close">✕</button></div>
+  <div class="tabs"><span class="tab sel">Lampen</span><span class="tab">Verbinding</span><span class="tab">Pads</span></div>
+  <div class="content">
+    <table>
+      <tr><th>Naam</th><th>Soort</th><th>DMX-adres</th><th>Kanalen</th><th>Nu</th></tr>
+      <tr><td><input value="Spot"></td><td><input value="warm/koel wit"></td><td><input class="sm" value="1"></td><td class="mono">1–3</td><td><div class="bar"><i style="width:74%"></i></div></td></tr>
+      <tr><td><input value="Floods"></td><td><input value="RGB"></td><td><input class="sm" value="4"></td><td class="mono">4–6</td><td><div class="bar"><i style="width:95%"></i></div></td></tr>
+      <tr><td><input value="Rookmachine"></td><td><input value="aan/uit"></td><td><input class="sm" value="420"></td><td class="mono">420</td><td><div class="bar"><i style="width:0%"></i></div></td></tr>
+    </table>
+    <p class="hint">Het DMX-adres stel je ook op de lamp zelf in. Staan ze niet gelijk, dan reageert de verkeerde lamp.</p>
+    <div class="grid2" style="margin-top:22px">
+      <div class="field"><label>Art-Net apparaat</label><input value="10.11.46.11"> </div>
+      <div class="field"><label>Universe</label><input value="0"></div>
+    </div>
+    <p class="hint"><span class="pill ok">verbonden</span> <span class="pill">laatste signaal 0,2 sec geleden</span></p>
+  </div>
+  <div class="foot"><button>Kanalen testen</button><span class="spacer"></span><button>Annuleren</button><button class="p">Opslaan</button></div>
+</div>
+</body></html>
