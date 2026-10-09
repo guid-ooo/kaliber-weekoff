@@ -1,4 +1,5 @@
 import AppKit
+import UniformTypeIdentifiers
 
 enum Backend: String, CaseIterable {
     case qlab, artnet, both
@@ -290,6 +291,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             applyLights([tag])
             return .json(Data("{\"ok\":true,\"artnet\":\(backend.usesArtNet)}".utf8))
 
+        case ("POST", "/api/kies-geluid"):
+            guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
+                  let key = body["pad"] else { return .notFound }
+            kiesGeluid(voor: key)
+            return .json(Data("{\"ok\":true}".utf8))
+
         case ("POST", "/api/panic"):
             blacked = false
             blackout(reason: "handmatig")
@@ -369,6 +376,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             padLine = "pad \(note.note) los"
         }
         refreshMenu()
+    }
+
+    private func kiesGeluid(voor key: String) {
+        NSApp.activate(ignoringOtherApps: true)
+        let panel = NSOpenPanel()
+        panel.title = "Kies een geluid"
+        panel.prompt = "Kiezen"
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.allowedContentTypes = [.audio]
+        panel.begin { [weak self] response in
+            guard let self, response == .OK, let url = panel.url, var config = self.config else { return }
+            var pad = config.pads?[key] ?? Pad()
+            pad.sample = url.path
+            pad.dmx = [:]
+            if pad.label == nil || pad.label == "Nieuw" {
+                pad.label = url.deletingPathExtension().lastPathComponent
+            }
+            config.pads?[key] = pad
+            if config.pads == nil { config.pads = [key: pad] }
+            try? ConfigStore.save(config)
+            self.loadConfig()
+            self.audio.preload(url.path)
+        }
     }
 
     private func blackout(reason: String) {

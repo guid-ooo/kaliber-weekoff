@@ -522,9 +522,19 @@ function renderSheet() {
 
     cols.append(b1, b2, b3, b4);
     if (!isApparaat) {
-      const sample = el('input', {type: 'text', value: pad.sample || '', placeholder: '/pad/naar/geluid.mp3'});
-      sample.onchange = () => { const v = sample.value.trim(); if (v) pad.sample = v; else delete pad.sample; dirtyNow(); };
-      cols.append(el('div', {className: 'box'}, [el('h3', {textContent: 'Geluid'}), el('p', {textContent: 'bestand op deze computer'}), sample]));
+      const naamVanBestand = (pad.sample || '').split('/').pop();
+      const kies = el('button', {textContent: pad.sample ? 'Ander bestand kiezen…' : 'Kies bestand…'});
+      kies.onclick = async () => {
+        if (dirty) { clearTimeout(saveTimer); await bewaar(); }
+        fetch('/api/kies-geluid', {method: 'POST', body: JSON.stringify({pad: open.id})});
+        setNote('kies een bestand in het venster');
+      };
+      const weg = el('button', {textContent: 'Wissen'});
+      weg.onclick = () => { delete pad.sample; dirtyNow(); renderSheet(); };
+      cols.append(el('div', {className: 'box'}, [
+        el('h3', {textContent: 'Geluid'}),
+        el('p', {textContent: naamVanBestand || 'nog geen bestand gekozen'}),
+        el('div', {style: 'display:flex;gap:8px;flex-wrap:wrap'}, [kies, pad.sample ? weg : null])]));
     } else {
       fixtureList('pads').forEach(f => cols.append(deviceBox(f, pad.dmx)));
     }
