@@ -19,7 +19,7 @@ enum FixtureKind: String {
         let set = Set(channels.map { $0.lowercased() })
         if set.isSuperset(of: ["red", "green", "blue"]) { return .rgb }
         if set.isSuperset(of: ["warm", "cool"]) { return .warmcool }
-        return channels.count == 1 ? .dimmer : .dimmer
+        return channels.count == 1 ? .schakelaar : .dimmer
     }
 }
 
@@ -118,7 +118,7 @@ struct ShowConfig: Codable, Equatable {
 
     func dmxChannel(for path: String) -> Int? {
         let parts = path.split(separator: ".", maxSplits: 1).map(String.init)
-        guard let fixture = fixtures[parts[0]] else { return nil }
+        guard let eerste = parts.first, let fixture = fixtures[eerste] else { return nil }
         if parts.count == 1 { return fixture.address }
         guard let offset = fixture.channels.firstIndex(of: parts[1]) else { return nil }
         return fixture.address + offset

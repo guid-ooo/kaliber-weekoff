@@ -9,6 +9,7 @@ struct SlideState: Equatable {
     let slide: Int
     let skipped: Bool
     let tags: [String]
+    var playing = false
 }
 
 enum Keynote {
@@ -59,7 +60,11 @@ enum Keynote {
                     set nts to presenter notes of c as string
                 end try
             end tell
-            return (n as string) & "|" & sk & "<<<" & nts
+            set pl to "0"
+            try
+                if playing then set pl to "1"
+            end try
+            return (n as string) & "|" & sk & "|" & pl & "<<<" & nts
         end tell
         """
     }
@@ -108,10 +113,12 @@ enum Keynote {
             guard let slideRange = Range(match.range(at: 1), in: raw),
                   let skipRange = Range(match.range(at: 2), in: raw),
                   let slide = Int(raw[slideRange]) else { continue }
-            let start = raw.index(raw.startIndex, offsetBy: match.range.upperBound)
-            let end = index + 1 < matches.count
-                ? raw.index(raw.startIndex, offsetBy: matches[index + 1].range.lowerBound)
-                : raw.endIndex
+            guard let hier = Range(match.range, in: raw) else { continue }
+            let start = hier.upperBound
+            var end = raw.endIndex
+            if index + 1 < matches.count, let volgende = Range(matches[index + 1].range, in: raw) {
+                end = volgende.lowerBound
+            }
             out.append(IndexEntry(slide: slide, skipped: raw[skipRange] == "1", tags: tags(in: String(raw[start..<end]))))
         }
         return out
@@ -128,9 +135,10 @@ enum Keynote {
     static func parseSlide(_ raw: String) -> SlideState? {
         guard raw != "GONE", let marker = raw.range(of: "<<<") else { return nil }
         let head = raw[raw.startIndex..<marker.lowerBound].split(separator: "|").map(String.init)
-        guard head.count == 2, let slide = Int(head[0]) else { return nil }
+        guard head.count >= 2, let slide = Int(head[0]) else { return nil }
         let notes = String(raw[marker.upperBound...])
-        return SlideState(slide: slide, skipped: head[1] == "1", tags: tags(in: notes))
+        return SlideState(slide: slide, skipped: head[1] == "1", tags: tags(in: notes),
+                          playing: head.count > 2 && head[2] == "1")
     }
 
     private static let tagPattern = try! NSRegularExpression(pattern: "#([A-Za-z][A-Za-z0-9_.-]*)")

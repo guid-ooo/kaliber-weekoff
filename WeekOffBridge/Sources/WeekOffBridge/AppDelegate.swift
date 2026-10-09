@@ -28,6 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var blacked = false
     private var voorbeeldTot = Date.distantPast
     private var tagsByPlaybackSlide: [Int: [String]] = [:]
+    private var diaByPlayback: [Int: Int] = [:]
+    private var weergaveDia: Int?
     private var deckName = ""
     private var getagd: [(slide: Int, tags: [String])] = []
     private var diaTotaal = 0
@@ -120,6 +122,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    private var pollBezig = false
+    private var deckBezig = false
+    private var artnetProbleem: String?
+
     private func poll() {
         tick += 1
         if tick % 8 == 0, !menuIsOpen { loadDocuments() }
@@ -139,8 +145,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return
         }
 
+        guard !pollBezig else { return }
+        pollBezig = true
         runner.run(Keynote.pollScript(documentID: id)) { [weak self] result in
             guard let self else { return }
+            self.pollBezig = false
             switch result {
             case .failure(let error):
                 self.statusLine = error.localizedDescription
@@ -148,11 +157,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 guard let slide = Keynote.parseSlide(raw) else {
                     self.statusLine = raw == "GONE" ? "Presentatie is gesloten" : "Geen dia"
                     self.state = nil
+                    self.weergaveDia = nil
                     self.blackout(reason: self.statusLine)
                     break
                 }
                 let effectief = self.effectiveTags(for: slide)
-                self.statusLine = slide.skipped ? "dia \(slide.slide) (overgeslagen)" : "dia \(slide.slide)"
+                // Tijdens het afspelen telt Keynote overgeslagen dia's niet mee; de rest
+                // van de app rekent in documentnummers, dus vertaal het voor de weergave.
+                let getoond = slide.playing ? (self.diaByPlayback[slide.slide] ?? slide.slide) : slide.slide
+                self.weergaveDia = getoond
+                self.statusLine = slide.skipped ? "dia \(getoond) (overgeslagen)" : "dia \(getoond)"
                 self.state = SlideState(slide: slide.slide, skipped: slide.skipped, tags: effectief)
                 self.handle(SlideState(slide: slide.slide, skipped: slide.skipped, tags: effectief))
             }
@@ -162,14 +176,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func loadDeck() {
         guard Keynote.isRunning, let id = selectedID else { deck = []; return }
+        guard !deckBezig else { return }
+        deckBezig = true
         runner.run(Keynote.nameScript(documentID: id)) { [weak self] result in
             if case .success(let naam) = result { self?.deckName = naam.trimmingCharacters(in: .whitespacesAndNewlines) }
         }
         runner.run(Keynote.indexScript(documentID: id)) { [weak self] result in
-            guard let self, case .success(let raw) = result else { return }
+            guard let self else { return }
+            self.deckBezig = false
+            guard case .success(let raw) = result else { return }
             var seen: [String: (Int, Bool)] = [:]
             var order: [String] = []
             var byPlayback: [Int: [String]] = [:]
+            var docByPlayback: [Int: Int] = [:]
             var playback = 0
             var getagd: [(slide: Int, tags: [String])] = []
             var totaal = 0
@@ -178,6 +197,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 if !entry.skipped, !entry.tags.isEmpty { getagd.append((entry.slide, entry.tags)) }
                 if !entry.skipped {
                     playback += 1
+                    docByPlayback[playback] = entry.slide
                     if !entry.tags.isEmpty { byPlayback[playback] = entry.tags }
                 }
                 for tag in entry.tags where seen[tag] == nil {
@@ -186,6 +206,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 }
             }
             self.tagsByPlaybackSlide = byPlayback
+            self.diaByPlayback = docByPlayback
             self.getagd = getagd
             self.diaTotaal = totaal
             if !self.deckName.isEmpty {
@@ -208,6 +229,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 if let sample = pad.sample { audio.preload(sample) }
             }
             configLine = "\(loaded.scenes.count) scenes, \(loaded.artnet.host)"
+            artnetProbleem = loaded.artnet.host
         case .failure(let error):
             config = nil
             configLine = "scenes.json fout: \(error.localizedDescription)"
@@ -349,7 +371,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         var payload: [String: Any] = [
             "lastNote": lastNote.map { ["note": Int($0.note), "channel": Int($0.channel), "age": Date().timeIntervalSince($0.at)] } as Any,
             "held": Array(heldPads.keys),
-            "artnetActive": lights.isRunning,
+            "artnetActive": lights.isRunning && lights.uitvoerKlaar,
             "blackout": blacked,
             "voorbeeld": Date() < voorbeeldTot,
             "deck": deck.map { ["tag": $0.tag, "slide": $0.slide, "skipped": $0.skipped] },
@@ -357,7 +379,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             "getagd": getagd.map { ["slide": $0.slide, "tags": $0.tags] },
             "diaTotaal": diaTotaal,
             "origins": origins.filter { $0.key != deckName },
-            "slide": state?.slide as Any,
+            "slide": (state == nil ? nil : weergaveDia) as Any,
             "tags": state?.tags ?? [],
             "midi": midi.sourceCount,
             "backend": backend.rawValue,
@@ -496,6 +518,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(item)
         }
         menu.addItem(disabled(configLine))
+        if let artnetProbleem, !lights.uitvoerKlaar {
+            menu.addItem(disabled("Art-Net: \(artnetProbleem) niet bereikbaar"))
+        }
         let edit = NSMenuItem(title: "scenes.json openen", action: #selector(openConfig), keyEquivalent: "")
         edit.target = self
         menu.addItem(edit)

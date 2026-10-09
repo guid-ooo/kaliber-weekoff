@@ -17,10 +17,25 @@ final class ArtNetSender {
         }
         target.sin_family = sa_family_t(AF_INET)
         target.sin_port = port.bigEndian
-        guard inet_pton(AF_INET, host, &target.sin_addr) == 1 else {
+        guard let adres = Self.adres(voor: host) else {
             close(fd)
             return nil
         }
+        target.sin_addr = adres
+    }
+
+    /// Accepteert zowel 10.11.46.11 als artnet.local; inet_pton kan alleen het eerste.
+    private static func adres(voor host: String) -> in_addr? {
+        var numeriek = in_addr()
+        if inet_pton(AF_INET, host, &numeriek) == 1 { return numeriek }
+        var hints = addrinfo()
+        hints.ai_family = AF_INET
+        hints.ai_socktype = SOCK_DGRAM
+        var info: UnsafeMutablePointer<addrinfo>?
+        guard getaddrinfo(host, nil, &hints, &info) == 0, let eerste = info else { return nil }
+        defer { freeaddrinfo(info) }
+        guard let sa = eerste.pointee.ai_addr else { return nil }
+        return sa.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { $0.pointee.sin_addr }
     }
 
     deinit {
@@ -62,10 +77,15 @@ final class LightEngine {
     var bpm: Double = 120
 
     private(set) var isRunning = false
+    /// False als het adres niet te bereiken was; dan gaat er niets de deur uit.
+    private(set) var uitvoerKlaar = false
 
     func configure(_ config: ArtNetConfig) {
-        queue.sync {
-            sender = ArtNetSender(host: config.host, universe: config.universe, broadcast: config.broadcast)
+        // Opzoeken kan blokkeren bij een hostnaam, dus niet op de uitvoerwachtrij.
+        DispatchQueue.global(qos: .utility).async {
+            let nieuwe = ArtNetSender(host: config.host, universe: config.universe, broadcast: config.broadcast)
+            self.queue.async { self.sender = nieuwe }
+            DispatchQueue.main.async { self.uitvoerKlaar = nieuwe != nil }
         }
     }
 

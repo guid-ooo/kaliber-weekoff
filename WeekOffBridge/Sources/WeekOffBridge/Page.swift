@@ -538,8 +538,10 @@ function padKeyFor(index) { return String(midi().origin + bank * midi().padsPerB
 function padFor(index) {
   const note = midi().origin + bank * midi().padsPerBank + index;
   const pads = config.pads || {};
-  return pads[String(note)] ? {key: String(note), pad: pads[String(note)]} :
-    Object.entries(pads).map(([k, p]) => ({key: k, pad: p})).find(e => e.key.endsWith(':' + note)) || null;
+  // Dezelfde voorrang als ShowConfig.pad(channel:note:): kanaal-gebonden wint.
+  const gebonden = Object.entries(pads).map(([k, p]) => ({key: k, pad: p})).find(e => e.key.endsWith(':' + note));
+  if (gebonden) return gebonden;
+  return pads[String(note)] ? {key: String(note), pad: pads[String(note)]} : null;
 }
 
 function verplaatsPad(vanKey, naarNote) {
@@ -1209,6 +1211,7 @@ function renderSheet() {
         pad.sample ? volSlider : null,
         pad.sample ? el('div', {className: 'row'}, [el('span', {textContent: 'volume'}), volUit]) : null]));
     } else {
+      pad.dmx = pad.dmx || {};
       fixtureList('pads').forEach(f => cols.append(deviceBox(f, pad.dmx)));
     }
     sheet.append(cols);
@@ -1403,7 +1406,12 @@ async function poll() {
 
     if (learning && state.lastNote && state.lastNote.age < 1.5) {
       const nieuw = String(state.lastNote.note);
-      if (nieuw !== learning && !(config.pads || {})[nieuw]) {
+      // Een sleutel als "0:44" vangt noot 44 af vóór de kale "44", dus die telt ook als bezet.
+      const bezet = Object.keys(config.pads || {})
+        .some(k => k !== learning && (k === nieuw || k.endsWith(':' + nieuw)));
+      if (bezet) {
+        learning = null; setNote('die knop hoort al bij een ander pad'); renderPads(); renderSheet();
+      } else if (nieuw !== learning) {
         config.pads[nieuw] = config.pads[learning];
         delete config.pads[learning];
         if (open && open.id === learning) open.id = nieuw;
@@ -1426,7 +1434,7 @@ async function poll() {
     }
     const sheetSig = open ? open.type + open.id + stable(state.deck || []) : '';
     if (sheetSig !== sigSheet) { sigSheet = sheetSig; if (!dirty) renderSheet(); }
-    if (!dirty && stable(state.config) !== stable(config)) { config = state.config; renderSheet(); }
+    if (!dirty && state.config && stable(state.config) !== stable(config)) { config = state.config; renderSheet(); }
   } catch (e) {}
 }
 

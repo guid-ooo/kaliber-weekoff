@@ -70,7 +70,8 @@ final class WebServer {
 
         var expected = 0
         for line in lines.dropFirst() where line.lowercased().hasPrefix("content-length:") {
-            expected = Int(line.split(separator: ":")[1].trimmingCharacters(in: .whitespaces)) ?? 0
+            let waarde = line.split(separator: ":", maxSplits: 1).dropFirst().first ?? ""
+            expected = Int(waarde.trimmingCharacters(in: .whitespaces)) ?? 0
         }
         let body = data[separator.upperBound...]
         guard body.count >= expected else { return nil }
