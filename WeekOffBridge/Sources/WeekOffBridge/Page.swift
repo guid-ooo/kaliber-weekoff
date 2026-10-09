@@ -25,19 +25,16 @@ button.p{background:var(--isit);border-color:var(--isit);color:var(--g800);font-
 button.sel{border-color:var(--isit);color:var(--isit)}
 button.sm{padding:5px 12px;font-size:13px}
 main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
-.la{position:fixed;top:0;right:0;bottom:0;width:min(520px,92vw);background:var(--blackish);border-left:1px solid var(--g400);
-box-shadow:-24px 0 70px #0008;padding:22px 26px;overflow:auto;z-index:12;transition:transform .22s ease}
-.la.dicht{transform:translateX(102%)}
-.la-kop{display:flex;align-items:center;gap:12px;margin-bottom:4px}
-.la-kop h2{font-size:24px}
-.la-kop button{margin-left:auto;border-radius:999px;width:34px;height:34px;padding:0}
-.la .pads{max-width:none}
-.la .lead{font-size:14px;margin:4px 0 18px}
-main{transition:margin-right .22s ease}
-body.la-open main{margin-right:min(520px,92vw);max-width:none}
-body.la-open .sheet{right:min(520px,92vw)}
-.sheet{transition:right .22s ease}
-@media (max-width:900px){body.la-open main{margin-right:0}}
+.rij{display:grid;grid-template-columns:170px 1fr 120px 130px;gap:16px;align-items:center;padding:12px 15px;border:1px solid var(--g400);
+border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
+.rij:hover{border-color:var(--isit)}
+.rij.actief{border-color:var(--isit);box-shadow:0 0 0 1px var(--isit)}
+.rij .naam{font-family:var(--display);font-size:21px;display:flex;align-items:center;gap:8px}
+.spoor{position:relative;height:28px;background:#0f1a1a;border-radius:8px;overflow:hidden}
+.vlak{position:absolute;top:0;bottom:0;border-radius:8px;display:flex;align-items:center;padding:0 9px;font-size:12px;color:#0d1a1a;font-weight:500}
+.lampjes{display:flex;gap:5px}
+.lampjes i{width:24px;height:24px;border-radius:7px;display:block}
+.rij .meta2{color:var(--gray);font-size:13px;text-align:right}
 .lead{color:var(--gray);margin:0 0 22px;font-size:17px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .scene{background:var(--blackish);border:1px solid var(--g400);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s}
@@ -114,26 +111,29 @@ td{padding:8px;border-top:1px solid var(--g400)}
 </style></head><body>
 <header>
   <h1>WeekOff</h1>
-  <nav><span id="tab-scenes" class="sel">Scenes</span></nav>
-  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="tab-pads">Soundboard</button><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
+  <nav><span id="tab-scenes" class="sel">Scenes</span><span id="tab-pads">Soundboard</span><span id="tab-tijd">Tijdlijn</span></nav>
+  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
 </header>
 <main>
   <div id="view-scenes">
     <p class="lead">Elke scene hoort bij een dia. Klik op een scene om hem aan te passen.</p>
     <div class="grid" id="scenes"></div>
   </div>
+  <div id="view-pads" class="hidden">
+    <p class="lead">Elke knop is een pad op het kastje. Sleep om te verplaatsen, klik om te wijzigen.</p>
+    <div class="banks" id="banks"></div>
+    <div class="pads" id="padgrid"></div>
+  </div>
+  <div id="view-tijd" class="hidden">
+    <p class="lead">Elke scene over de lengte van de presentatie.</p>
+    <div id="tijdlijn"></div>
+  </div>
 </main>
-<aside id="view-pads" class="la dicht">
-  <div class="la-kop"><h2>Soundboard</h2><button id="la-dicht">✕</button></div>
-  <p class="lead">Elke knop is een pad op het kastje. Sleep om te verplaatsen, klik om te wijzigen.</p>
-  <div class="banks" id="banks"></div>
-  <div class="pads" id="padgrid"></div>
-</aside>
 <div id="sheet"></div>
 <div id="tech" class="hidden"></div>
 <script>
 let config = null, state = {}, dirty = false, bank = 0, open = null, learning = null;
-let sigScenes = '', sigPads = '', sigSheet = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false, laOpen = false;
+let sigScenes = '', sigPads = '', sigSheet = '', sigTijd = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false, tab = 'scenes';
 
 const stable = v => {
   if (v === null || typeof v !== 'object') return JSON.stringify(v);
@@ -164,6 +164,7 @@ async function sluit() {
   renderSheet();
   renderScenes();
   renderPads();
+  renderTijdlijn();
 }
 const midi = () => config.midi || {origin: 36, padsPerBank: 16, banks: 3};
 const fixtureAll = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
@@ -233,6 +234,21 @@ function updateLiveScenes() {
   });
 }
 
+function bereik(tag) {
+  const getagd = state.getagd || [], totaal = state.diaTotaal || 0;
+  const stukken = [];
+  getagd.forEach((g, i) => {
+    if (!g.tags.includes(tag)) return;
+    const volgende = getagd.slice(i + 1).find(v => !v.tags.includes(tag));
+    const eind = volgende ? volgende.slide - 1 : totaal;
+    const vorige = stukken[stukken.length - 1];
+    if (vorige && vorige[1] >= g.slide - 1) vorige[1] = Math.max(vorige[1], eind);
+    else stukken.push([g.slide, eind]);
+  });
+  if (!stukken.length) return null;
+  return stukken.map(([a, b]) => a === b ? 'dia ' + a : 'dia ' + a + '–' + b).join(', ');
+}
+
 function sceneVolgorde() {
   const deck = state.deck || [];
   const inDeck = deck.map(d => d.tag).filter(t => config.scenes[t]);
@@ -250,21 +266,6 @@ function renderScenes() {
   const host = document.getElementById('scenes');
   host.innerHTML = '';
   const {inDeck, elders, herkomst, rest, ontbreekt, deck} = sceneVolgorde();
-  const getagd = state.getagd || [];
-  const totaal = state.diaTotaal || 0;
-  const bereik = tag => {
-    const stukken = [];
-    getagd.forEach((g, i) => {
-      if (!g.tags.includes(tag)) return;
-      const volgende = getagd.slice(i + 1).find(v => !v.tags.includes(tag));
-      const eind = volgende ? volgende.slide - 1 : totaal;
-      const vorige = stukken[stukken.length - 1];
-      if (vorige && vorige[1] >= g.slide - 1) vorige[1] = Math.max(vorige[1], eind);
-      else stukken.push([g.slide, eind]);
-    });
-    if (!stukken.length) return null;
-    return stukken.map(([a, b]) => a === b ? 'dia ' + a : 'dia ' + a + '–' + b).join(', ');
-  };
   const dia = tag => (deck.find(d => d.tag === tag) || {}).slide;
 
   const dicht = JSON.parse(localStorage.getItem('dichtgeklapt') || '{}');
@@ -366,6 +367,52 @@ function verplaatsPad(vanKey, naarNote) {
   pads[doelKey] = bron;
   if (doel) pads[vanKey] = doel;
   dirtyNow(); sigPads = ''; renderPads();
+}
+
+function renderTijdlijn() {
+  const host = document.getElementById('tijdlijn');
+  if (!host || !config) return;
+  host.innerHTML = '';
+  const getagd = state.getagd || [], totaal = state.diaTotaal || 0;
+  const live = state.tags || [];
+  const {inDeck} = sceneVolgorde();
+
+  if (!totaal) { host.append(el('p', {className: 'lead', textContent: 'Geen presentatie open.'})); return; }
+
+  for (const tag of inDeck) {
+    const scene = config.scenes[tag];
+    const rij = el('div', {className: 'rij' + (live.includes(tag) ? ' actief' : '')});
+    rij.onclick = () => { open = {type: 'scene', id: tag}; navigeer(); renderSheet(); };
+
+    const naam = el('div', {className: 'naam'}, [document.createTextNode(tag)]);
+    if (live.includes(tag)) naam.append(el('span', {className: 'badge', textContent: 'nu'}));
+
+    const spoor = el('div', {className: 'spoor'});
+    const stukken = [];
+    getagd.forEach((g, i) => {
+      if (!g.tags.includes(tag)) return;
+      const volgende = getagd.slice(i + 1).find(v => !v.tags.includes(tag));
+      const eind = volgende ? volgende.slide - 1 : totaal;
+      const vorige = stukken[stukken.length - 1];
+      if (vorige && vorige[1] >= g.slide - 1) vorige[1] = Math.max(vorige[1], eind);
+      else stukken.push([g.slide, eind]);
+    });
+    const niveau = f => Math.max(0, ...f.channels.map(c => scene.values[f.id + '.' + c] ?? 0));
+    const fels = fixtureList().slice().sort((a, b) => niveau(b) - niveau(a))[0];
+    const hoofdkleur = fels && niveau(fels) > 0 ? sceneColor(scene, fels) : '#223130';
+    stukken.forEach(([a, b]) => {
+      const links = (a - 1) / totaal * 100, breed = (b - a + 1) / totaal * 100;
+      const vlak = el('div', {className: 'vlak', style: `left:${links}%;width:${breed}%;background:${hoofdkleur}`});
+      if (breed > 12) vlak.textContent = a === b ? 'dia ' + a : a + '–' + b;
+      spoor.append(vlak);
+    });
+
+    const lampjes = el('div', {className: 'lampjes'});
+    fixtureList().forEach(f => lampjes.append(el('i', {style: 'background:' + sceneColor(scene, f)})));
+
+    rij.append(naam, spoor, lampjes, el('div', {className: 'meta2', textContent: (bereik(tag) || '') + ' · ' + scene.fade + ' sec'}));
+    host.append(rij);
+  }
 }
 
 function renderPads() {
@@ -766,7 +813,7 @@ function renderTech() {
 function url() {
   if (techZichtbaar) return '/techniek';
   if (open) return (open.type === 'scene' ? '/scene/' : '/pad/') + encodeURIComponent(open.id);
-  return laOpen ? '/soundboard' : '/scenes';
+  return tab === 'pads' ? '/soundboard' : tab === 'tijd' ? '/tijdlijn' : '/scenes';
 }
 function navigeer(vervang = false) {
   const pad = url();
@@ -776,24 +823,26 @@ function navigeer(vervang = false) {
 function pasUrlToe() {
   const delen = decodeURIComponent(location.pathname).split('/').filter(Boolean);
   techZichtbaar = delen[0] === 'techniek';
-  if (delen[0] === 'scene' && delen[1]) { open = {type: 'scene', id: delen[1]}; laOpen = false; }
-  else if (delen[0] === 'pad' && delen[1]) { open = {type: 'pad', id: delen[1]}; laOpen = true; }
-  else { open = null; laOpen = delen[0] === 'soundboard'; }
+  if (delen[0] === 'scene' && delen[1]) { open = {type: 'scene', id: delen[1]}; if (tab === 'pads') tab = 'scenes'; }
+  else if (delen[0] === 'pad' && delen[1]) { open = {type: 'pad', id: delen[1]}; tab = 'pads'; }
+  else { open = null; tab = delen[0] === 'soundboard' ? 'pads' : delen[0] === 'tijdlijn' ? 'tijd' : 'scenes'; }
   tekenAlles();
 }
 function tekenAlles() {
-  document.getElementById('tab-scenes').className = 'sel';
-  document.getElementById('tab-pads').className = laOpen ? 'sel' : '';
-  document.getElementById('view-pads').className = 'la' + (laOpen ? '' : ' dicht');
-  document.body.classList.toggle('la-open', laOpen);
-  if (config) { renderScenes(); renderPads(); renderSheet(); }
+  document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
+  document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
+  document.getElementById('tab-tijd').className = tab === 'tijd' ? 'sel' : '';
+  document.getElementById('view-scenes').className = tab === 'scenes' ? '' : 'hidden';
+  document.getElementById('view-pads').className = tab === 'pads' ? '' : 'hidden';
+  document.getElementById('view-tijd').className = tab === 'tijd' ? '' : 'hidden';
+  if (config) { renderScenes(); renderPads(); renderTijdlijn(); renderSheet(); }
   if (techZichtbaar) renderTech(); else document.getElementById('tech').className = 'hidden';
 }
 window.onpopstate = pasUrlToe;
 
-document.getElementById('tab-scenes').onclick = () => { laOpen = false; syncTabs(); };
-document.getElementById('tab-pads').onclick = () => { laOpen = !laOpen; syncTabs(); };
-document.getElementById('la-dicht').onclick = () => { laOpen = false; syncTabs(); };
+document.getElementById('tab-scenes').onclick = () => { tab = 'scenes'; syncTabs(); };
+document.getElementById('tab-pads').onclick = () => { tab = 'pads'; syncTabs(); };
+document.getElementById('tab-tijd').onclick = () => { tab = 'tijd'; syncTabs(); };
 function syncTabs() {
   if (open && dirty) bewaar();
   open = null;
@@ -822,8 +871,14 @@ async function poll() {
     }
     const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.getagd || []) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
     const nextPads = stable(config.pads) + bank + stable(state.held || []);
-    if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
-    if (laOpen && nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
+    if (tab === 'scenes') {
+      if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
+    }
+    if (tab === 'pads' && nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
+    if (tab === 'tijd') {
+      const nextTijd = nextScenes + stable(state.tags || []);
+      if (nextTijd !== sigTijd) { sigTijd = nextTijd; renderTijdlijn(); }
+    }
     const sheetSig = open ? open.type + open.id + stable(state.deck || []) : '';
     if (sheetSig !== sigSheet) { sigSheet = sheetSig; if (!dirty) renderSheet(); }
     if (!dirty && stable(state.config) !== stable(config)) { config = state.config; renderSheet(); }
