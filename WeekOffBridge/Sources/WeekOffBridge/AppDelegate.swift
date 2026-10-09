@@ -23,6 +23,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var timer: Timer?
     private var menuIsOpen = false
     private var tick = 0
+    private var deck: [(tag: String, slide: Int, skipped: Bool)] = []
+    private var blacked = false
+    private var tagsByPlaybackSlide: [Int: [String]] = [:]
 
     private var documents: [KeynoteDocument] = []
     private var selectedID: String? {
@@ -60,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         audio.start()
         midi.onNote = { [weak self] note in self?.handle(note) }
         midi.start()
+        loadDeck()
         web.handler = { [weak self] request in
             guard let self else { return .notFound }
             return DispatchQueue.main.sync { self.route(request) }
@@ -110,10 +114,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         tick += 1
         if tick % 8 == 0, !menuIsOpen { loadDocuments() }
         if tick % 8 == 0, configStamp != ConfigStore.modified { loadConfig() }
+        if tick % 40 == 1 { loadDeck() }
 
         guard Keynote.isRunning else {
             statusLine = "Keynote draait niet"
             state = nil
+            blackout(reason: "Keynote is afgesloten")
             updateTitle()
             return
         }
@@ -132,6 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 guard let slide = Keynote.parseSlide(raw) else {
                     self.statusLine = raw == "GONE" ? "Presentatie is gesloten" : "Geen dia"
                     self.state = nil
+                    self.blackout(reason: self.statusLine)
                     break
                 }
                 self.statusLine = slide.skipped ? "dia \(slide.slide) (overgeslagen)" : "dia \(slide.slide)"
@@ -139,6 +146,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 self.handle(slide)
             }
             self.updateTitle()
+        }
+    }
+
+    private func loadDeck() {
+        guard Keynote.isRunning, let id = selectedID else { deck = []; return }
+        runner.run(Keynote.indexScript(documentID: id)) { [weak self] result in
+            guard let self, case .success(let raw) = result else { return }
+            var seen: [String: (Int, Bool)] = [:]
+            var order: [String] = []
+            var byPlayback: [Int: [String]] = [:]
+            var playback = 0
+            for entry in Keynote.parseIndex(raw) {
+                if !entry.skipped {
+                    playback += 1
+                    if !entry.tags.isEmpty { byPlayback[playback] = entry.tags }
+                }
+                for tag in entry.tags where seen[tag] == nil {
+                    seen[tag] = (entry.slide, entry.skipped)
+                    order.append(tag)
+                }
+            }
+            self.tagsByPlaybackSlide = byPlayback
+            self.deck = order.compactMap { tag in
+                seen[tag].map { (tag: tag, slide: $0.0, skipped: $0.1) }
+            }
         }
     }
 
@@ -156,10 +188,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         refreshMenu()
     }
 
+    private func inheritedTags(before slide: Int) -> [String] {
+        tagsByPlaybackSlide.keys.filter { $0 <= slide }.max().flatMap { tagsByPlaybackSlide[$0] } ?? []
+    }
+
     private func handle(_ slide: SlideState) {
         guard !slide.skipped else { return }
+        var slide = slide
+        if slide.tags.isEmpty {
+            let inherited = inheritedTags(before: slide.slide)
+            guard !inherited.isEmpty else { return }
+            slide = SlideState(slide: slide.slide, skipped: false, tags: inherited)
+        }
         guard slide.tags != lastTags else { return }
         lastTags = slide.tags
+        blacked = false
         guard !slide.tags.isEmpty else { return }
 
         let tags = slide.tags
@@ -234,6 +277,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             applyLights([tag])
             return .json(Data("{\"ok\":true,\"artnet\":\(backend.usesArtNet)}".utf8))
 
+        case ("POST", "/api/panic"):
+            blacked = false
+            blackout(reason: "handmatig")
+            return .json(Data("{\"ok\":true}".utf8))
+
         case ("POST", "/api/backend"):
             guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
                   let raw = body["backend"], let option = Backend(rawValue: raw) else { return .notFound }
@@ -261,6 +309,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             "lastNote": lastNote.map { ["note": Int($0.note), "channel": Int($0.channel), "age": Date().timeIntervalSince($0.at)] } as Any,
             "held": Array(heldPads.keys),
             "artnetActive": lights.isRunning,
+            "blackout": blacked,
+            "deck": deck.map { ["tag": $0.tag, "slide": $0.slide, "skipped": $0.skipped] },
             "slide": state?.slide as Any,
             "tags": state?.tags ?? [],
             "midi": midi.sourceCount,
@@ -303,6 +353,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             pushOverlay()
             padLine = "pad \(note.note) los"
         }
+        refreshMenu()
+    }
+
+    private func blackout(reason: String) {
+        guard !blacked else { return }
+        blacked = true
+        lastTags = state?.tags ?? []
+        heldPads.removeAll()
+        toggled.removeAll()
+        lights.setOverlay([:])
+        lights.apply(levels: [:], fade: 1)
+        lastFired = "alles uit (\(reason))"
         refreshMenu()
     }
 

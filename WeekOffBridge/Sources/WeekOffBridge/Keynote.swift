@@ -53,6 +53,59 @@ enum Keynote {
         """
     }
 
+    static func indexScript(documentID: String) -> String {
+        """
+        tell application "Keynote"
+            set target to missing value
+            repeat with d in documents
+                if (id of d) is "\(documentID)" then set target to d
+            end repeat
+            if target is missing value then return "GONE"
+            set out to ""
+            tell target
+                repeat with i from 1 to count of slides
+                    set nts to ""
+                    try
+                        set nts to presenter notes of slide i as string
+                    end try
+                    set sk to "0"
+                    try
+                        if skipped of slide i then set sk to "1"
+                    end try
+                    set out to out & "<<<S " & i & "|" & sk & ">>>" & nts
+                end repeat
+            end tell
+            return out
+        end tell
+        """
+    }
+
+    private static let indexSentinel = try! NSRegularExpression(pattern: "<<<S (\\d+)\\|([01])>>>")
+
+    struct IndexEntry {
+        let slide: Int
+        let skipped: Bool
+        let tags: [String]
+    }
+
+    static func parseIndex(_ raw: String) -> [IndexEntry] {
+        guard raw != "GONE", !raw.isEmpty else { return [] }
+        let full = NSRange(raw.startIndex..., in: raw)
+        let matches = indexSentinel.matches(in: raw, range: full)
+        var out: [IndexEntry] = []
+        for (index, match) in matches.enumerated() {
+            guard let slideRange = Range(match.range(at: 1), in: raw),
+                  let skipRange = Range(match.range(at: 2), in: raw),
+                  let slide = Int(raw[slideRange]) else { continue }
+            let start = raw.index(raw.startIndex, offsetBy: match.range.upperBound)
+            let end = index + 1 < matches.count
+                ? raw.index(raw.startIndex, offsetBy: matches[index + 1].range.lowerBound)
+                : raw.endIndex
+            out.append(IndexEntry(slide: slide, skipped: raw[skipRange] == "1", tags: tags(in: String(raw[start..<end]))))
+        }
+        return out
+    }
+
     static func parseDocuments(_ raw: String) -> [KeynoteDocument] {
         raw.split(separator: "\n").compactMap { line in
             let parts = line.split(separator: "\t", maxSplits: 1).map(String.init)

@@ -55,12 +55,15 @@ main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
 .sw{width:30px;height:30px;border-radius:9px;border:2px solid transparent;cursor:pointer}
 .sw.aan{border-color:var(--berry)}
 .swatches{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
-.sw.meer{background:conic-gradient(from 0deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);position:relative}
-.sw.meer.aan{border-color:var(--berry)}
+.sw.meer{background:conic-gradient(from 0deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);border-color:var(--g300);
+box-shadow:inset 0 0 0 2px var(--blackish);opacity:.85;transition:.12s}
+.sw.meer:hover{opacity:1;border-color:var(--gray)}
+.sw.meer.aan{border-color:var(--berry);opacity:1;box-shadow:inset 0 0 0 2px var(--blackish)}
 .wheel{width:132px;height:132px;border-radius:50%;margin:4px auto 10px;position:relative;cursor:crosshair;border:1px solid var(--g300);
 background:radial-gradient(circle,#fff 0%,#fff0 70%),conic-gradient(from 90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
 .wheel i{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #0008;pointer-events:none}
 input[type=range]{width:100%;accent-color:var(--isit);margin:10px 0 2px}
+select{background:var(--g800);border:1px solid var(--g300);color:var(--berry);border-radius:8px;padding:6px 9px;font:inherit;font-size:14px}
 input[type=text],input[type=number]{background:var(--g800);border:1px solid var(--g300);color:var(--berry);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;letter-spacing:var(--ls);width:100%}
 .row{display:flex;justify-content:space-between;font-size:13px;color:var(--gray)}
 .toggle{width:46px;height:26px;background:var(--g300);border-radius:999px;position:relative;cursor:pointer;flex:none}
@@ -87,7 +90,7 @@ td{padding:8px;border-top:1px solid var(--g400)}
 <header>
   <h1>WeekOff</h1>
   <nav><span id="tab-scenes" class="sel">Scenes</span><span id="tab-pads">Soundboard</span></nav>
-  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="openTech">⚙ Techniek</button><button id="save" class="p">Opslaan</button><span id="note"></span></div>
+  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><button id="save" class="p">Opslaan</button><span id="note"></span></div>
 </header>
 <main>
   <div id="view-scenes">
@@ -104,7 +107,7 @@ td{padding:8px;border-top:1px solid var(--g400)}
 <div id="tech" class="hidden"></div>
 <script>
 let config = null, state = {}, dirty = false, tab = 'scenes', bank = 0, open = null, learning = null;
-let sigScenes = '', sigPads = '', wheelOpen = {};
+let sigScenes = '', sigPads = '', wheelOpen = {}, techOpen = {};
 
 const el = (t, p = {}, k = []) => { const n = Object.assign(document.createElement(t), p); k.forEach(c => c && n.append(c)); return n; };
 const setNote = (t, c = 'gray') => { const n = document.getElementById('note'); n.textContent = t; n.style.color = c === 'ok' ? 'var(--isit)' : 'var(--gray)'; };
@@ -113,6 +116,26 @@ const midi = () => config.midi || {origin: 36, padsPerBank: 16, banks: 3};
 const fixtureAll = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
 const fixtureList = (waar = 'scenes') => fixtureAll().filter(f => waar === 'scenes' ? f.inScenes !== false : f.inPads !== false);
 const kind = f => f.kind || (f.channels.includes('red') ? 'rgb' : f.channels.includes('warm') ? 'warmcool' : f.channels.length === 1 ? 'schakelaar' : 'dimmer');
+
+const KANAALNAMEN = [
+  ['red', 'rood'], ['green', 'groen'], ['blue', 'blauw'], ['white', 'wit'], ['amber', 'amber'],
+  ['warm', 'warm wit'], ['cool', 'koel wit'], ['intensity', 'helderheid'], ['dimmer', 'dimmer'],
+  ['strobe', 'strobe'], ['rook', 'rook'], ['pan', 'pan'], ['tilt', 'tilt'], ['', 'niet gebruikt'],
+];
+const kanaalLabel = n => (KANAALNAMEN.find(([k]) => k === n) || [n, n])[1];
+const GEBRUIKT = {rgb: ['red', 'green', 'blue'], warmcool: ['warm', 'cool'], schakelaar: [], dimmer: []};
+
+function hernoemKanaal(fixtureId, oud, nieuw) {
+  const vervang = obj => {
+    if (!obj) return;
+    const van = fixtureId + '.' + oud, naar = fixtureId + '.' + nieuw;
+    if (obj[van] === undefined) return;
+    if (nieuw) obj[naar] = obj[van];
+    delete obj[van];
+  };
+  Object.values(config.scenes).forEach(sc => vervang(sc.values));
+  Object.values(config.pads || {}).forEach(p => vervang(p.dmx));
+}
 
 const COLORS = [['#e23b3b','rood'],['#ff7a1a','oranje'],['#d1ff00','lime'],['#2fbf71','groen'],['#00a1ff','blauw'],['#dfa8ff','roze'],['#fffcf2','wit']];
 const hex2rgb = h => [1,3,5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
@@ -156,10 +179,21 @@ function updateLiveScenes() {
   });
 }
 
+function sceneVolgorde() {
+  const deck = state.deck || [];
+  const inDeck = deck.map(d => d.tag).filter(t => config.scenes[t]);
+  const rest = Object.keys(config.scenes).filter(t => !inDeck.includes(t)).sort();
+  const ontbreekt = deck.filter(d => !config.scenes[d.tag]);
+  return {inDeck, rest, ontbreekt, deck};
+}
+
 function renderScenes() {
   const host = document.getElementById('scenes');
   host.innerHTML = '';
-  for (const tag of Object.keys(config.scenes).sort()) {
+  const {inDeck, rest, ontbreekt, deck} = sceneVolgorde();
+  const dia = tag => (deck.find(d => d.tag === tag) || {}).slide;
+
+  for (const tag of [...inDeck, ...rest]) {
     const scene = config.scenes[tag];
     const live = (state.tags || []).includes(tag);
     const card = el('div', {className: 'scene' + (live ? ' actief' : '')});
@@ -170,11 +204,28 @@ function renderScenes() {
     const aantal = fixtureList().filter(f => f.channels.some(c => (scene.values[f.id + '.' + c] ?? 0) > 0)).length;
     card.append(prev, el('div', {className: 'sbody'}, [
       el('div', {className: 'sname'}, [document.createTextNode(tag), live ? el('span', {className: 'badge', textContent: 'speelt nu'}) : null]),
-      el('div', {className: 'meta'}, [el('span', {textContent: aantal + ' lamp' + (aantal === 1 ? '' : 'en')}), el('span', {textContent: scene.fade + ' sec overgang'})]),
+      el('div', {className: 'meta'}, [
+        el('span', {textContent: dia(tag) ? 'dia ' + dia(tag) : 'niet in de presentatie', style: dia(tag) ? '' : 'color:#dfa8ff'}),
+        el('span', {textContent: aantal + ' lamp' + (aantal === 1 ? '' : 'en')}),
+        el('span', {textContent: scene.fade + ' sec overgang'})]),
     ]));
     host.append(card);
   }
-  sigScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures);
+  for (const d of ontbreekt) {
+    const kaart = el('div', {className: 'add', style: 'min-height:150px;border-color:#dfa8ff55;color:#dfa8ff'});
+    kaart.append(el('div', {style: 'text-align:center;line-height:1.4'}, [
+      el('div', {textContent: '#' + d.tag}),
+      el('div', {textContent: 'staat op dia ' + d.slide + ', nog geen scene', style: 'font-size:13px;opacity:.8'}),
+      el('div', {textContent: 'klik om aan te maken', style: 'font-size:13px;opacity:.6'})]));
+    kaart.onclick = () => {
+      config.scenes[d.tag] = {fade: 2, values: {}};
+      dirtyNow(); sigScenes = ''; renderScenes();
+      open = {type: 'scene', id: d.tag}; renderSheet();
+    };
+    host.append(kaart);
+  }
+
+  sigScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures) + JSON.stringify(state.deck || []);
   const add = el('div', {className: 'add', textContent: '+ Nieuwe scene'});
   add.onclick = () => {
     const naam = prompt('Naam van de scene (dit is ook de #tag in Keynote)');
@@ -309,13 +360,22 @@ function deviceBox(f, values) {
     b.oninput = apply; m.oninput = apply;
     box.append(b, el('div', {className: 'row'}, [el('span', {textContent: 'helderheid'}), el('span', {textContent: level + '%'})]),
       m, el('div', {className: 'row'}, [el('span', {textContent: 'warm ↔ koel'}), el('span', {textContent: mix < 34 ? 'warm' : mix > 66 ? 'koel' : 'neutraal'})]));
-  } else {
+  } else if (k === 'schakelaar') {
     const ch = f.channels[0];
     const on = get(ch) > 0;
     const t = el('div', {className: 'toggle' + (on ? ' aan' : '')}, [el('i')]);
     t.onclick = () => { set(ch, on ? 0 : 100); renderSheet(); };
     box.append(el('div', {style: 'display:flex;gap:12px;align-items:center;margin-top:16px'}, [t, el('span', {className: 'sub', textContent: on ? 'aan in deze scene' : 'uit in deze scene', style: 'margin:0'})]));
   }
+
+  const rest = f.channels.filter(c => c && !(GEBRUIKT[k] || []).includes(c) && !(k === 'schakelaar' && c === f.channels[0]));
+  rest.forEach(ch => {
+    const r = el('input', {type: 'range', min: 0, max: 100, value: get(ch)});
+    const uit = el('span', {textContent: get(ch) + '%'});
+    r.oninput = () => { set(ch, Number(r.value)); uit.textContent = r.value + '%'; };
+    box.append(r, el('div', {className: 'row'}, [el('span', {textContent: kanaalLabel(ch)}), uit]));
+  });
+
   return box;
 }
 
@@ -328,7 +388,9 @@ function renderSheet() {
   if (open.type === 'scene') {
     const scene = config.scenes[open.id];
     if (!scene) { open = null; return; }
-    sheet.append(el('h2', {textContent: open.id}), el('div', {className: 'sub', textContent: 'Start op de dia met #' + open.id + ' in de notities'}));
+    const opDia = (state.deck || []).find(d => d.tag === open.id);
+    sheet.append(el('h2', {textContent: open.id}), el('div', {className: 'sub',
+      textContent: opDia ? 'Start op dia ' + opDia.slide + (opDia.skipped ? ' (overgeslagen, start dus niet)' : '') : 'Staat nergens in de presentatie — zet #' + open.id + ' in de notities van een dia'}));
     const cols = el('div', {className: 'cols'});
     fixtureList().forEach(f => cols.append(deviceBox(f, scene.values)));
     sheet.append(cols);
@@ -426,12 +488,12 @@ function renderTech() {
   host.className = '';
   host.innerHTML = '';
   const rows = el('table');
-  rows.append(el('tr', {}, ['Naam', 'Soort', 'DMX-adres', 'Kanalen', 'Scenes', 'Soundboard', 'Nu'].map(h => el('th', {textContent: h}))));
+  rows.append(el('tr', {}, ['Naam', 'Soort', 'DMX-adres', 'Kanalen', '', 'Scenes', 'Soundboard', 'Nu'].map(h => el('th', {textContent: h}))));
   fixtureAll().forEach(f => {
     const naam = el('input', {type: 'text', value: f.naam});
     naam.onchange = () => { config.fixtures[f.id].label = naam.value; dirtyNow(); };
-    const soort = el('input', {type: 'text', value: kind(f)});
-    soort.onchange = () => { config.fixtures[f.id].kind = soort.value.trim(); dirtyNow(); };
+    const soortNaam = {rgb: 'kleurlamp', warmcool: 'warm/koel wit', schakelaar: 'aan-uit', dimmer: 'dimmer'}[kind(f)] || kind(f);
+    const soort = el('span', {className: 'mono', textContent: soortNaam});
     const adres = el('input', {type: 'number', min: 1, max: 512, value: f.address});
     adres.onchange = () => { config.fixtures[f.id].address = Number(adres.value); dirtyNow(); renderTech(); };
     const live = (state.channels || []).filter(c => c.name.startsWith(f.id + '.'));
@@ -442,9 +504,46 @@ function renderTech() {
       t.onclick = () => { config.fixtures[f.id][veld] = !aan; dirtyNow(); renderTech(); sigScenes = ''; sigPads = ''; };
       return t;
     };
+    const uitklap = el('button', {className: 'sm', textContent: techOpen[f.id] ? '▾ kanalen' : '▸ kanalen'});
+    uitklap.onclick = () => { techOpen[f.id] = !techOpen[f.id]; renderTech(); };
     rows.append(el('tr', {}, [el('td', {}, [naam]), el('td', {}, [soort]), el('td', {}, [adres]),
       el('td', {className: 'mono', textContent: f.address + '–' + (f.address + f.channels.length - 1)}),
-      el('td', {}, [vink('inScenes')]), el('td', {}, [vink('inPads')]), el('td', {}, [meter])]));
+      el('td', {}, [uitklap]), el('td', {}, [vink('inScenes')]), el('td', {}, [vink('inPads')]), el('td', {}, [meter])]));
+
+    if (techOpen[f.id]) {
+      const cel = el('td', {colSpan: 8, style: 'padding:4px 8px 14px'});
+      f.channels.forEach((ch, i) => {
+        const kies = el('select');
+        KANAALNAMEN.forEach(([waarde, label]) => {
+          const o = el('option', {value: waarde, textContent: label});
+          if (waarde === ch) o.selected = true;
+          kies.append(o);
+        });
+        if (!KANAALNAMEN.some(([k2]) => k2 === ch)) {
+          const o = el('option', {value: ch, textContent: ch, selected: true});
+          kies.append(o);
+        }
+        kies.onchange = () => {
+          hernoemKanaal(f.id, ch, kies.value);
+          config.fixtures[f.id].channels[i] = kies.value;
+          delete config.fixtures[f.id].kind;
+          dirtyNow(); sigScenes = ''; sigPads = ''; renderTech();
+        };
+        const weg = el('button', {className: 'sm', textContent: '✕'});
+        weg.onclick = () => {
+          hernoemKanaal(f.id, ch, '');
+          config.fixtures[f.id].channels.splice(i, 1);
+          dirtyNow(); sigScenes = ''; renderTech();
+        };
+        cel.append(el('div', {style: 'display:flex;gap:10px;align-items:center;margin-top:7px'}, [
+          el('span', {className: 'mono', textContent: 'DMX ' + (f.address + i), style: 'min-width:72px'}),
+          kies, weg]));
+      });
+      const erbij = el('button', {className: 'sm', textContent: '+ kanaal'});
+      erbij.onclick = () => { config.fixtures[f.id].channels.push('intensity'); dirtyNow(); renderTech(); };
+      cel.append(el('div', {style: 'margin-top:10px'}, [erbij]));
+      rows.append(el('tr', {}, [cel]));
+    }
   });
 
   const host2 = el('div', {className: 'backdrop'});
@@ -493,6 +592,7 @@ function syncTabs() {
   document.getElementById('view-pads').className = tab === 'pads' ? '' : 'hidden';
   open = null; renderSheet();
 }
+document.getElementById('panic').onclick = async () => { await fetch('/api/panic', {method: 'POST'}); setNote('alles uit', 'ok'); };
 document.getElementById('openTech').onclick = renderTech;
 document.getElementById('save').onclick = async () => {
   const r = await fetch('/api/config', {method: 'PUT', body: JSON.stringify(config)});
@@ -504,7 +604,7 @@ async function poll() {
   try {
     state = await (await fetch('/api/state')).json();
     document.getElementById('live').className = 'dot' + (state.slide == null ? ' off' : '');
-    document.getElementById('statusText').innerHTML = state.slide == null ? 'geen presentatie'
+    document.getElementById('statusText').innerHTML = state.slide == null ? (state.blackout ? 'geen presentatie — alles uit' : 'geen presentatie')
       : 'dia <b>' + state.slide + '</b>' + ((state.tags || []).length ? ' · <b>' + state.tags.join(' ') + '</b>' : '') + ' · MIDI <b>' + state.midi + '</b>';
 
     if (learning && state.lastNote && state.lastNote.age < 1.5) {
@@ -516,7 +616,7 @@ async function poll() {
         learning = null; dirtyNow(); setNote('pad gekoppeld', 'ok'); renderPads(); renderSheet();
       }
     }
-    const nextScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures);
+    const nextScenes = JSON.stringify(config.scenes) + JSON.stringify(config.fixtures) + JSON.stringify(state.deck || []);
     const nextPads = JSON.stringify(config.pads) + bank + JSON.stringify(state.held || []);
     if (tab === 'scenes') {
       if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
