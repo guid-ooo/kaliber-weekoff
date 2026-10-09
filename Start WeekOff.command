@@ -1,24 +1,20 @@
 #!/bin/zsh
 cd "$(dirname "$0")"
 
-if ! command -v python3 >/dev/null; then
-  osascript -e 'display alert "Python ontbreekt" message "Open Terminal en typ: xcode-select --install"'
-  exit 1
+APP="WeekOffBridge/build/WeekOffBridge.app"
+
+if [[ ! -d "$APP" ]]; then
+  echo "Bridge-app bouwen..."
+  WeekOffBridge/build.sh || {
+    osascript -e 'display alert "Bridge bouwen mislukt" message "Open Terminal en typ: xcode-select --install"'
+    exit 1
+  }
 fi
 
 open "WeekOff.key"
 open "WeekOff/WeekOff.qlab5"
+open "$APP"
 
-echo "Wachten tot Keynote de presentatie geopend heeft..."
-until osascript -e 'tell application "Keynote" to count of documents' 2>/dev/null | grep -qv '^0$'; do
-  sleep 1
-done
-
-clear
-echo "=============================================="
-echo "  WeekOff bridge draait (Keynote -> QLab)."
-echo "  Sluit dit venster om te stoppen."
-echo "=============================================="
-echo
-
-exec python3 assets/keynote_dmx_bridge.py
+echo "WeekOff gestart: Keynote, QLab en de bridge."
+echo "De bridge draait in de menubalk (het ruit-icoon)."
+echo "Kies daar de juiste presentatie. Dit venster mag dicht."

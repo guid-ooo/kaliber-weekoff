@@ -14,7 +14,7 @@ A tag is the QLab cue NUMBER (the Q# column), not the cue name:
     python3 keynote_dmx_bridge.py             # run, print cues
     python3 keynote_dmx_bridge.py --backend osc
     python3 keynote_dmx_bridge.py --selftest  # parser check, no Keynote
-    python3 keynote_dmx_bridge.py --panic     # stop everything in QLab and exit
+    python3 keynote_dmx_bridge.py --kill      # fire the #kill cue and exit
 
 macOS will ask for Automation permission the first time (Terminal -> Keynote).
 System Settings > Privacy & Security > Automation if you ever need to reset it.
@@ -31,6 +31,7 @@ import time
 import unicodedata
 
 QLAB_PORT = 53000
+KILL_CUE = "kill"
 
 # --------------------------------------------------------------------------
 # AppleScript
@@ -176,9 +177,6 @@ class ConsoleBackend:
         stamp = time.strftime("%H:%M:%S")
         print(f"[{stamp}] slide {slide:>3}  ->  " + "  ".join(cues))
 
-    def stop_all(self):
-        print("[console] panic")
-
 
 class QLabBackend:
     """Drives QLab over AppleScript. No passcode, no network settings."""
@@ -212,13 +210,6 @@ class QLabBackend:
         if missing:
             print(f"[warn] slide {slide}: no cue numbered {missing.strip()}", file=sys.stderr)
 
-    def stop_all(self):
-        try:
-            osa(f"tell {self.BUNDLE} to tell front workspace to panic")
-            print("[qlab] panic")
-        except KeynoteError as e:
-            print(f"[warn] QLab panic: {e}", file=sys.stderr)
-
 
 class OSCBackend:
     name = "osc"
@@ -232,10 +223,6 @@ class OSCBackend:
             addr = f"/cue/{cue}/start"
             self.sock.sendto(osc_message(addr), self.addr)
             print(f"[qlab] slide {slide} -> {addr}")
-
-    def stop_all(self):
-        self.sock.sendto(osc_message("/panic"), self.addr)
-        print("[qlab] panic")
 
 
 # --------------------------------------------------------------------------
@@ -282,8 +269,8 @@ def run(backend, args):
 
         if num is None:
             if last is not None:
-                print("[info] Keynote closed or no document; stopping QLab.")
-                backend.stop_all()
+                print("[info] Keynote closed or no document; firing kill.")
+                backend.fire([KILL_CUE], "closed")
                 last = None
             time.sleep(0.5)
             continue
@@ -333,7 +320,7 @@ def main():
     ap.add_argument("--interval", type=float, default=0.25, help="poll seconds (default 0.25)")
     ap.add_argument("--list", action="store_true", help="print the index and exit")
     ap.add_argument("--selftest", action="store_true", help="check the parser, no Keynote")
-    ap.add_argument("--panic", action="store_true", help="stop every cue in QLab and exit")
+    ap.add_argument("--kill", action="store_true", help=f"fire the {KILL_CUE} cue and exit")
     ap.add_argument("--clear-cue", metavar="NUMBER", default="",
                     help="fire this cue when landing on an untagged slide")
     ap.add_argument("-v", "--verbose", action="store_true")
@@ -351,15 +338,15 @@ def main():
         selftest(backend)
         return
 
-    if args.panic:
-        backend.stop_all()
+    if args.kill:
+        backend.fire([KILL_CUE], "manual")
         return
 
     try:
         if args.list:
             show_index(build_index())
         else:
-            atexit.register(backend.stop_all)
+            atexit.register(backend.fire, [KILL_CUE], "exit")
             for s in (signal.SIGHUP, signal.SIGTERM):
                 signal.signal(s, lambda *_: sys.exit(0))
             run(backend, args)

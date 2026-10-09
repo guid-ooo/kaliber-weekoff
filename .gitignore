@@ -18,3 +18,10 @@ Weekoff backups/
 
 assets/**/*.mov
 assets/lubro-floorplan/Untitled.png
+
+# Swift build output
+.build/
+WeekOffBridge/build/
+
+# zips
+*.zip
