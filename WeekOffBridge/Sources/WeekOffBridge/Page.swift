@@ -90,7 +90,7 @@ td{padding:8px;border-top:1px solid var(--g400)}
 <header>
   <h1>WeekOff</h1>
   <nav><span id="tab-scenes" class="sel">Scenes</span><span id="tab-pads">Soundboard</span></nav>
-  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><button id="save" class="p">Opslaan</button><span id="note"></span></div>
+  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
 </header>
 <main>
   <div id="view-scenes">
@@ -116,7 +116,18 @@ const stable = v => {
 };
 const el = (t, p = {}, k = []) => { const n = Object.assign(document.createElement(t), p); k.forEach(c => c && n.append(c)); return n; };
 const setNote = (t, c = 'gray') => { const n = document.getElementById('note'); n.textContent = t; n.style.color = c === 'ok' ? 'var(--isit)' : 'var(--gray)'; };
-const dirtyNow = () => { dirty = true; setNote('niet opgeslagen'); };
+let saveTimer = null;
+async function bewaar() {
+  const r = await fetch('/api/config', {method: 'PUT', body: JSON.stringify(config)});
+  if (r.ok) { dirty = false; setNote('opgeslagen', 'ok'); setTimeout(() => { if (!dirty) setNote(''); }, 1500); }
+  else setNote('opslaan mislukt');
+}
+const dirtyNow = () => {
+  dirty = true;
+  setNote('bewaren…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(bewaar, 600);
+};
 const midi = () => config.midi || {origin: 36, padsPerBank: 16, banks: 3};
 const fixtureAll = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
 const fixtureList = (waar = 'scenes') => fixtureAll().filter(f => waar === 'scenes' ? f.inScenes !== false : f.inPads !== false);
@@ -599,11 +610,7 @@ function syncTabs() {
 }
 document.getElementById('panic').onclick = async () => { await fetch('/api/panic', {method: 'POST'}); setNote('alles uit', 'ok'); };
 document.getElementById('openTech').onclick = renderTech;
-document.getElementById('save').onclick = async () => {
-  const r = await fetch('/api/config', {method: 'PUT', body: JSON.stringify(config)});
-  if (r.ok) { dirty = false; setNote('opgeslagen', 'ok'); setTimeout(() => setNote(''), 2000); } else setNote('opslaan mislukt');
-};
-window.onbeforeunload = e => { if (dirty) e.preventDefault(); };
+window.onbeforeunload = () => { if (dirty) { clearTimeout(saveTimer); navigator.sendBeacon('/api/config', JSON.stringify(config)); } };
 
 async function poll() {
   try {

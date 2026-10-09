@@ -247,7 +247,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             guard let config, let data = try? encoder.encode(config) else { return .notFound }
             return .json(data)
 
-        case ("PUT", "/api/config"):
+        case ("POST", "/api/config"), ("PUT", "/api/config"):
             guard let incoming = try? JSONDecoder().decode(ShowConfig.self, from: request.body) else {
                 return WebResponse(status: "400 Bad Request", type: "text/plain", body: Data("ongeldige json".utf8))
             }
