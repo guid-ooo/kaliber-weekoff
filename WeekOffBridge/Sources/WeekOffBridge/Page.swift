@@ -400,7 +400,7 @@ function renderPads() {
     card.ondragend = () => { card.classList.remove('sleep'); setTimeout(() => { gesleept = false; }, 0); };
     onthaal(card);
     card.onclick = () => { if (gesleept) return; open = {type: 'pad', id: key}; navigeer(); renderSheet(); };
-    const teken = el('span', {className: 'teken', textContent: isApparaat ? '💡' : '🔈'});
+    const teken = el('span', {className: 'teken', textContent: isApparaat ? '🔦' : '🔈'});
     card.append(
       teken,
       el('span', {className: 'nm', textContent: pad.label || (pad.sample || '').split('/').pop() || 'Pad'}),
