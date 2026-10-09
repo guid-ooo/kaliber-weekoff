@@ -25,6 +25,14 @@ button.p{background:var(--isit);border-color:var(--isit);color:var(--g800);font-
 button.sel{border-color:var(--isit);color:var(--isit)}
 button.sm{padding:5px 12px;font-size:13px}
 main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
+main.naast{max-width:1500px;display:grid;grid-template-columns:1fr minmax(360px,520px);gap:30px;align-items:start}
+main.naast .lead{font-size:15px}
+main.naast .grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+main.naast .prev{height:68px}
+main.naast .sname{font-size:18px}
+main.naast .pads{gap:10px;max-width:none}
+main.naast .pad{padding:11px;border-radius:13px}
+@media (max-width:1100px){main.naast{grid-template-columns:1fr}}
 .lead{color:var(--gray);margin:0 0 22px;font-size:17px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .scene{background:var(--blackish);border:1px solid var(--g400);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s}
@@ -97,7 +105,7 @@ td{padding:8px;border-top:1px solid var(--g400)}
 </style></head><body>
 <header>
   <h1>WeekOff</h1>
-  <nav><span id="tab-scenes" class="sel">Scenes</span><span id="tab-pads">Soundboard</span></nav>
+  <nav><span id="tab-scenes" class="sel">Scenes</span><span id="tab-pads">Soundboard</span><span id="tab-beide">Naast elkaar</span></nav>
   <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
 </header>
 <main>
@@ -144,7 +152,8 @@ async function sluit() {
   if (moest) await bewaar();
   sigScenes = ''; sigPads = '';
   renderSheet();
-  if (tab === 'scenes') renderScenes(); else renderPads();
+  if (tab !== 'pads') renderScenes();
+  if (tab !== 'scenes') renderPads();
 }
 const midi = () => config.midi || {origin: 36, padsPerBank: 16, banks: 3};
 const fixtureAll = () => Object.entries(config.fixtures).map(([id, f]) => ({id, ...f, naam: f.label || id.charAt(0).toUpperCase() + id.slice(1)}));
@@ -685,7 +694,7 @@ function renderTech() {
 function url() {
   if (techZichtbaar) return '/techniek';
   if (open) return (open.type === 'scene' ? '/scene/' : '/pad/') + encodeURIComponent(open.id);
-  return tab === 'pads' ? '/soundboard' : '/scenes';
+  return tab === 'pads' ? '/soundboard' : tab === 'beide' ? '/overview' : '/scenes';
 }
 function navigeer(vervang = false) {
   const pad = url();
@@ -695,16 +704,19 @@ function navigeer(vervang = false) {
 function pasUrlToe() {
   const delen = decodeURIComponent(location.pathname).split('/').filter(Boolean);
   techZichtbaar = delen[0] === 'techniek';
-  if (delen[0] === 'scene' && delen[1]) { tab = 'scenes'; open = {type: 'scene', id: delen[1]}; }
-  else if (delen[0] === 'pad' && delen[1]) { tab = 'pads'; open = {type: 'pad', id: delen[1]}; }
-  else { open = null; tab = delen[0] === 'soundboard' ? 'pads' : 'scenes'; }
+  if (delen[0] === 'scene' && delen[1]) { if (tab !== 'beide') tab = 'scenes'; open = {type: 'scene', id: delen[1]}; }
+  else if (delen[0] === 'pad' && delen[1]) { if (tab !== 'beide') tab = 'pads'; open = {type: 'pad', id: delen[1]}; }
+  else { open = null; tab = delen[0] === 'soundboard' ? 'pads' : delen[0] === 'overview' ? 'beide' : 'scenes'; }
   tekenAlles();
 }
 function tekenAlles() {
+  const beide = tab === 'beide';
   document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
   document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
-  document.getElementById('view-scenes').className = tab === 'scenes' ? '' : 'hidden';
-  document.getElementById('view-pads').className = tab === 'pads' ? '' : 'hidden';
+  document.getElementById('tab-beide').className = beide ? 'sel' : '';
+  document.getElementById('view-scenes').className = (beide || tab === 'scenes') ? '' : 'hidden';
+  document.getElementById('view-pads').className = (beide || tab === 'pads') ? '' : 'hidden';
+  document.querySelector('main').className = beide ? 'naast' : '';
   if (config) { renderScenes(); renderPads(); renderSheet(); }
   if (techZichtbaar) renderTech(); else document.getElementById('tech').className = 'hidden';
 }
@@ -712,8 +724,10 @@ window.onpopstate = pasUrlToe;
 
 document.getElementById('tab-scenes').onclick = () => { tab = 'scenes'; syncTabs(); };
 document.getElementById('tab-pads').onclick = () => { tab = 'pads'; syncTabs(); };
+document.getElementById('tab-beide').onclick = () => { tab = 'beide'; syncTabs(); };
 function syncTabs() {
   if (open && dirty) bewaar();
+  if (tab !== 'beide') open = null;
   navigeer();
   document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
   document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
@@ -743,9 +757,10 @@ async function poll() {
     }
     const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
     const nextPads = stable(config.pads) + bank + stable(state.held || []);
-    if (tab === 'scenes') {
+    if (tab !== 'pads') {
       if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
-    } else if (nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
+    }
+    if (tab !== 'scenes' && nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
     const sheetSig = open ? open.type + open.id + stable(state.deck || []) : '';
     if (sheetSig !== sigSheet) { sigSheet = sheetSig; if (!dirty) renderSheet(); }
     if (!dirty && stable(state.config) !== stable(config)) { config = state.config; renderSheet(); }
