@@ -56,6 +56,7 @@ final class LightEngine {
     private var to = [Double](repeating: 0, count: 512)
     private var fadeStart = Date.distantPast
     private var fadeDuration: Double = 0
+    private var overlay: [Int: Double] = [:]
 
     private(set) var isRunning = false
 
@@ -100,8 +101,16 @@ final class LightEngine {
         return zip(from, to).map { $0 + ($1 - $0) * progress }
     }
 
+    func setOverlay(_ levels: [Int: Double]) {
+        queue.async { self.overlay = levels }
+    }
+
     private func frame() {
         guard let sender else { return }
-        sender.send(currentLevels().map { UInt8(min(max($0.rounded(), 0), 255)) })
+        var values = currentLevels()
+        for (channel, value) in overlay where (1...512).contains(channel) {
+            values[channel - 1] = value
+        }
+        sender.send(values.map { UInt8(min(max($0.rounded(), 0), 255)) })
     }
 }

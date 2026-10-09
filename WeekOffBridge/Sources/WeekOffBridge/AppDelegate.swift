@@ -16,6 +16,8 @@ enum Backend: String, CaseIterable {
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let runner = ScriptRunner()
     private let lights = LightEngine()
+    private let audio = SamplePlayer()
+    private let midi = MIDIListener()
     private var statusItem: NSStatusItem!
     private var timer: Timer?
     private var menuIsOpen = false
@@ -38,6 +40,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var config: ShowConfig?
     private var configLine = "scenes.json niet geladen"
     private var configStamp: Date?
+    private var heldPads: [String: [Int: Double]] = [:]
+    private var padLine = "geen pad"
     private var backend: Backend = .qlab {
         didSet {
             UserDefaults.standard.set(backend.rawValue, forKey: "backend")
@@ -50,6 +54,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         selectedID = UserDefaults.standard.string(forKey: "selectedDocumentID")
         backend = Backend(rawValue: UserDefaults.standard.string(forKey: "backend") ?? "") ?? .qlab
         loadConfig()
+        audio.start()
+        midi.onNote = { [weak self] note in self?.handle(note) }
+        midi.start()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.title = "◇"
         refreshMenu()
@@ -170,11 +177,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    private func handle(_ note: MIDINote) {
+        guard let config, let pad = config.pad(channel: note.channel, note: note.note) else { return }
+        let key = "\(note.channel):\(note.note)"
+
+        if note.isOn {
+            if let sample = pad.sample { audio.play(sample, velocity: note.velocity) }
+            if let dmx = pad.dmx {
+                heldPads[key] = config.levels(dmx)
+                pushOverlay()
+            }
+            padLine = "pad \(note.note) (vel \(note.velocity))"
+        } else if pad.hold ?? false, heldPads.removeValue(forKey: key) != nil {
+            pushOverlay()
+            padLine = "pad \(note.note) los"
+        }
+        refreshMenu()
+    }
+
+    private func pushOverlay() {
+        var merged: [Int: Double] = [:]
+        for levels in heldPads.values {
+            for (channel, value) in levels { merged[channel] = max(merged[channel] ?? 0, value) }
+        }
+        lights.setOverlay(merged)
+    }
+
     private func applyLights(_ tags: [String]) {
         guard let config else { return }
         guard let result = config.levels(for: tags) else { return }
         guard !result.levels.isEmpty || result.unknown.count < tags.count else { return }
         lights.apply(levels: result.levels, fade: result.fade)
+        if let sound = config.audio(for: tags) {
+            audio.playScene(sound.path, fade: sound.fade)
+        }
     }
 
     private func updateTitle() {
@@ -228,6 +264,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(header("Status"))
         menu.addItem(disabled(statusLine))
         menu.addItem(disabled("laatste cue: \(lastFired)"))
+        menu.addItem(disabled("MIDI: \(midi.sourceCount) bron(nen), \(padLine)"))
         if let state, !state.tags.isEmpty {
             menu.addItem(disabled("tags: \(state.tags.joined(separator: ", "))"))
         }

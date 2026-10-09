@@ -8,6 +8,14 @@ struct Fixture: Codable, Equatable {
 struct Scene: Codable, Equatable {
     let fade: Double
     let values: [String: Double]
+    var audio: String?
+    var audioFade: Double?
+}
+
+struct Pad: Codable, Equatable {
+    var sample: String?
+    var dmx: [String: Double]?
+    var hold: Bool?
 }
 
 struct ArtNetConfig: Codable, Equatable {
@@ -20,6 +28,30 @@ struct ShowConfig: Codable, Equatable {
     let artnet: ArtNetConfig
     let fixtures: [String: Fixture]
     let scenes: [String: Scene]
+    var pads: [String: Pad]?
+
+    func pad(channel: UInt8, note: UInt8) -> Pad? {
+        pads?["\(channel):\(note)"] ?? pads?["\(note)"]
+    }
+
+    func audio(for tags: [String]) -> (path: String?, fade: Double)? {
+        for tag in tags.reversed() {
+            guard let scene = scenes[tag] else { continue }
+            if let audio = scene.audio {
+                return (audio == "keep" ? nil : audio, scene.audioFade ?? 1)
+            }
+        }
+        return tags.contains(where: { scenes[$0] != nil }) ? (nil, 1) : nil
+    }
+
+    func levels(_ values: [String: Double]) -> [Int: Double] {
+        var out: [Int: Double] = [:]
+        for (path, percent) in values {
+            guard let channel = dmxChannel(for: path) else { continue }
+            out[channel] = min(max(percent, 0), 100) / 100 * 255
+        }
+        return out
+    }
 
     func levels(for tags: [String]) -> (levels: [Int: Double], fade: Double, unknown: [String])? {
         var matched: [Scene] = []
@@ -62,6 +94,9 @@ struct ShowConfig: Codable, Equatable {
             "shoutouts": Scene(fade: 1, values: ["floods.red": 100]),
             "dilemma": Scene(fade: 2, values: ["spot.cool": 60, "floods.blue": 60]),
             "blackout": Scene(fade: 1, values: [:]),
+        ],
+        pads: [
+            "44": Pad(sample: nil, dmx: ["rookmachine.rook": 100], hold: true),
         ]
     )
 }
