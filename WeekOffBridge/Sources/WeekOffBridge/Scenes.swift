@@ -36,7 +36,6 @@ struct Pad: Codable, Equatable {
     var mode: String?
     var volume: Double?
     var type: String?
-    var emoji: String?
 
     var isApparaat: Bool { type == "apparaat" || (type == nil && !(dmx ?? [:]).isEmpty) }
 

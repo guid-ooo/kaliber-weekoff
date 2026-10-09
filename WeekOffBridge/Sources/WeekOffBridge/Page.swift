@@ -59,6 +59,7 @@ body.la-open .sheet{right:min(520px,92vw)}
 .pad{aspect-ratio:1;border-radius:16px;border:1px solid var(--g400);background:var(--blackish);padding:13px;display:flex;flex-direction:column;cursor:pointer;transition:.12s}
 .pad:hover{border-color:var(--isit);transform:translateY(-2px)}
 .pad.leeg{border-style:dashed;color:var(--gray);align-items:center;justify-content:center;font-size:14px}
+.pad .teken{font-size:17px;line-height:1;opacity:.75}
 .pad .nm{margin-top:auto;font-size:15px;line-height:1.2;overflow-wrap:anywhere}
 .pad .sub{font-size:12px;color:var(--gray);margin-top:3px;overflow-wrap:anywhere}
 .pad.apparaat .nm{color:var(--pink)}
@@ -400,6 +401,7 @@ function renderPads() {
     onthaal(card);
     card.onclick = () => { if (gesleept) return; open = {type: 'pad', id: key}; navigeer(); renderSheet(); };
     card.append(
+      el('span', {className: 'teken', textContent: isApparaat ? '🔦' : '🔈'}),
       el('span', {className: 'nm', textContent: pad.label || (pad.sample || '').split('/').pop() || 'Pad'}),
       el('span', {className: 'sub', textContent: isApparaat ? (pad.mode === 'toggle' ? 'aan-uit schakelen' : 'zolang ingedrukt') : Math.round(pad.volume ?? 100) + '%'})
     );
@@ -587,26 +589,12 @@ function renderSheet() {
     });
     const b3 = el('div', {className: 'box'}, [el('h3', {textContent: 'Hoe lang?'}), el('p', {textContent: 'bij loslaten'}), modus]);
 
-    const emoji = el('input', {type: 'text', value: pad.emoji || '', placeholder: 'bijv. 🎉', style: 'font-size:22px;text-align:center;width:90px'});
-    emoji.oninput = () => { const v = emoji.value.trim(); if (v) pad.emoji = v; else delete pad.emoji; dirtyNow(); };
-    const snel = el('div', {className: 'choice', style: 'margin-top:9px'});
-    ['🎉', '📣', '💨', '🥁', '✨', '😬', '🔥'].forEach(e => {
-      const b = el('button', {textContent: e, className: pad.emoji === e ? 'sel' : ''});
-      b.onclick = () => { pad.emoji = e; dirtyNow(); renderSheet(); };
-      snel.append(b);
-    });
-    const bEmoji = el('div', {className: 'box'}, [
-      el('h3', {textContent: 'Emoji op het scherm'}),
-      el('p', {textContent: 'verschijnt groot over alles heen'}),
-      el('div', {style: 'display:flex;gap:9px;align-items:center'}, [emoji, pad.emoji ? el('button', {textContent: 'Wissen', onclick: () => { delete pad.emoji; dirtyNow(); renderSheet(); }}) : null]),
-      snel]);
-
     const leer = el('button', {textContent: learning ? 'Druk op een pad…' : 'Pad leren…', className: learning ? 'sel' : ''});
     leer.onclick = () => { learning = open.id; setNote('druk op een pad op het kastje'); renderSheet(); };
     const b4 = el('div', {className: 'box'}, [el('h3', {textContent: 'Welke knop?'}), el('p', {textContent: 'druk op het pad om te koppelen'}),
       el('div', {style: 'display:flex;gap:9px;align-items:center'}, [leer, el('span', {className: 'key', textContent: 'noot ' + note})])]);
 
-    cols.append(b2, b3, b4, bEmoji);
+    cols.append(b2, b3, b4);
     if (!isApparaat) {
       const naamVanBestand = (pad.sample || '').split('/').pop();
       const kies = el('button', {textContent: pad.sample ? 'Ander bestand kiezen…' : 'Kies bestand…'});
