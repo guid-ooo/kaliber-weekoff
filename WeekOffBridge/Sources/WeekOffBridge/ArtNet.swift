@@ -101,6 +101,16 @@ final class LightEngine {
         return zip(from, to).map { $0 + ($1 - $0) * progress }
     }
 
+    func snapshot() -> [Double] {
+        queue.sync {
+            var values = currentLevels()
+            for (channel, value) in overlay where (1...512).contains(channel) {
+                values[channel - 1] = value
+            }
+            return values
+        }
+    }
+
     func setOverlay(_ levels: [Int: Double]) {
         queue.async { self.overlay = levels }
     }

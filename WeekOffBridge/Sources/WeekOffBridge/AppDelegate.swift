@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let lights = LightEngine()
     private let audio = SamplePlayer()
     private let midi = MIDIListener()
+    private let web = WebServer(port: 8733)
     private var statusItem: NSStatusItem!
     private var timer: Timer?
     private var menuIsOpen = false
@@ -57,6 +58,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         audio.start()
         midi.onNote = { [weak self] note in self?.handle(note) }
         midi.start()
+        web.handler = { [weak self] request in
+            guard let self else { return .notFound }
+            return DispatchQueue.main.sync { self.route(request) }
+        }
+        web.start()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.title = "◇"
         refreshMenu()
@@ -177,6 +183,73 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    private func route(_ request: WebRequest) -> WebResponse {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+        switch (request.method, request.path) {
+        case ("GET", "/"):
+            return .html(Page.html)
+
+        case ("GET", "/api/config"):
+            guard let config, let data = try? encoder.encode(config) else { return .notFound }
+            return .json(data)
+
+        case ("PUT", "/api/config"):
+            guard let incoming = try? JSONDecoder().decode(ShowConfig.self, from: request.body) else {
+                return WebResponse(status: "400 Bad Request", type: "text/plain", body: Data("ongeldige json".utf8))
+            }
+            try? ConfigStore.save(incoming)
+            loadConfig()
+            return .json(Data("{\"ok\":true}".utf8))
+
+        case ("GET", "/api/state"):
+            return .json(stateJSON(encoder))
+
+        case ("POST", "/api/preview"):
+            guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
+                  let tag = body["tag"] else { return .notFound }
+            lastTags = nil
+            applyLights([tag])
+            return .json(Data("{\"ok\":true,\"artnet\":\(backend.usesArtNet)}".utf8))
+
+        case ("POST", "/api/backend"):
+            guard let body = try? JSONDecoder().decode([String: String].self, from: request.body),
+                  let raw = body["backend"], let option = Backend(rawValue: raw) else { return .notFound }
+            backend = option
+            return .json(Data("{\"ok\":true}".utf8))
+
+        default:
+            return .notFound
+        }
+    }
+
+    private func stateJSON(_ encoder: JSONEncoder) -> Data {
+        var channels: [[String: Any]] = []
+        if let config {
+            let values = lights.snapshot()
+            for (name, fixture) in config.fixtures.sorted(by: { $0.key < $1.key }) {
+                for (index, channel) in fixture.channels.enumerated() {
+                    let dmx = fixture.address + index
+                    guard (1...512).contains(dmx) else { continue }
+                    channels.append(["name": "\(name).\(channel)", "value": Int(values[dmx - 1].rounded())])
+                }
+            }
+        }
+        var payload: [String: Any] = [
+            "slide": state?.slide as Any,
+            "tags": state?.tags ?? [],
+            "midi": midi.sourceCount,
+            "backend": backend.rawValue,
+            "channels": channels,
+        ]
+        if let config, let data = try? encoder.encode(config),
+           let object = try? JSONSerialization.jsonObject(with: data) {
+            payload["config"] = object
+        }
+        return (try? JSONSerialization.data(withJSONObject: payload)) ?? Data("{}".utf8)
+    }
+
     private func handle(_ note: MIDINote) {
         guard let config, let pad = config.pad(channel: note.channel, note: note.note) else { return }
         let key = "\(note.channel):\(note.note)"
@@ -259,6 +332,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let edit = NSMenuItem(title: "scenes.json openen", action: #selector(openConfig), keyEquivalent: "")
         edit.target = self
         menu.addItem(edit)
+        let ui = NSMenuItem(title: "Bedieningspaneel openen", action: #selector(openWebUI), keyEquivalent: "")
+        ui.target = self
+        menu.addItem(ui)
 
         menu.addItem(.separator())
         menu.addItem(header("Status"))
@@ -299,6 +375,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func selectBackend(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? String, let option = Backend(rawValue: raw) else { return }
         backend = option
+    }
+
+    @objc private func openWebUI() {
+        guard let url = URL(string: "http://127.0.0.1:\(web.port)/") else { return }
+        NSWorkspace.shared.open(url)
     }
 
     @objc private func openConfig() {

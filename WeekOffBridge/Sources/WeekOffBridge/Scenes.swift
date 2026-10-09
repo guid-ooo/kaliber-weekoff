@@ -126,6 +126,12 @@ enum ConfigStore {
         }
     }
 
+    static func save(_ config: ShowConfig) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(config).write(to: url)
+    }
+
     static var modified: Date? {
         try? FileManager.default.attributesOfItem(atPath: url.path)[.modificationDate] as? Date
     }
