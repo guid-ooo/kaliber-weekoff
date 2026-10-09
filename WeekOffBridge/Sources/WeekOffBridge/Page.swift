@@ -250,6 +250,21 @@ function renderScenes() {
   const host = document.getElementById('scenes');
   host.innerHTML = '';
   const {inDeck, elders, herkomst, rest, ontbreekt, deck} = sceneVolgorde();
+  const getagd = state.getagd || [];
+  const totaal = state.diaTotaal || 0;
+  const bereik = tag => {
+    const stukken = [];
+    getagd.forEach((g, i) => {
+      if (!g.tags.includes(tag)) return;
+      const volgende = getagd.slice(i + 1).find(v => !v.tags.includes(tag));
+      const eind = volgende ? volgende.slide - 1 : totaal;
+      const vorige = stukken[stukken.length - 1];
+      if (vorige && vorige[1] >= g.slide - 1) vorige[1] = Math.max(vorige[1], eind);
+      else stukken.push([g.slide, eind]);
+    });
+    if (!stukken.length) return null;
+    return stukken.map(([a, b]) => a === b ? 'dia ' + a : 'dia ' + a + '–' + b).join(', ');
+  };
   const dia = tag => (deck.find(d => d.tag === tag) || {}).slide;
 
   const dicht = JSON.parse(localStorage.getItem('dichtgeklapt') || '{}');
@@ -279,7 +294,7 @@ function renderScenes() {
     card.append(prev, el('div', {className: 'sbody'}, [
       el('div', {className: 'sname'}, [document.createTextNode(tag), live ? el('span', {className: 'badge', textContent: 'speelt nu'}) : null]),
       el('div', {className: 'meta'}, [
-        el('span', {textContent: dia(tag) ? 'dia ' + dia(tag) : 'niet in de presentatie', style: dia(tag) ? '' : 'color:#dfa8ff'}),
+        el('span', {textContent: bereik(tag) || 'niet in de presentatie', style: bereik(tag) ? '' : 'color:#dfa8ff'}),
         el('span', {textContent: aantal + ' lamp' + (aantal === 1 ? '' : 'en')}),
         el('span', {textContent: scene.fade + ' sec overgang'})]),
     ]));
@@ -328,7 +343,7 @@ function renderScenes() {
     }
   }
 
-  sigScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
+  sigScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.getagd || []) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
 }
 
 function padKeyFor(index) { return String(midi().origin + bank * midi().padsPerBank + index); }
@@ -504,6 +519,21 @@ function deviceBox(f, values) {
   return box;
 }
 
+function bereikVan(tag) {
+  const getagd = state.getagd || [], totaal = state.diaTotaal || 0;
+  const stukken = [];
+  getagd.forEach((g, i) => {
+    if (!g.tags.includes(tag)) return;
+    const volgende = getagd.slice(i + 1).find(v => !v.tags.includes(tag));
+    const eind = volgende ? volgende.slide - 1 : totaal;
+    const vorige = stukken[stukken.length - 1];
+    if (vorige && vorige[1] >= g.slide - 1) vorige[1] = Math.max(vorige[1], eind);
+    else stukken.push([g.slide, eind]);
+  });
+  if (!stukken.length) return null;
+  return 'Actief op ' + stukken.map(([a, b]) => a === b ? 'dia ' + a : 'dia ' + a + ' t/m ' + b).join(' en ');
+}
+
 function renderSheet() {
   const host = document.getElementById('sheet');
   host.innerHTML = '';
@@ -526,7 +556,7 @@ function renderSheet() {
       dirtyNow(); navigeer(true); sigScenes = ''; renderScenes(); renderSheet();
     };
     sheet.append(el('div', {className: 'titelrij'}, [el('h2', {textContent: open.id}), potlood]), el('div', {className: 'sub',
-      textContent: opDia ? 'Start op dia ' + opDia.slide + (opDia.skipped ? ' (overgeslagen, start dus niet)' : '') : 'Staat nergens in de presentatie — zet #' + open.id + ' in de notities van een dia'}));
+      textContent: bereikVan(open.id) || 'Staat nergens in de presentatie — zet #' + open.id + ' in de notities van een dia'}));
     const cols = el('div', {className: 'cols'});
     fixtureList().forEach(f => cols.append(deviceBox(f, scene.values)));
     sheet.append(cols);
@@ -790,7 +820,7 @@ async function poll() {
         learning = null; dirtyNow(); setNote('pad gekoppeld', 'ok'); renderPads(); renderSheet();
       }
     }
-    const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
+    const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.getagd || []) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
     const nextPads = stable(config.pads) + bank + stable(state.held || []);
     if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
     if (laOpen && nextPads !== sigPads) { sigPads = nextPads; renderPads(); }

@@ -28,6 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var blacked = false
     private var tagsByPlaybackSlide: [Int: [String]] = [:]
     private var deckName = ""
+    private var getagd: [(slide: Int, tags: [String])] = []
+    private var diaTotaal = 0
     private var origins: [String: [String]] = [:]
 
     private var documents: [KeynoteDocument] = []
@@ -168,7 +170,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             var order: [String] = []
             var byPlayback: [Int: [String]] = [:]
             var playback = 0
+            var getagd: [(slide: Int, tags: [String])] = []
+            var totaal = 0
             for entry in Keynote.parseIndex(raw) {
+                totaal = max(totaal, entry.slide)
+                if !entry.skipped, !entry.tags.isEmpty { getagd.append((entry.slide, entry.tags)) }
                 if !entry.skipped {
                     playback += 1
                     if !entry.tags.isEmpty { byPlayback[playback] = entry.tags }
@@ -179,6 +185,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 }
             }
             self.tagsByPlaybackSlide = byPlayback
+            self.getagd = getagd
+            self.diaTotaal = totaal
             if !self.deckName.isEmpty {
                 OriginStore.remember(deck: self.deckName, tags: order)
                 self.origins = OriginStore.load()
@@ -338,6 +346,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             "blackout": blacked,
             "deck": deck.map { ["tag": $0.tag, "slide": $0.slide, "skipped": $0.skipped] },
             "deckName": deckName,
+            "getagd": getagd.map { ["slide": $0.slide, "tags": $0.tags] },
+            "diaTotaal": diaTotaal,
             "origins": origins.filter { $0.key != deckName },
             "slide": state?.slide as Any,
             "tags": state?.tags ?? [],
