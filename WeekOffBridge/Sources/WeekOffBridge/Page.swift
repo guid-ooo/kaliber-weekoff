@@ -35,6 +35,11 @@ main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
 .sname{font-family:var(--display);font-size:21px;display:flex;align-items:center;gap:9px}
 .badge{font-family:var(--font);font-size:11px;background:var(--isit);color:var(--g800);border-radius:999px;padding:2px 9px;font-weight:500;letter-spacing:0}
 .meta{color:var(--gray);font-size:13px;margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
+.kop{grid-column:1/-1;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);margin:14px 0 -4px}
+.kop.klik{cursor:pointer;user-select:none}
+.kop.klik:hover{color:var(--isit)}
+.scene.dof{opacity:.62}
+.scene.dof:hover{opacity:1}
 .add{border:1px dashed var(--g300);border-radius:16px;display:grid;place-items:center;color:var(--gray);min-height:180px;cursor:pointer}
 .add:hover{border-color:var(--isit);color:var(--isit)}
 .pads{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;max-width:600px}
@@ -198,18 +203,38 @@ function updateLiveScenes() {
 function sceneVolgorde() {
   const deck = state.deck || [];
   const inDeck = deck.map(d => d.tag).filter(t => config.scenes[t]);
-  const rest = Object.keys(config.scenes).filter(t => !inDeck.includes(t)).sort();
+  const origins = state.origins || {};
+  const herkomst = {};
+  for (const [presentatie, tags] of Object.entries(origins))
+    for (const t of tags) if (!inDeck.includes(t) && config.scenes[t]) herkomst[t] = presentatie;
+  const elders = Object.keys(herkomst).sort();
+  const rest = Object.keys(config.scenes).filter(t => !inDeck.includes(t) && !elders.includes(t)).sort();
   const ontbreekt = deck.filter(d => !config.scenes[d.tag]);
-  return {inDeck, rest, ontbreekt, deck};
+  return {inDeck, elders, herkomst, rest, ontbreekt, deck};
 }
 
 function renderScenes() {
   const host = document.getElementById('scenes');
   host.innerHTML = '';
-  const {inDeck, rest, ontbreekt, deck} = sceneVolgorde();
+  const {inDeck, elders, herkomst, rest, ontbreekt, deck} = sceneVolgorde();
   const dia = tag => (deck.find(d => d.tag === tag) || {}).slide;
 
-  for (const tag of [...inDeck, ...rest]) {
+  const dicht = JSON.parse(localStorage.getItem('dichtgeklapt') || '{}');
+  const kop = (tekst, inklapbaar = false, aantal = 0) => {
+    const open2 = !dicht[tekst];
+    const h = el('div', {className: 'kop' + (inklapbaar ? ' klik' : '')});
+    h.textContent = inklapbaar ? (open2 ? '▾ ' : '▸ ') + tekst + ' (' + aantal + ')' : tekst;
+    if (inklapbaar) h.onclick = () => {
+      dicht[tekst] = open2;
+      localStorage.setItem('dichtgeklapt', JSON.stringify(dicht));
+      sigScenes = ''; renderScenes();
+    };
+    host.append(h);
+    return open2;
+  };
+  if (elders.length || rest.length) kop(state.deckName ? 'In ' + state.deckName : 'In deze presentatie');
+
+  for (const tag of inDeck) {
     const scene = config.scenes[tag];
     const live = (state.tags || []).includes(tag);
     const card = el('div', {className: 'scene' + (live ? ' actief' : '')});
@@ -241,7 +266,6 @@ function renderScenes() {
     host.append(kaart);
   }
 
-  sigScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []);
   const add = el('div', {className: 'add', textContent: '+ Nieuwe scene'});
   add.onclick = () => {
     const naam = prompt('Naam van de scene (dit is ook de #tag in Keynote)');
@@ -252,6 +276,26 @@ function renderScenes() {
     dirtyNow(); renderScenes();
   };
   host.append(add);
+
+  for (const groep of [{titel: 'Uit andere presentaties', tags: elders}, {titel: 'Nergens gebruikt', tags: rest}]) {
+    if (!groep.tags.length) continue;
+    if (!kop(groep.titel, true, groep.tags.length)) continue;
+    for (const tag of groep.tags) {
+      const scene = config.scenes[tag];
+      const card = el('div', {className: 'scene dof'});
+      card.dataset.tag = tag;
+      card.onclick = () => { open = {type: 'scene', id: tag}; renderSheet(); };
+      const prev = el('div', {className: 'prev'});
+      fixtureList().forEach(f => prev.append(el('span', {style: 'background:' + sceneColor(scene, f)})));
+      card.append(prev, el('div', {className: 'sbody'}, [
+        el('div', {className: 'sname'}, [document.createTextNode(tag)]),
+        el('div', {className: 'meta'}, [el('span', {textContent: herkomst[tag] || 'geen presentatie', style: 'color:var(--pink)'})]),
+      ]));
+      host.append(card);
+    }
+  }
+
+  sigScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
 }
 
 function padKeyFor(index) { return String(midi().origin + bank * midi().padsPerBank + index); }
@@ -628,7 +672,7 @@ async function poll() {
         learning = null; dirtyNow(); setNote('pad gekoppeld', 'ok'); renderPads(); renderSheet();
       }
     }
-    const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []);
+    const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
     const nextPads = stable(config.pads) + bank + stable(state.held || []);
     if (tab === 'scenes') {
       if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();

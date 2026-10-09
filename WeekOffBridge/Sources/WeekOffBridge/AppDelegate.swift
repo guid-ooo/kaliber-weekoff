@@ -26,6 +26,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var deck: [(tag: String, slide: Int, skipped: Bool)] = []
     private var blacked = false
     private var tagsByPlaybackSlide: [Int: [String]] = [:]
+    private var deckName = ""
+    private var origins: [String: [String]] = [:]
 
     private var documents: [KeynoteDocument] = []
     private var selectedID: String? {
@@ -61,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         backend = Backend(rawValue: UserDefaults.standard.string(forKey: "backend") ?? "") ?? .qlab
         loadConfig()
         audio.start()
+        origins = OriginStore.load()
         midi.onNote = { [weak self] note in self?.handle(note) }
         midi.start()
         loadDeck()
@@ -102,8 +105,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let fresh = Keynote.parseDocuments(raw)
             let changed = fresh != self.documents
             self.documents = fresh
-            if self.selectedID == nil, let first = fresh.first {
-                self.selectedID = first.id
+            let weg = self.selectedID.map { id in !fresh.contains { $0.id == id } } ?? true
+            if weg, let volgende = fresh.first(where: { $0.name == self.deckName }) ?? fresh.first {
+                self.selectedID = volgende.id
+                self.deckName = volgende.name
+                self.loadDeck()
                 return
             }
             if changed { self.refreshMenu() }
@@ -152,6 +158,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func loadDeck() {
         guard Keynote.isRunning, let id = selectedID else { deck = []; return }
+        runner.run(Keynote.nameScript(documentID: id)) { [weak self] result in
+            if case .success(let naam) = result { self?.deckName = naam.trimmingCharacters(in: .whitespacesAndNewlines) }
+        }
         runner.run(Keynote.indexScript(documentID: id)) { [weak self] result in
             guard let self, case .success(let raw) = result else { return }
             var seen: [String: (Int, Bool)] = [:]
@@ -169,6 +178,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 }
             }
             self.tagsByPlaybackSlide = byPlayback
+            if !self.deckName.isEmpty {
+                OriginStore.remember(deck: self.deckName, tags: order)
+                self.origins = OriginStore.load()
+            }
             self.deck = order.compactMap { tag in
                 seen[tag].map { (tag: tag, slide: $0.0, skipped: $0.1) }
             }
@@ -311,6 +324,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             "artnetActive": lights.isRunning,
             "blackout": blacked,
             "deck": deck.map { ["tag": $0.tag, "slide": $0.slide, "skipped": $0.skipped] },
+            "deckName": deckName,
+            "origins": origins.filter { $0.key != deckName },
             "slide": state?.slide as Any,
             "tags": state?.tags ?? [],
             "midi": midi.sourceCount,

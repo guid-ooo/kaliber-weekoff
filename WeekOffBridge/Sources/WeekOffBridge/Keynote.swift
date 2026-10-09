@@ -28,6 +28,17 @@ enum Keynote {
     end tell
     """
 
+    static func nameScript(documentID: String) -> String {
+        """
+        tell application "Keynote"
+            repeat with d in documents
+                if (id of d) is "\(documentID)" then return name of d
+            end repeat
+            return ""
+        end tell
+        """
+    }
+
     static func pollScript(documentID: String) -> String {
         """
         tell application "Keynote"

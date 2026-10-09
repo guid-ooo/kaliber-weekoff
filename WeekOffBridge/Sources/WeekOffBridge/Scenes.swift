@@ -128,6 +128,31 @@ struct ShowConfig: Codable, Equatable {
     )
 }
 
+enum OriginStore {
+    private static var url: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("WeekOffBridge", isDirectory: true)
+        try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        return base.appendingPathComponent("presentaties.json")
+    }
+
+    static func load() -> [String: [String]] {
+        guard let data = try? Data(contentsOf: url),
+              let map = try? JSONDecoder().decode([String: [String]].self, from: data) else { return [:] }
+        return map
+    }
+
+    static func remember(deck: String, tags: [String]) {
+        guard !deck.isEmpty, !tags.isEmpty else { return }
+        var map = load()
+        if map[deck] == tags { return }
+        map[deck] = tags
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try? encoder.encode(map).write(to: url)
+    }
+}
+
 enum ConfigStore {
     static var url: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
