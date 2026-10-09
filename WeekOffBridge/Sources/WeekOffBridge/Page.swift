@@ -504,13 +504,17 @@ function renderSheet() {
     if (!pad) { open = null; return; }
     const note = Number(open.id.split(':').pop());
     const idx = note - midi().origin;
-    sheet.append(el('h2', {textContent: pad.label || 'Pad'}),
+    const potlood = el('button', {className: 'potlood', title: 'naam wijzigen', textContent: '✎'});
+    potlood.onclick = () => {
+      const n = prompt('Naam van deze knop', pad.label || '');
+      if (n === null) return;
+      pad.label = n.trim();
+      dirtyNow(); sigPads = ''; renderPads(); renderSheet();
+    };
+    sheet.append(el('div', {className: 'titelrij'}, [el('h2', {textContent: pad.label || 'Pad'}), potlood]),
       el('div', {className: 'sub', textContent: 'Knop ' + (idx % midi().padsPerBank + 1) + ', bank ' + (Math.floor(idx / midi().padsPerBank) + 1)}));
 
     const cols = el('div', {className: 'cols'});
-    const naam = el('input', {type: 'text', value: pad.label || ''});
-    naam.oninput = () => { pad.label = naam.value; dirtyNow(); };
-    const b1 = el('div', {className: 'box'}, [el('h3', {textContent: 'Naam'}), el('p', {textContent: 'zoals het op de knop staat'}), naam]);
 
     const isApparaat = padIsApparaat(pad);
     const soort = el('div', {className: 'choice'});
@@ -539,7 +543,7 @@ function renderSheet() {
     const b4 = el('div', {className: 'box'}, [el('h3', {textContent: 'Welke knop?'}), el('p', {textContent: 'druk op het pad om te koppelen'}),
       el('div', {style: 'display:flex;gap:9px;align-items:center'}, [leer, el('span', {className: 'key', textContent: 'noot ' + note})])]);
 
-    cols.append(b1, b2, b3, b4);
+    cols.append(b2, b3, b4);
     if (!isApparaat) {
       const naamVanBestand = (pad.sample || '').split('/').pop();
       const kies = el('button', {textContent: pad.sample ? 'Ander bestand kiezen…' : 'Kies bestand…'});
