@@ -1,0 +1,59 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>05 &mdash; Wat je krijgt als je klikt</title>
+<link rel="stylesheet" href="kaliber.css"><link rel="stylesheet" href="edit-shared.css">
+<style>
+body{margin:0}
+header{display:flex;align-items:center;gap:20px;padding:16px 28px;border-bottom:1px solid var(--green-400)}
+header h1{font-size:21px}
+nav{display:flex;gap:6px}
+nav span{padding:7px 16px;border-radius:999px;font-size:14px;color:var(--gray-500);cursor:pointer;border:1px solid transparent}
+nav span.sel{color:var(--isit-green);border-color:var(--isit-green)}
+.status{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--gray-500);font-size:13px}
+.status b{color:var(--berry);font-weight:400}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);display:block}
+main{padding:26px 30px;max-width:1240px}
+.lead{color:var(--gray-500);margin:0 0 22px;font-size:16px}
+.deckkop{display:flex;align-items:flex-end;gap:18px;padding-bottom:15px;border-bottom:1px solid var(--green-400);margin-bottom:18px}
+.deckkop .label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--gray-500);margin-bottom:4px}
+.deckkop h2{font-family:var(--font-display);font-size:29px;font-weight:300}
+.deckkop .tellers{margin-left:auto;display:flex;gap:18px;color:var(--gray-500);font-size:13px}
+.deckkop .tellers b{color:var(--berry);font-weight:400}
+
+.mini{position:fixed;right:24px;bottom:24px;background:var(--blackish);border:1px solid var(--green-400);border-radius:18px;padding:13px;box-shadow:0 22px 60px #000b;cursor:pointer;z-index:20}
+.mini:hover{border-color:var(--isit-green)}
+.minikop{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-500)}
+.minikop em{font-style:normal;margin-left:auto;text-transform:none;letter-spacing:0;font-size:11.5px}
+.miniraster{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.mp{width:32px;height:32px;border-radius:8px;background:var(--green-400);display:grid;place-items:center;font-size:12px}
+.mp.leeg{background:transparent;border:1px dashed var(--green-400)}
+.mp.aan{background:var(--isit-green);color:var(--green-800);box-shadow:0 0 0 2px var(--isit-green)}
+.bankjes{display:flex;gap:4px;margin-top:9px;justify-content:center}
+.bankjes i{width:5px;height:5px;border-radius:50%;background:var(--green-300);display:block}
+.bankjes i.aan{background:var(--isit-green)}
+
+.groot .mp{width:58px;height:58px;border-radius:12px;font-size:17px;flex-direction:column;gap:3px}
+.groot .mp small{font-size:9.5px;opacity:.75;line-height:1}
+.groot .miniraster{gap:7px}
+
+.pil{position:fixed;right:24px;bottom:24px;display:flex;align-items:center;gap:10px;background:var(--blackish);border:1px solid var(--green-400);border-radius:999px;padding:11px 18px;box-shadow:0 18px 50px #000b;cursor:pointer;font-size:14px;z-index:20}
+.pil:hover{border-color:var(--isit-green)}
+.pil b{font-weight:400;color:var(--gray-500);font-size:12.5px}
+
+.schim{position:fixed;inset:0;background:#000c;z-index:30;display:grid;place-items:center;padding:30px}
+.sbpagina{width:min(620px,94vw);background:var(--blackish);border:1px solid var(--green-400);border-radius:22px;padding:26px 28px;box-shadow:0 40px 110px #000d}
+.sbkop{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+.sbkop h2{font-family:var(--font-display);font-size:27px;font-weight:300}
+.sbkop .tellers{margin-left:auto;color:var(--gray-500);font-size:13px}
+.banken{display:flex;gap:7px;margin-bottom:16px}
+.bk{width:30px;height:28px;border-radius:9px;border:1px solid var(--green-400);background:transparent;color:var(--gray-500);font-size:13px;padding:0}
+.bk.sel{border-color:var(--isit-green);color:var(--isit-green)}
+.bord{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bord .pad{aspect-ratio:1;border-radius:14px;border:1px solid var(--green-400);background:var(--green-800);padding:10px;display:flex;flex-direction:column;font-size:13px;cursor:pointer}
+.bord .pad.leeg{border-style:dashed;color:var(--gray-500);align-items:center;justify-content:center}
+.bord .teken{font-size:15px;opacity:.75}
+.bord .nm{margin-top:auto;line-height:1.15;overflow-wrap:anywhere}
+.sluit{margin-left:auto;background:none;border:1px solid var(--green-300);color:var(--gray-500);border-radius:999px;width:32px;height:32px}
+.naam{position:fixed;top:0;left:0;background:var(--isit-green);color:var(--green-800);padding:4px 10px;border-radius:0 0 8px 0;z-index:99;font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:500}
+</style></head><body>
+<span class="naam">05 &middot; Wat je krijgt als je klikt</span>
+<header><h1>WeekOff</h1><nav><span class="sel">Scenes</span><span>Soundboard</span><span>Tijdlijn</span></nav><div class="status"><span class="dot"></span><span>dia <b>10</b> &middot; <b>spotlight</b> &middot; MIDI <b>0</b></span><button>Alles uit</button><button>&#9881; Techniek</button></div></header><main><p class="lead">Elke scene hoort bij een dia. Klik op een scene om hem aan te passen.</p><div class="deckkop"><div><div class="label">Huidige presentatie</div><h2>WeekOff</h2></div><div class="tellers"><span><b>16</b> dia&rsquo;s</span><span><b>6</b> scenes</span></div></div><div class="grid"><div class="scene"><div class="prev"><span style="background:linear-gradient(110deg,#8fd98f,#7fd0f0,#c9a6f0)"></span><span style="background:#f7ddc3"></span></div><div class="sbody"><div class="sname">start</div><div class="meta"><span>dia 1</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#141f1f"></span><span style="background:#f7ddc3"></span></div><div class="sbody"><div class="sname">twak</div><div class="meta"><span>dia 2&ndash;9</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="scene sel"><div class="prev"><span style="background:#a83232"></span><span style="background:#fdf3f6"></span></div><div class="sbody"><div class="sname">spotlight <span class="badge">speelt nu</span></div><div class="meta"><span>dia 10&ndash;11</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#2a2aa8"></span><span style="background:#fdf3f6"></span></div><div class="sbody"><div class="sname">dilemma</div><div class="meta"><span>dia 12&ndash;13</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#e8321e"></span><span style="background:#141f1f"></span></div><div class="sbody"><div class="sname">shoutouts</div><div class="meta"><span>dia 14&ndash;15</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#f5f53c"></span><span style="background:#141f1f"></span></div><div class="sbody"><div class="sname">tag</div><div class="meta"><span>dia 16</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="add">+ Nieuwe scene</div></div></main><div class="mini"><div class="minikop"><span>Soundboard</span><em>bank 1</em></div><div class="miniraster"><div class="mp">&#128264;</div><div class="mp">&#128264;</div><div class="mp">&#128264;</div><div class="mp">&#128161;</div><div class="mp">&#128264;</div><div class="mp">&#128264;</div><div class="mp">&#128264;</div><div class="mp">&#128161;</div><div class="mp">&#128264;</div><div class="mp">&#128264;</div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div></div><div class="bankjes"><i class="aan"></i><i></i><i></i></div></div><div class="schim"><div class="sbpagina"><div class="sbkop"><div><div class="label" style="font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--gray-500)">Soundboard</div><h2>Kastje</h2></div><div class="tellers">10 van 16</div><button class="sluit">&#10005;</button></div><div class="banken"><button class="bk sel">1</button><button class="bk">2</button><button class="bk">3</button></div><div class="bord"><div class="pad"><span class="teken">&#128264;</span><span class="nm">Applaus</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Tromgeroffel</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Curb</span></div><div class="pad"><span class="teken">&#128161;</span><span class="nm">Rook</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Fanfare</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Buzzer</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Boe</span></div><div class="pad"><span class="teken">&#128161;</span><span class="nm">Strobe</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Jingle</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Tada</span></div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div></div></div></div>
+</body></html>

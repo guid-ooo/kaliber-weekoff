@@ -1,0 +1,50 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>14 &mdash; Kastje in de stijl van de app</title>
+<link rel="stylesheet" href="kaliber.css"><link rel="stylesheet" href="edit-shared.css">
+<style>
+body{margin:0}
+header{display:flex;align-items:center;gap:20px;padding:16px 28px;border-bottom:1px solid var(--green-400)}
+header h1{font-size:21px}
+.status{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--gray-500);font-size:13px}
+.status b{color:var(--berry);font-weight:400}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);display:block}
+main{padding:26px 30px 60px;max-width:1240px}
+.lead{color:var(--gray-500);margin:0 0 22px;font-size:16px}
+.deckkop{display:flex;align-items:flex-end;gap:18px;padding-bottom:15px;border-bottom:1px solid var(--green-400);margin-bottom:18px}
+.deckkop .label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--gray-500);margin-bottom:4px}
+.deckkop h2{font-family:var(--font-display);font-size:29px;font-weight:300}
+.deckkop .tellers{margin-left:auto;display:flex;gap:18px;color:var(--gray-500);font-size:13px;align-self:center}
+.deckkop .tellers b{color:var(--berry);font-weight:400}
+.kiezer{display:flex;gap:2px;background:var(--green-800);border:1px solid var(--green-400);border-radius:11px;padding:3px;align-self:center}
+.kiezer button{width:34px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--gray-500);display:grid;place-items:center;padding:0}
+.kiezer button.sel{background:var(--green-400);color:var(--isit-green)}
+.kiezer svg{width:17px;height:17px;display:block}
+.naam{position:fixed;top:0;left:0;background:var(--isit-green);color:var(--green-800);padding:4px 10px;border-radius:0 0 8px 0;z-index:99;font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:500}
+.hint{position:fixed;left:30px;bottom:22px;color:var(--gray-500);font-size:12.5px;border-left:2px solid var(--green-400);padding-left:12px;max-width:310px;line-height:1.5}
+
+/* kastje: stijl van de app, indeling van de jamjum */
+.kastje{position:fixed;right:30px;bottom:-20px;z-index:20;cursor:pointer;
+  background:var(--blackish);border:1px solid var(--green-400);border-radius:20px;
+  padding:13px 16px 24px;box-shadow:0 22px 60px #000a}
+.kastje:hover{border-color:var(--isit-green)}
+.kastkop{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.merk{font-family:'SF Mono',monospace;font-size:10px;letter-spacing:.13em;color:var(--gray-500)}
+.knopjes{margin-left:auto;display:flex;gap:5px}
+.kn{width:22px;height:22px;border-radius:50%;border:1px solid var(--green-300);background:transparent;
+  display:grid;place-items:center;font-family:'SF Mono',monospace;font-size:9px;color:var(--gray-500);padding:0}
+.kn.aan{border-color:var(--isit-green);color:var(--isit-green)}
+.kn.uit{border-color:#5a3636;color:#ff8e8e}
+.bord{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cel{display:flex;flex-direction:column;gap:3px}
+.pd{aspect-ratio:1;border-radius:11px;border:1px solid var(--green-400);background:var(--green-800);
+  padding:6px;display:flex;flex-direction:column;overflow:hidden}
+.pd .teken{font-size:11px;line-height:1;opacity:.8}
+.pd .nm{margin-top:auto;font-size:8.5px;line-height:1.15;color:var(--berry);overflow-wrap:anywhere}
+.pd.leeg{border-style:dashed;opacity:.5}
+.pd.aan{border-color:var(--isit-green);background:#d1ff000f;box-shadow:0 0 0 1px var(--isit-green)}
+.pd.apparaat .teken{color:var(--pink)}
+.nr{font-family:'SF Mono',monospace;font-size:7px;letter-spacing:.06em;color:var(--green-300);padding-left:2px;line-height:1}
+.nr.aan{color:var(--isit-green)}
+.kastje{width:296px}</style></head><body>
+<span class="naam">14 &middot; Kastje in de stijl van de app</span>
+<header><h1>WeekOff</h1><div class="status"><span class="dot"></span><span>dia <b>10</b> &middot; <b>spotlight</b> &middot; MIDI <b>0</b></span><button>Alles uit</button><button>&#9881; Techniek</button></div></header><main><p class="lead">Elke scene hoort bij een dia. Klik op een scene om hem aan te passen.</p><div class="deckkop"><div><div class="label">Huidige presentatie</div><h2>WeekOff</h2></div><div class="tellers"><span><b>16</b> dia&rsquo;s</span><span><b>6</b> scenes</span></div><div class="kiezer"><button class="sel" title="Kaarten"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="7" height="7" rx="2"/><rect x="9" y="0" width="7" height="7" rx="2"/><rect x="0" y="9" width="7" height="7" rx="2"/><rect x="9" y="9" width="7" height="7" rx="2"/></svg></button><button title="Tijdlijn"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="1" width="11" height="3.4" rx="1.7"/><rect x="3" y="6.3" width="13" height="3.4" rx="1.7"/><rect x="1" y="11.6" width="8" height="3.4" rx="1.7"/></svg></button></div></div><div class="grid"><div class="scene"><div class="prev"><span style="background:linear-gradient(110deg,#8fd98f,#7fd0f0,#c9a6f0)"></span><span style="background:#f7ddc3"></span></div><div class="sbody"><div class="sname">start</div><div class="meta"><span>dia 1</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#141f1f"></span><span style="background:#f7ddc3"></span></div><div class="sbody"><div class="sname">twak</div><div class="meta"><span>dia 2&ndash;9</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="scene sel"><div class="prev"><span style="background:#a83232"></span><span style="background:#fdf3f6"></span></div><div class="sbody"><div class="sname">spotlight <span class="badge">speelt nu</span></div><div class="meta"><span>dia 10&ndash;11</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#2a2aa8"></span><span style="background:#fdf3f6"></span></div><div class="sbody"><div class="sname">dilemma</div><div class="meta"><span>dia 12&ndash;13</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#e8321e"></span><span style="background:#141f1f"></span></div><div class="sbody"><div class="sname">shoutouts</div><div class="meta"><span>dia 14&ndash;15</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#f5f53c"></span><span style="background:#141f1f"></span></div><div class="sbody"><div class="sname">tag</div><div class="meta"><span>dia 16</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="add">+ Nieuwe scene</div></div></main><div class="kastje"><div class="kastkop"><span class="merk">SOUNDBOARD</span><span class="knopjes"><button class="kn aan">1</button><button class="kn">2</button><button class="kn">3</button><button class="kn uit" title="alles uit">&#9632;</button></span></div><div class="bord"><div class="cel"><div class="pd"><span class="teken">&#128264;</span><span class="nm">Applaus</span></div><span class="nr">PAD 1</span></div><div class="cel"><div class="pd"><span class="teken">&#128264;</span><span class="nm">Trommel</span></div><span class="nr">PAD 2</span></div><div class="cel"><div class="pd"><span class="teken">&#128264;</span><span class="nm">Curb</span></div><span class="nr">PAD 3</span></div><div class="cel"><div class="pd apparaat"><span class="teken">&#128161;</span><span class="nm">Rook</span></div><span class="nr">PAD 4</span></div><div class="cel"><div class="pd aan"><span class="teken">&#128264;</span><span class="nm">Fanfare</span></div><span class="nr aan">PAD 5</span></div><div class="cel"><div class="pd"><span class="teken">&#128264;</span><span class="nm">Buzzer</span></div><span class="nr">PAD 6</span></div><div class="cel"><div class="pd"><span class="teken">&#128264;</span><span class="nm">Boe</span></div><span class="nr">PAD 7</span></div><div class="cel"><div class="pd apparaat"><span class="teken">&#128161;</span><span class="nm">Strobe</span></div><span class="nr">PAD 8</span></div><div class="cel"><div class="pd"><span class="teken">&#128264;</span><span class="nm">Jingle</span></div><span class="nr">PAD 9</span></div><div class="cel"><div class="pd"><span class="teken">&#128264;</span><span class="nm">Tada</span></div><span class="nr">PAD 10</span></div><div class="cel"><div class="pd leeg"></div><span class="nr">PAD 11</span></div><div class="cel"><div class="pd leeg"></div><span class="nr">PAD 12</span></div><div class="cel"><div class="pd leeg"></div><span class="nr">PAD 13</span></div><div class="cel"><div class="pd leeg"></div><span class="nr">PAD 14</span></div><div class="cel"><div class="pd leeg"></div><span class="nr">PAD 15</span></div><div class="cel"><div class="pd leeg"></div><span class="nr">PAD 16</span></div></div></div><p class="hint">Plat, zelfde kleuren en randen als de rest van de app. Van de JamJum: het 4&times;4 raster, de namen in de pad, de mono padnummers en de ronde bankknopjes. Pad 5 speelt nu.</p>
+</body></html>

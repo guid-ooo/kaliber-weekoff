@@ -1,0 +1,67 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Scenekaart &mdash; actief tonen</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+body{padding:40px;max-width:1180px;margin:0 auto}
+h1{font-size:33px;margin-bottom:6px}
+p.lead{color:var(--gray-500);margin:0 0 36px;max-width:660px;line-height:1.6}
+.blok{margin-bottom:36px}
+.bkop{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.bkop h2{font-size:21px}
+.bkop .letter{font-family:'SF Mono',monospace;font-size:12px;color:var(--isit-green);border:1px solid var(--isit-green);border-radius:7px;padding:1px 7px}
+.uitleg{color:var(--gray-500);font-size:13.5px;line-height:1.6;margin:0 0 16px;max-width:680px}
+.rij{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+
+.kaart{position:relative;width:250px;background:var(--blackish);border:1px solid var(--green-400);border-radius:16px;overflow:hidden}
+.strook{height:84px;display:flex;position:relative}
+.strook>span{flex:1}
+.strook>span+span{border-left:2px solid var(--blackish)}
+.strook>span:first-of-type{border-top-left-radius:15px}
+.strook>span:last-of-type{border-top-right-radius:15px}
+.body{padding:12px 15px}
+.nm{font-family:var(--font-display);font-size:20px;line-height:1.1}
+.meta{color:var(--gray-500);font-size:12.5px;margin-top:7px;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.meta .waar{color:#fffcf2a6;font-weight:450;font-variant-numeric:tabular-nums}
+.meta .punt{color:var(--green-300)}
+.stil{opacity:.55}
+.bijschrift{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--green-300);margin:9px 0 0}
+
+/* A voortgangslijn onder de strook */
+.A.live{border-color:var(--isit-green)}
+.A .lijn{position:absolute;left:0;right:0;bottom:0;height:3px;background:#0a141499}
+.A .lijn i{display:block;height:100%;background:var(--isit-green);width:29%}
+.A.live .meta .waar{color:var(--isit-green)}
+
+/* B diapunten */
+.B.live{border-color:var(--isit-green)}
+.B .punten{display:flex;gap:4px;margin-top:9px}
+.B .punten i{width:6px;height:6px;border-radius:50%;background:var(--green-400);display:block}
+.B .punten i.aan{background:var(--isit-green);box-shadow:0 0 0 2px #d1ff0030}
+.B .punten i.weg{background:var(--green-300);opacity:.5}
+
+/* C linkerbalk */
+.C.live{border-color:var(--green-400)}
+.C.live:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--isit-green);z-index:4}
+.C.live .nm{color:var(--isit-green)}
+
+/* D omgekeerde onderkant */
+.D.live{border-color:var(--isit-green)}
+.D.live .body{background:var(--isit-green)}
+.D.live .nm{color:var(--green-800)}
+.D.live .meta{color:#0a1414a6}
+.D.live .meta .waar{color:var(--green-800)}
+.D.live .meta .punt{color:#0a141466}
+
+/* E lichtbundel over de strook */
+.E.live{border-color:var(--isit-green)}
+.E.live .strook:after{content:"";position:absolute;inset:0;
+background:linear-gradient(180deg,#ffffff38,#ffffff00 62%);pointer-events:none}
+.E.live .strook:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--isit-green);z-index:2}
+
+/* F alleen de tekst */
+.F.live .meta .waar{color:var(--isit-green);font-weight:500}
+.F.live{border-color:var(--isit-green)}
+</style></head><body>
+<h1>Scenekaart &mdash; zonder badge</h1>
+<p class="lead">Zes manieren om te laten zien dat een scene speelt, zonder het woord &ldquo;speelt nu&rdquo;. Elke kaart staat er twee keer: spelend en niet spelend. De scene loopt over dia 2 tot en met 9; de presentatie staat op dia 4.</p>
+<div class="blok"><div class="bkop"><span class="letter">A</span><h2>Voortgangslijn</h2></div><p class="uitleg">Een dunne lime lijn langs de onderrand van de kleurstrook laat zien hoe ver je in het bereik van deze scene bent. De metaregel wordt “dia 4 van 2–9”. Geen losse badge nodig: de kaart vertelt waar je staat in plaats van dát hij speelt.</p><div class="rij"><div><div class="kaart A live"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span><div class="lijn"><i></i></div></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 4 van 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt</p></div><div><div class="kaart A stil"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt niet</p></div></div></div><div class="blok"><div class="bkop"><span class="letter">B</span><h2>Diapunten</h2></div><p class="uitleg">Eén bolletje per dia in het bereik. Het gevulde bolletje is waar je nu bent, de doffe liggen achter je. Afleesbaar op een meter afstand, maar werkt alleen als het bereik niet te lang is.</p><div class="rij"><div><div class="kaart B live"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 4 van 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div><div class="punten"><i class="weg"></i><i class="weg"></i><i class="aan"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div></div></div><p class="bijschrift">speelt</p></div><div><div class="kaart B stil"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt niet</p></div></div></div><div class="blok"><div class="bkop"><span class="letter">C</span><h2>Balk aan de zijkant</h2></div><p class="uitleg">Een lime balk langs de linkerrand, plus de naam in lime. Rustig, en in een lange lijst kaarten zie je de actieve meteen — verticale randen vallen beter op dan hoekjes.</p><div class="rij"><div><div class="kaart C live"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 4 van 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt</p></div><div><div class="kaart C stil"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt niet</p></div></div></div><div class="blok"><div class="bkop"><span class="letter">D</span><h2>Omgekeerd tekstdeel</h2></div><p class="uitleg">Het donkere deel van de actieve kaart wordt lime met donkere tekst. Onmiskenbaar, en het laat de kleurstrook met rust. Wel een flinke kleurvlek in het raster.</p><div class="rij"><div><div class="kaart D live"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 4 van 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt</p></div><div><div class="kaart D stil"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt niet</p></div></div></div><div class="blok"><div class="bkop"><span class="letter">E</span><h2>Lichtbundel</h2></div><p class="uitleg">De strook krijgt een lichtval van boven en een lime streep op de bovenrand, alsof de lamp daadwerkelijk aan staat. Past bij waar dit ding over gaat.</p><div class="rij"><div><div class="kaart E live"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 4 van 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt</p></div><div><div class="kaart E stil"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt niet</p></div></div></div><div class="blok"><div class="bkop"><span class="letter">F</span><h2>Alleen de tekst</h2></div><p class="uitleg">Geen enkel extra element: de rand wordt lime en “dia 4 van 2–9” kleurt mee. Het stilst mogelijke antwoord.</p><div class="rij"><div><div class="kaart F live"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 4 van 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt</p></div><div><div class="kaart F stil"><div class="strook"><span style="background:#d1ff00"></span><span style="background:#fdf3f6"></span></div><div class="body"><div class="nm">twak</div><div class="meta"><span class="waar">dia 2–9</span><span class="punt">·</span><span>2 lampen</span><span class="punt">·</span><span>2 sec overgang</span></div></div></div><p class="bijschrift">speelt niet</p></div></div></div>
+</body></html>

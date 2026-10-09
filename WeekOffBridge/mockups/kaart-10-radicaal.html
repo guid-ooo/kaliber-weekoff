@@ -1,0 +1,73 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Scenes &mdash; radicaal</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+body{padding:40px;max-width:1240px;margin:0 auto}
+h1{font-size:34px;margin-bottom:6px}
+p.lead{color:var(--gray-500);margin:0 0 40px;max-width:700px;line-height:1.6}
+.blok{margin-bottom:46px}
+.bkop{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.bkop h2{font-size:22px}
+.bkop .letter{font-family:'SF Mono',monospace;font-size:12px;color:var(--isit-green);border:1px solid var(--isit-green);border-radius:7px;padding:1px 7px}
+.uitleg{color:var(--gray-500);font-size:13.5px;line-height:1.65;margin:0 0 20px;max-width:700px}
+
+/* ---------- A  gelstaal ---------- */
+.A .raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.gel{position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;display:flex;cursor:pointer}
+.gel .band{flex:1;position:relative}
+.gel .tekst{position:absolute;inset:auto 0 0 0;padding:14px 16px;z-index:2;
+background:linear-gradient(180deg,#0a141400,#0a1414cc)}
+.gel .nm{font-family:var(--font-display);font-size:25px;line-height:1;color:#fff}
+.gel .mt{font-size:12px;color:#ffffffb8;margin-top:5px;font-variant-numeric:tabular-nums}
+.gel.aan{outline:2px solid var(--isit-green);outline-offset:-2px}
+.gel .nu{position:absolute;left:16px;top:14px;z-index:2;font-size:11px;letter-spacing:.09em;
+text-transform:uppercase;color:var(--isit-green);font-weight:500}
+
+/* ---------- B  faderbank ---------- */
+.B .raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:14px}
+.bank{background:var(--blackish);border:1px solid var(--green-400);border-radius:14px;padding:14px}
+.bank.aan{border-color:var(--isit-green)}
+.bkop2{display:flex;align-items:baseline;gap:8px;margin-bottom:14px}
+.bkop2 .nm{font-family:var(--font-display);font-size:20px;line-height:1}
+.bkop2 .dia{margin-left:auto;font-size:11.5px;color:var(--gray-500);font-variant-numeric:tabular-nums}
+.kanalen{display:flex;gap:10px;align-items:flex-end;height:96px}
+.kan{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%}
+.spoor2{width:100%;flex:1;background:var(--green-800);border-radius:6px;position:relative;overflow:hidden;
+box-shadow:inset 0 1px 0 #ffffff0a}
+.spoor2 i{position:absolute;left:0;right:0;bottom:0;border-radius:5px}
+.kan small{font-size:10px;color:var(--gray-500);letter-spacing:.02em}
+.bvoet{display:flex;gap:7px;margin-top:12px;font-size:11.5px;color:var(--gray-500);align-items:baseline}
+.bvoet b{color:var(--isit-green);font-weight:500}
+
+/* ---------- C  cuelijst ---------- */
+.C .lijst{border:1px solid var(--green-400);border-radius:14px;overflow:hidden}
+.cue{display:grid;grid-template-columns:62px 1fr 128px 92px 64px;gap:16px;align-items:center;
+padding:11px 16px;border-top:1px solid var(--green-400);cursor:pointer}
+.cue:first-child{border-top:0}
+.cue:hover{background:#ffffff07}
+.cue.aan{background:#d1ff000d;box-shadow:inset 3px 0 0 var(--isit-green)}
+.cue .nr{font-family:'SF Mono',monospace;font-size:12px;color:var(--green-300);font-variant-numeric:tabular-nums}
+.cue.aan .nr{color:var(--isit-green)}
+.cue .nm{font-family:var(--font-display);font-size:19px;line-height:1}
+.cue .chips{display:flex;gap:4px}
+.cue .chips i{width:26px;height:20px;border-radius:5px;display:block}
+.cue .fade{font-size:12px;color:var(--gray-500);text-align:right;font-variant-numeric:tabular-nums}
+.cue .pos{font-size:11px;color:var(--isit-green);letter-spacing:.07em;text-transform:uppercase;text-align:right}
+.lijstkop{display:grid;grid-template-columns:62px 1fr 128px 92px 64px;gap:16px;padding:9px 16px;
+font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--green-300);background:#ffffff05}
+
+/* ---------- D  lichtvlek ---------- */
+.D .raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.vloer{position:relative;aspect-ratio:5/4;border-radius:14px;overflow:hidden;background:#060d0d;
+border:1px solid var(--green-400);cursor:pointer}
+.vloer.aan{border-color:var(--isit-green)}
+.vloer .pool{position:absolute;border-radius:50%;filter:blur(14px)}
+.vloer .tekst{position:absolute;inset:auto 0 0 0;padding:13px 15px;z-index:2}
+.vloer .nm{font-family:var(--font-display);font-size:21px;line-height:1}
+.vloer .mt{font-size:11.5px;color:var(--gray-500);margin-top:4px;font-variant-numeric:tabular-nums}
+.vloer .nu{position:absolute;right:12px;top:11px;z-index:2;width:8px;height:8px;border-radius:50%;
+background:var(--isit-green);box-shadow:0 0 0 3px #d1ff0030}
+</style></head><body>
+<h1>Scenes &mdash; vier keer opnieuw begonnen</h1>
+<p class="lead">Niet het kaartje opgepoetst maar de vorm ter discussie. Vier richtingen die elk iets anders als uitgangspunt nemen: de kleur, de techniek, de volgorde, of de zaal. &ldquo;twak&rdquo; speelt; de presentatie staat op dia 4.</p>
+<div class="blok A"><div class="bkop"><span class="letter">A</span><h2>Gelstaal</h2></div><p class="uitleg">Weg met de kaart. Elke scene is een vol kleurvlak waarin de lampen verticale banen zijn, met de naam in het licht zelf. Geen rand, geen apart tekstpaneel, geen plaatje-met-bijschrift. Het raster wordt een muur van licht die je in één blik leest — je herkent een scene aan zijn kleur, niet aan zijn naam.</p><div class="raster"><div class="gel"><div class="band" style="background:#ffe9c9"></div><div class="band" style="background:#8fd0a0"></div><div class="tekst"><div class="nm">start</div><div class="mt">dia 1 &middot; 2 sec</div></div></div><div class="gel aan"><div class="band" style="background:#d1ff00"></div><div class="band" style="background:#fdf3f6"></div><span class="nu">dia 4 van 2–9</span><div class="tekst"><div class="nm">twak</div><div class="mt">dia 2–9 &middot; 2 sec</div></div></div><div class="gel"><div class="band" style="background:#d94436"></div><div class="band" style="background:#c9bfc2"></div><div class="tekst"><div class="nm">spotlight</div><div class="mt">dia 10–11 &middot; 2 sec</div></div></div><div class="gel"><div class="band" style="background:#101c1c"></div><div class="band" style="background:#101c1c"></div><div class="tekst"><div class="nm">uit</div><div class="mt">dia 12 &middot; 1 sec</div></div></div></div></div><div class="blok B"><div class="bkop"><span class="letter">B</span><h2>Faderbank</h2></div><p class="uitleg">Toon wat er technisch gebeurt in plaats van een abstracte kleurstrook: elke lamp een kanaal met zijn niveau als balkhoogte. Je leest in één oogopslag “Spot vol, Floods op zestig”, wat op een kleurstrook onzichtbaar is. Dit is hoe een lichttafel eruitziet en Guido kijkt er al de hele avond naar.</p><div class="raster"><div class="bank"><div class="bkop2"><span class="nm">start</span><span class="dia">dia 1</span></div><div class="kanalen"><div class="kan"><div class="spoor2"><i style="height:74%;background:#ffe9c9"></i></div><small>Spot</small></div><div class="kan"><div class="spoor2"><i style="height:60%;background:#8fd0a0"></i></div><small>Floods</small></div></div><div class="bvoet"><span>2 sec overgang</span></div></div><div class="bank aan"><div class="bkop2"><span class="nm">twak</span><span class="dia">dia 2–9</span></div><div class="kanalen"><div class="kan"><div class="spoor2"><i style="height:100%;background:#d1ff00"></i></div><small>Spot</small></div><div class="kan"><div class="spoor2"><i style="height:90%;background:#fdf3f6"></i></div><small>Floods</small></div></div><div class="bvoet"><b>dia 4 van 2–9</b></div></div><div class="bank"><div class="bkop2"><span class="nm">spotlight</span><span class="dia">dia 10–11</span></div><div class="kanalen"><div class="kan"><div class="spoor2"><i style="height:100%;background:#d94436"></i></div><small>Spot</small></div><div class="kan"><div class="spoor2"><i style="height:40%;background:#c9bfc2"></i></div><small>Floods</small></div></div><div class="bvoet"><span>2 sec overgang</span></div></div><div class="bank"><div class="bkop2"><span class="nm">uit</span><span class="dia">dia 12</span></div><div class="kanalen"><div class="kan"><div class="spoor2"><i style="height:0%;background:#101c1c"></i></div><small>Spot</small></div><div class="kan"><div class="spoor2"><i style="height:0%;background:#101c1c"></i></div><small>Floods</small></div></div><div class="bvoet"><span>1 sec overgang</span></div></div></div></div><div class="blok C"><div class="bkop"><span class="letter">C</span><h2>Cuelijst</h2></div><p class="uitleg">De fundamentele twijfel aan het raster: scenes hébben een volgorde — die van de presentatie — en een raster vernietigt die. Als lijst zie je twintig scenes tegelijk in dia-volgorde, met nummer, kleuren, bereik en fade in kolommen die je kunt vergelijken. Dit is letterlijk een cuelijst, het formaat dat elke lichttafel ter wereld gebruikt.</p><div class="lijst"><div class="lijstkop"><span>dia</span><span>scene</span><span>lampen</span><span>bereik</span><span></span></div><div class="cue"><span class="nr">01</span><span class="nm">start</span><span class="chips"><i style="background:#ffe9c9"></i><i style="background:#8fd0a0"></i></span><span class="fade">dia 1</span><span class="pos"></span></div><div class="cue aan"><span class="nr">02</span><span class="nm">twak</span><span class="chips"><i style="background:#d1ff00"></i><i style="background:#fdf3f6"></i></span><span class="fade">dia 2–9</span><span class="pos">4 / 9</span></div><div class="cue"><span class="nr">03</span><span class="nm">spotlight</span><span class="chips"><i style="background:#d94436"></i><i style="background:#c9bfc2"></i></span><span class="fade">dia 10–11</span><span class="pos"></span></div><div class="cue"><span class="nr">04</span><span class="nm">uit</span><span class="chips"><i style="background:#101c1c"></i><i style="background:#101c1c"></i></span><span class="fade">dia 12</span><span class="pos"></span></div></div></div><div class="blok D"><div class="bkop"><span class="letter">D</span><h2>Lichtvlek</h2></div><p class="uitleg">Teken niet de data maar de ruimte: zachte plassen kleur op een donkere vloer, zoals de lampen de zaal van bovenaf beschijnen. Je ziet niet “rood 100, wit 40” maar hoe het er straks uit gaat zien. De enige variant die iets toont wat nergens in de configuratie staat.</p><div class="raster"><div class="vloer"><div class="pool" style="left:28%;top:34%;width:58%;height:58%;background:#ffe9c9;opacity:0.66"></div><div class="pool" style="left:62%;top:46%;width:74%;height:66%;background:#8fd0a0;opacity:0.58"></div><div class="tekst"><div class="nm">start</div><div class="mt">dia 1 &middot; 2 sec</div></div></div><div class="vloer aan"><div class="pool" style="left:28%;top:34%;width:58%;height:58%;background:#d1ff00;opacity:0.82"></div><div class="pool" style="left:62%;top:46%;width:74%;height:66%;background:#fdf3f6;opacity:0.76"></div><span class="nu"></span><div class="tekst"><div class="nm">twak</div><div class="mt">dia 4 van 2–9 &middot; 2 sec</div></div></div><div class="vloer"><div class="pool" style="left:28%;top:34%;width:58%;height:58%;background:#d94436;opacity:0.82"></div><div class="pool" style="left:62%;top:46%;width:74%;height:66%;background:#c9bfc2;opacity:0.46"></div><div class="tekst"><div class="nm">spotlight</div><div class="mt">dia 10–11 &middot; 2 sec</div></div></div><div class="vloer"><div class="tekst"><div class="nm">uit</div><div class="mt">dia 12 &middot; 1 sec</div></div></div></div></div>
+</body></html>

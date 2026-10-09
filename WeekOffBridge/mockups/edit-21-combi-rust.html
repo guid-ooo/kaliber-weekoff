@@ -1,0 +1,70 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>21 &mdash; Combi &mdash; dagelijks gebruik</title>
+<link rel="stylesheet" href="kaliber.css"><link rel="stylesheet" href="edit-shared.css">
+<style>
+body{padding-bottom:110px}
+.meerknop{position:absolute;top:9px;right:9px;width:26px;height:26px;border-radius:8px;background:#0008;border:1px solid var(--green-300);color:var(--berry);font-size:13px;line-height:1;display:grid;place-items:center;opacity:0}
+.scene:hover .meerknop,.scene.sel .meerknop{opacity:1}
+.scene{position:relative}
+.snelbalk{position:fixed;inset:auto 0 0 0;background:var(--blackish);border-top:1px solid var(--green-400);padding:13px 26px;display:flex;align-items:center;gap:24px;box-shadow:0 -18px 50px #0009;overflow-x:auto;z-index:8}
+.sbtitel{flex:none;padding-right:18px;border-right:1px solid var(--green-400);display:flex;flex-direction:column;gap:2px}
+.sbtitel b{font-family:var(--font-display);font-size:20px;font-weight:300}
+.sbtitel span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-500)}
+.blk{display:flex;align-items:center;gap:11px;flex:none}
+.blk label{font-size:13px;color:var(--gray-500);min-width:52px}
+.blk .swrij{margin:0;gap:6px}
+.blk .sw{width:24px;height:24px;border-radius:8px}
+.blk input[type=range]{width:120px}
+.blk em{font-style:normal;font-size:12px;color:var(--gray-500);width:34px}
+.sbacties{margin-left:auto;flex:none;display:flex;gap:9px}
+.paneel{grid-column:1/-1;background:var(--blackish);border:1px solid var(--isit-green);border-radius:16px;padding:20px 22px;position:relative;margin-top:2px}
+.paneel:before{content:"";position:absolute;top:-7px;width:12px;height:12px;background:var(--blackish);border-left:1px solid var(--isit-green);border-top:1px solid var(--isit-green);transform:rotate(45deg)}
+.velden{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-top:4px}
+.veld label{display:block;font-size:11px;color:var(--gray-500);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em}
+.veld input,.veld select{background:var(--green-800);border:1px solid var(--green-300);color:var(--berry);border-radius:9px;padding:8px 11px;font:inherit;font-size:14px;width:100%}
+.lampen{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}
+.lamp{display:flex;align-items:center;gap:9px;border:1px solid var(--green-400);border-radius:999px;padding:6px 14px 6px 8px;font-size:13.5px;cursor:pointer}
+.lamp i{width:18px;height:18px;border-radius:6px;display:block}
+.lamp.uit{color:var(--gray-500);border-style:dashed}
+.lamp.uit i{background:var(--green-800);border:1px solid var(--green-300)}
+.menu{position:absolute;top:38px;right:9px;width:186px;background:var(--blackish);border:1px solid var(--green-300);border-radius:13px;padding:6px;box-shadow:0 20px 50px #000c;z-index:6}
+.mi{padding:8px 11px;border-radius:8px;font-size:14px;display:flex;gap:10px;align-items:center;cursor:pointer}
+.mi:hover{background:#ffffff0d}
+.mi span{margin-left:auto;color:var(--gray-500);font-size:11.5px}
+.mi.weg{color:#ff8e8e}
+.scheid{height:1px;background:var(--green-400);margin:5px 4px}
+.uitleg{max-width:680px;color:var(--gray-500);font-size:13.5px;border-left:2px solid var(--green-400);padding-left:14px;margin:0 0 24px;line-height:1.6}
+.uitleg b{color:var(--berry);font-weight:400}
+.paneel:before{left:60px}</style></head><body>
+<span class="naam">21 &middot; Combi &mdash; dagelijks gebruik</span>
+<div class="wrap">
+<p class="uitleg">De gewone toestand. Je klikt een scene aan, de <b>balk onderin</b> pakt hem op en je draait aan kleur en helderheid terwijl je naar de lampen kijkt. Het raster blijft heel. De <b>&ctdot;</b> op een kaart geeft de handelingen &mdash; testen, hernoemen, dupliceren, weggooien &mdash; en is de enige weg naar het volledige paneel.</p>
+<p class="kop">Huidige presentatie</p>
+<div class="grid">
+<div class="scene sel"><button class="meerknop">&ctdot;</button><div class="prev"><span style="background:#ffe9c9"></span><span style="background:#8fd0a0"></span></div><div class="sbody"><div class="sname">start</div><div class="meta"><span>dia 1</span><span>2 lampen</span><span>2 sec</span></div></div></div>
+<div class="scene"><button class="meerknop">&ctdot;</button><div class="prev"><span style="background:#ffd9a0"></span><span style="background:#ffc46b"></span></div><div class="sbody"><div class="sname">warm</div><div class="meta"><span>dia 4-7</span><span>2 lampen</span><span>2 sec</span></div></div><div class="menu">
+<div class="mi">Testen <span>spatie</span></div>
+<div class="mi">Hernoemen</div>
+<div class="mi">Dupliceren</div>
+<div class="scheid"></div>
+<div class="mi">Alles instellen <span>&crarr;</span></div>
+<div class="scheid"></div>
+<div class="mi weg">Verwijderen</div>
+</div></div>
+<div class="scene"><button class="meerknop">&ctdot;</button><div class="prev"><span class="disco"></span><span class="disco"></span></div><div class="sbody"><div class="sname">disco</div><div class="meta"><span>dia 8</span><span>2 lampen</span><span>2 sec</span></div></div></div>
+<div class="scene"><button class="meerknop">&ctdot;</button><div class="prev"><span style="background:#101c1c"></span><span style="background:#101c1c"></span></div><div class="sbody"><div class="sname">uit</div><div class="meta"><span>dia 12</span><span>0 lampen</span><span>2 sec</span></div></div></div>
+</div>
+<p class="kop mt">Soundboard</p><div class="pads"><div class="pad"><span class="teken">&#128264;</span><span class="nm">Applaus</span></div>
+<div class="pad"><span class="teken">&#128264;</span><span class="nm">Tromgeroffel</span></div>
+<div class="pad"><span class="teken">&#128264;</span><span class="nm">Curb</span></div>
+<div class="pad"><span class="teken">&#128161;</span><span class="nm">Rookmachine</span></div>
+<div class="pad"><span class="teken">&#128264;</span><span class="nm">Fanfare</span></div>
+<div class="pad"><span class="teken">&#128264;</span><span class="nm">Buzzer</span></div>
+<div class="pad leeg">+</div>
+<div class="pad leeg">+</div></div>
+</div><div class="snelbalk">
+<div class="sbtitel"><span>Nu aan het regelen</span><b>start</b></div>
+<div class="blk"><label>Spot</label><span class="swrij"><i class="sw" style="background:#fffcf2"></i><i class="sw on" style="background:#ffe9c9"></i><i class="sw" style="background:#ffd9a0"></i><i class="sw" style="background:#9fd8ff"></i><i class="sw disco"></i><i class="sw uit"></i></span><input type="range" value="74"><em>74%</em></div>
+<div class="blk"><label>Floods</label><span class="swrij"><i class="sw" style="background:#e23b3b"></i><i class="sw" style="background:#d1ff00"></i><i class="sw on" style="background:#2fbf71"></i><i class="sw" style="background:#00a1ff"></i><i class="sw disco"></i><i class="sw uit"></i></span><input type="range" value="95"><em>95%</em></div>
+<div class="sbacties"><button>Testen</button><button class="p">Klaar</button></div>
+</div>
+</body></html>

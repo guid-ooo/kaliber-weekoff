@@ -8,22 +8,37 @@ enum Page {
 :root{--isit:#d1ff00;--pink:#dfa8ff;--blue:#00a1ff;--berry:#fffcf2;--blackish:#122222;--g800:#071717;--g400:#2a3838;--g300:#3e4948;--gray:#aaa;
 --font:'Overused Grotesk',sans-serif;--display:'Feature Display',serif;--ls:calc(-0.2px + -0.015em)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--g800);color:var(--berry);font-family:var(--font);font-weight:350;letter-spacing:var(--ls);font-size:16px;line-height:1.5}
+body{margin:0;background:var(--g800);color:var(--berry);font-family:var(--font);font-weight:350;letter-spacing:var(--ls);font-size:16px;line-height:1.5;-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 h1,h2,h3{font-family:var(--display);font-weight:300;margin:0}
 header{padding:18px 30px;border-bottom:1px solid var(--g400);display:flex;align-items:center;gap:20px;position:sticky;top:0;background:var(--g800);z-index:9}
 h1{font-size:21px}
 nav{display:flex;gap:6px}
 nav span{padding:7px 16px;border-radius:999px;font-size:14px;color:var(--gray);cursor:pointer;border:1px solid transparent}
 nav span.sel{color:var(--isit);border-color:var(--isit)}
-.status{margin-left:auto;display:flex;gap:12px;align-items:center;font-size:14px;color:var(--gray)}
-.status b{color:var(--berry);font-weight:450}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--isit);box-shadow:0 0 12px var(--isit)}
+.status{margin-left:auto;display:flex;gap:0;align-items:center;font-size:14px;color:var(--gray)}
+.status .dot{margin-right:11px;flex:none}
+#statusText{display:flex;align-items:center;margin-right:32px}
+.status button+button{margin-left:8px}
+.status #note{margin-left:16px}
+.status .cel{display:flex;align-items:baseline;gap:6px;padding-left:11px;margin-left:11px;border-left:1px solid var(--g400)}
+.status .cel:first-child{padding-left:0;margin-left:0;border-left:0}
+.status .lab{font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--gray);opacity:.65}
+.status .val{color:var(--berry);font-weight:450;font-variant-numeric:tabular-nums}
+.status .cel.stil .val{color:var(--gray);font-weight:400}
+.status .cel.let .val{color:var(--pink)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--isit);box-shadow:0 0 0 3px #d1ff0026}
 .dot.off{background:var(--g300);box-shadow:none}
 button{background:transparent;border:1px solid var(--g300);color:var(--berry);border-radius:999px;padding:8px 16px;font:inherit;font-size:14px;letter-spacing:var(--ls);cursor:pointer}
 button:hover{border-color:var(--isit)}
+button:disabled{opacity:.3;cursor:default}
+button:disabled:hover{border-color:var(--g300)}
 button.p{background:var(--isit);border-color:var(--isit);color:var(--g800);font-weight:500}
 button.sel{border-color:var(--isit);color:var(--isit)}
 button.sm{padding:5px 12px;font-size:13px}
+button.ico{width:39px;height:39px;padding:0;display:grid;place-items:center;flex:none}
+button.ico svg{width:16px;height:16px;display:block}
+button.ico.weg:hover{border-color:#ff8e8e;color:#ff8e8e}
 main{padding:28px 30px 160px;max-width:1080px;margin:0 auto}
 .rij{display:grid;grid-template-columns:170px 1fr 120px 130px;gap:16px;align-items:center;padding:12px 15px;border:1px solid var(--g400);
 border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
@@ -37,15 +52,44 @@ border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
 .rij .meta2{color:var(--gray);font-size:13px;text-align:right}
 .lead{color:var(--gray);margin:0 0 22px;font-size:17px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
-.scene{background:var(--blackish);border:1px solid var(--g400);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s}
+.scene{position:relative;background:var(--blackish);border:1px solid var(--g400);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s}
 .scene:hover{border-color:var(--isit);transform:translateY(-2px)}
-.scene.actief{border-color:var(--isit);box-shadow:0 0 0 1px var(--isit)}
-.prev{height:96px;display:flex;gap:2px}.prev span{flex:1}
-.sbody{padding:14px 16px}
-.sname{font-family:var(--display);font-size:21px;display:flex;align-items:center;gap:9px}
-.badge{font-family:var(--font);font-size:11px;background:var(--isit);color:var(--g800);border-radius:999px;padding:2px 9px;font-weight:500;letter-spacing:0}
-.meta{color:var(--gray);font-size:13px;margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
+.scene.actief{border-color:var(--isit)}
+.kanalen{display:flex;gap:9px;align-items:flex-end;height:104px;padding:0 15px}
+.kan{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px;height:100%}
+.spoor2{width:100%;flex:1;background:var(--g800);border-radius:6px;position:relative;overflow:hidden;
+box-shadow:inset 0 1px 0 #ffffff0a}
+.spoor2 i{position:absolute;left:0;right:0;bottom:0;border-radius:5px;display:block}
+.kan small{font-size:10.5px;color:var(--gray);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skop{display:flex;align-items:baseline;gap:10px;padding:14px 15px 12px}
+.svoet{padding:11px 15px 13px;font-size:12.5px;color:var(--gray);display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.svoet .nu{color:var(--isit);font-weight:500}
+.svoet .punt{color:var(--g300)}
+.svoet .chip{color:var(--pink);border:1px solid #dfa8ff40;border-radius:999px;padding:1px 9px;font-size:11.5px}
+.dia{margin-left:auto;font-size:12px;color:#fffcf2a6;font-variant-numeric:tabular-nums;white-space:nowrap}
+.groei>.kanalen{height:150px;padding:20px 24px 0}
+.sname{font-family:var(--display);font-size:21px;line-height:1.1}
+.groei>.kanalen+.sheet{padding-top:18px}
+.badge{font-family:var(--font);font-size:10.5px;background:var(--isit);color:var(--g800);
+border-radius:999px;padding:3px 9px;font-weight:500;letter-spacing:.01em}
+.scene>.badge{position:absolute;top:10px;right:10px;z-index:3;background:#0a1414e8;color:var(--isit);box-shadow:inset 0 0 0 1px #d1ff0059}
+.meta{color:var(--gray);font-size:12.5px;margin-top:7px;display:flex;gap:7px;flex-wrap:wrap;align-items:baseline}
+.meta .waar{color:#fffcf2a6;font-weight:450;font-variant-numeric:tabular-nums}
+.meta .punt{color:var(--g300)}
+.meta .chip{color:var(--pink);border:1px solid #dfa8ff40;border-radius:999px;padding:1px 9px;font-size:11.5px}
 .kop{grid-column:1/-1;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);margin:14px 0 -4px}
+.deckkop{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin:0 0 20px;padding-bottom:16px;border-bottom:1px solid var(--g400)}
+.deckkop .label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--gray);margin-bottom:6px;line-height:1}
+.deckkop h2{font-size:29px;line-height:1}
+.deckkop.geen h2{color:var(--gray)}
+.deckkop .rechts{margin-left:auto;display:flex;align-items:center;gap:22px}
+.deckkop .tellers{display:flex;gap:18px;color:var(--gray);font-size:13px;font-variant-numeric:tabular-nums}
+.kiezer{display:flex;gap:2px;background:var(--g800);border:1px solid var(--g400);border-radius:11px;padding:3px}
+.kiezer button{width:34px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--gray);display:grid;place-items:center;padding:0}
+.kiezer button.sel{background:var(--g400);color:var(--isit)}
+.kiezer svg{width:17px;height:17px;display:block}
+.terug{background:none;border:0;color:var(--isit);padding:0;font-size:15px;margin-bottom:14px}
+.deckkop .tellers b{color:var(--berry);font-weight:400}
 .kop.klik{cursor:pointer;user-select:none}
 .kop.klik:hover{color:var(--isit)}
 .scene.dof{opacity:.62}
@@ -53,11 +97,13 @@ border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
 .add{border:1px dashed var(--g300);border-radius:16px;display:grid;place-items:center;color:var(--gray);min-height:180px;cursor:pointer}
 .add:hover{border-color:var(--isit);color:var(--isit)}
 .pads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;max-width:600px;margin:0 auto}
-#view-pads>.lead,#view-pads>.banks{max-width:600px;margin-left:auto;margin-right:auto}
+#view-pads>.lead{max-width:600px;margin-left:auto;margin-right:auto}
 .pad{aspect-ratio:1;min-height:0;overflow:hidden;border-radius:16px;border:1px solid var(--g400);background:var(--blackish);padding:13px;display:flex;flex-direction:column;cursor:pointer;transition:.12s}
 .pad:hover{border-color:var(--isit);transform:translateY(-2px)}
-.pad.leeg{border-style:dashed;color:var(--gray);align-items:center;justify-content:center;font-size:14px}
-.pad .teken{font-size:17px;line-height:1;opacity:.75}
+.pad.leeg{border-color:transparent;background:#ffffff06;box-shadow:inset 0 1px 0 #ffffff0a;
+color:var(--gray);align-items:center;justify-content:center;font-size:22px;line-height:1;opacity:.45;font-weight:300}
+.pad.leeg:hover{opacity:1;background:#d1ff000a;border-color:var(--isit);transform:none}
+.pad .teken{font-size:14px;line-height:1;opacity:.45}
 .pad .nm{margin-top:auto;font-size:15px;line-height:1.2;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pad .sub{font-size:12px;color:var(--gray);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pad.apparaat .nm{color:var(--pink)}
@@ -65,8 +111,31 @@ border-radius:13px;margin-bottom:8px;background:var(--blackish);cursor:pointer}
 .pad[draggable]{cursor:grab}
 .pad.sleep{opacity:.4;cursor:grabbing}
 .pad.doel{border-color:var(--isit);border-style:solid;background:#d1ff000f}
-.banks{display:flex;gap:8px;margin-bottom:18px;align-items:center}
-.sheet{position:fixed;inset:auto 0 0 0;background:var(--blackish);border-top:1px solid var(--g400);border-radius:20px 20px 0 0;padding:22px 30px;box-shadow:0 -24px 70px #000a;max-height:72vh;overflow:auto}
+.banken{display:flex;gap:1px;background:var(--g800);border:1px solid var(--g400);border-radius:9px;padding:2px}
+.banken .kn{min-width:21px;height:18px;border:0;border-radius:6px;background:transparent;color:var(--gray);
+font-family:'SF Mono',monospace;font-size:10px;padding:0;display:grid;place-items:center}
+.banken .kn.aan{background:var(--g400);color:var(--isit)}
+#banks .kn{min-width:32px;height:26px;border-radius:7px;font-family:var(--font);font-size:13.5px}
+.terugrij{max-width:600px;margin:0 auto 16px}
+.terug{padding:6px 14px 6px 11px;font-size:13.5px;color:var(--gray);border-color:var(--g400);background:transparent;border-width:1px;border-style:solid;border-radius:999px}
+.terug:hover{color:var(--berry);border-color:var(--isit)}
+#view-pads .deckkop{max-width:600px;margin-left:auto;margin-right:auto}
+.schim{position:fixed;inset:0;background:#000b;z-index:15;display:grid;place-items:center;padding:24px}
+.groei{width:min(820px,92vw);max-height:88vh;overflow:auto;background:var(--blackish);border:1px solid var(--g400);border-radius:20px;box-shadow:0 40px 110px #000d}
+.groei>.prev{height:150px}
+.groei>.prev>span:first-of-type{border-top-left-radius:19px}
+.groei>.prev>span:last-of-type{border-top-right-radius:19px}
+.sheet{padding:24px 28px}
+.wiz{width:min(660px,92vw);background:var(--blackish);border:1px solid var(--g400);border-radius:20px;padding:26px 30px;box-shadow:0 40px 110px #000d}
+.stappen{display:flex;gap:8px;margin-bottom:22px}
+.stappen i{flex:1;height:4px;border-radius:999px;background:var(--g400);display:block}
+.stappen i.aan{background:var(--isit)}
+.vraag{font-family:var(--display);font-size:27px;margin-bottom:6px}
+.wiz .sub2{color:var(--gray);font-size:13px;margin:0 0 22px}
+.groot{display:flex;gap:12px;flex-wrap:wrap}
+.groot .keus{width:62px;height:62px;border-radius:16px;border:2px solid transparent;display:grid;place-items:center;cursor:pointer;font-size:12px;color:var(--g800);text-align:center;line-height:1.1}
+.groot .keus.aan{border-color:var(--berry)}
+.groot .keus.leeg{background:var(--g800);border-color:var(--g300);color:var(--gray)}
 .sheet h2{font-size:26px}
 .titelrij{display:flex;align-items:center;gap:10px}
 .potlood{border:1px solid transparent;color:var(--gray);border-radius:999px;width:32px;height:32px;padding:0;font-size:15px;line-height:1}
@@ -90,10 +159,20 @@ animation:discoKleur 3s linear infinite, discoBeat .5s ease-out infinite}
 box-shadow:inset 0 0 0 2px var(--blackish);opacity:.85;transition:.12s}
 .sw.meer:hover{opacity:1;border-color:var(--gray)}
 .sw.meer.aan{border-color:var(--berry);opacity:1;box-shadow:inset 0 0 0 2px var(--blackish)}
-.wheel{width:132px;height:132px;border-radius:50%;margin:4px auto 10px;position:relative;cursor:crosshair;border:1px solid var(--g300);
+.wheel{width:132px;height:132px;border-radius:50%;margin:4px auto 10px;position:relative;cursor:crosshair;touch-action:none;border:1px solid var(--g300);
 background:radial-gradient(circle,#fff 0%,#fff0 70%),conic-gradient(from 90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
 .wheel i{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #0008;pointer-events:none}
-input[type=range]{width:100%;accent-color:var(--isit);margin:10px 0 2px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:30px;margin:12px 0 2px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:30px;border-radius:10px;
+background-image:repeating-linear-gradient(90deg,#00000059 0 2px,transparent 2px 10%),
+linear-gradient(90deg,#00000059 0 2px),
+linear-gradient(90deg,var(--isit) 0 calc(8px + (100% - 16px)*var(--f,0)),var(--g300) calc(8px + (100% - 16px)*var(--f,0)));
+background-position:7px 50%,calc(100% - 9px) 50%,0 0;
+background-size:calc(100% - 16px) 15px,2px 15px,100% 100%;
+background-repeat:no-repeat}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:28px;border-radius:6px;
+background:var(--berry);box-shadow:0 0 0 1px #0006;margin-top:1px}
+input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--isit);outline-offset:2px}
 select{background:var(--g800);border:1px solid var(--g300);color:var(--berry);border-radius:8px;padding:6px 9px;font:inherit;font-size:14px}
 input[type=text],input[type=number]{background:var(--g800);border:1px solid var(--g300);color:var(--berry);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;letter-spacing:var(--ls);width:100%}
 .row{display:flex;justify-content:space-between;font-size:13px;color:var(--gray)}
@@ -116,21 +195,44 @@ td{padding:8px;border-top:1px solid var(--g400)}
 .bar{height:6px;background:var(--g800);border-radius:999px;overflow:hidden;min-width:70px}
 .bar i{display:block;height:100%;background:var(--isit)}
 .hint{color:var(--gray);font-size:13px;margin:14px 0 0}
+#kastje{position:fixed;right:26px;bottom:-18px;z-index:12;cursor:pointer;width:224px;
+background:var(--blackish);border:1px solid var(--g400);border-radius:24px;padding:14px 14px 28px;
+box-shadow:0 18px 50px #0009;transition:border-color .15s}
+#kastje:hover{border-color:var(--isit)}
+.kastkop{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.kastkop .merk{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--gray);line-height:1}
+.kastkop .banken{margin-left:auto}
+.kbord{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.kpd{aspect-ratio:1;border-radius:10px;background:var(--g800);box-shadow:inset 0 1px 0 #ffffff0a;
+padding:6px;display:flex;flex-direction:column;overflow:hidden}
+.kpd.vol{background:var(--g400);box-shadow:none}
+.kpd .teken{font-size:9px;line-height:1;opacity:.5}
+.kpd .nm{margin-top:auto;font-size:8.5px;line-height:1.15;color:var(--berry);overflow-wrap:anywhere;
+display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kpd.aan{background:var(--isit);box-shadow:none}
+.kpd.aan .nm{color:var(--g800)}
+.kpd.aan .teken{opacity:.8}
+#vraag.schim{z-index:40}
+.vraagdoos{width:min(430px,92vw);background:var(--blackish);border:1px solid var(--g400);border-radius:18px;
+padding:22px 24px;box-shadow:0 30px 80px #000d}
+.vraagdoos h3{font-size:20px;margin-bottom:7px}
+.vraagdoos p{margin:0;color:var(--gray);font-size:14px}
 .hidden{display:none!important}
 </style></head><body>
 <header>
   <h1>WeekOff</h1>
-  <nav><span id="tab-scenes" class="sel">Scenes</span><span id="tab-pads">Soundboard</span><span id="tab-tijd">Tijdlijn</span></nav>
-  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" title="alles uit">Alles uit</button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
+  <div class="status"><span class="dot" id="live"></span><span id="statusText">–</span><button id="panic" class="ico uit" title="Alles uit" aria-label="Alles uit"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2.1v5.4"/><path d="M12.1 4.3a5.4 5.4 0 1 1-8.2 0"/></svg></button><button id="openTech">⚙ Techniek</button><span id="note"></span></div>
 </header>
 <main>
+  <div id="deckkop"></div>
   <div id="view-scenes">
     <p class="lead">Elke scene hoort bij een dia. Klik op een scene om hem aan te passen.</p>
     <div class="grid" id="scenes"></div>
   </div>
   <div id="view-pads" class="hidden">
+    <div class="terugrij"><button class="terug" id="terugNaarScenes">← Scenes</button></div>
+    <div id="padkop"></div>
     <p class="lead">Elke knop is een pad op het kastje. Sleep om te verplaatsen, klik om te wijzigen.</p>
-    <div class="banks" id="banks"></div>
     <div class="pads" id="padgrid"></div>
   </div>
   <div id="view-tijd" class="hidden">
@@ -139,16 +241,27 @@ td{padding:8px;border-top:1px solid var(--g400)}
   </div>
 </main>
 <div id="sheet"></div>
+<div id="wizard"></div>
+<div id="vraag" class="hidden"></div>
+<div id="kastje" class="hidden"></div>
 <div id="tech" class="hidden"></div>
 <script>
 let config = null, state = {}, dirty = false, bank = 0, open = null, learning = null;
-let sigScenes = '', sigPads = '', sigSheet = '', sigTijd = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false, tab = 'scenes';
+let sigScenes = '', sigPads = '', sigSheet = '', sigTijd = '', sigKop = '', wheelOpen = {}, techOpen = {}, techZichtbaar = false, tab = 'scenes';
+let snapshot = null, snapshotVoor = '';
+let wizard = null, weergave = localStorage.getItem('weergave') || 'kaarten';
 
 const stable = v => {
   if (v === null || typeof v !== 'object') return JSON.stringify(v);
   if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
   return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
 };
+const ICO = {herstel: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a5.2 5.2 0 1 0 1.7-3.9"/><path d="M2.6 2.9v3h3"/></svg>', kopie: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="5.6" y="5.6" width="8" height="8" rx="2"/><path d="M10.4 3.3a2 2 0 0 0-2-1H4.4a2 2 0 0 0-2 2v4a2 2 0 0 0 1 1.7"/></svg>', uit: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2.1v5.4"/><path d="M12.1 4.3a5.4 5.4 0 1 1-8.2 0"/></svg>', speel: '<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6.1 4.4 12.4 8 6.1 11.6Z"/></svg>', weg: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.9 4.4h10.2"/><path d="M6.4 4.4V3h3.2v1.4"/><path d="M4.3 4.4l.55 8.1a1 1 0 0 0 1 .93h4.3a1 1 0 0 0 1-.93l.55-8.1"/><path d="M6.7 6.9v4M9.3 6.9v4"/></svg>'};
+function icoKnop(soort, label) {
+  const b = el('button', {className: 'ico ' + soort, innerHTML: ICO[soort], title: label});
+  b.setAttribute('aria-label', label);
+  return b;
+}
 const el = (t, p = {}, k = []) => { const n = Object.assign(document.createElement(t), p); k.forEach(c => c && n.append(c)); return n; };
 const setNote = (t, c = 'gray') => { const n = document.getElementById('note'); n.textContent = t; n.style.color = c === 'ok' ? 'var(--isit)' : 'var(--gray)'; };
 let saveTimer = null;
@@ -159,6 +272,7 @@ async function bewaar() {
 }
 const dirtyNow = () => {
   dirty = true;
+  werkHerstelBij();
   if (open) { setNote('nog niet bewaard'); return; }
   setNote('bewaren…');
   clearTimeout(saveTimer);
@@ -166,12 +280,12 @@ const dirtyNow = () => {
 };
 async function sluit() {
   const moest = dirty;
-  open = null; learning = null;
+  open = null; learning = null; snapshot = null; snapshotVoor = '';
   navigeer();
   if (moest) await bewaar();
-  sigScenes = ''; sigPads = '';
-  renderSheet();
+  sigScenes = ''; sigPads = ''; sigKop = '';
   renderScenes();
+  renderSheet();
   renderPads();
   renderTijdlijn();
 }
@@ -203,6 +317,7 @@ function hernoemKanaal(fixtureId, oud, nieuw) {
 
 const COLORS = [['#e23b3b','rood'],['#ff7a1a','oranje'],['#d1ff00','lime'],['#2fbf71','groen'],['#00a1ff','blauw'],['#dfa8ff','roze'],['#fffcf2','wit']];
 const hex2rgb = h => [1,3,5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
+const hexKleur = h => { const v = hex2rgb(h); const m = Math.max(...v) || 1; return v.map(x => x / m); };
 const hsv2rgb = (h, s) => {
   const f = n => { const k = (n + h / 60) % 6; return 1 - s * Math.max(0, Math.min(k, 4 - k, 1)); };
   return [f(5), f(3), f(1)];
@@ -226,10 +341,30 @@ function sceneColor(scene, f) {
   if (kind(f) === 'warmcool') {
     const w = v('warm'), c = v('cool'), m = Math.max(w, c);
     if (!m) return '#101c1c';
-    const mix = c / (w + c || 1);
-    return 'rgb(' + [255, Math.round(210 + 30 * mix), Math.round(167 + 88 * mix)].join(',') + ')';
+    const mix = c / (w + c || 1), sterkte = m / 100;
+    return 'rgb(' + [255, 210 + 30 * mix, 167 + 88 * mix].map(x => Math.round(x * sterkte)).join(',') + ')';
   }
-  return v(f.channels[0]) > 0 ? '#dfa8ff' : '#101c1c';
+  const niveau = v(f.channels[0]);
+  if (!niveau) return '#101c1c';
+  return 'rgb(' + [223, 168, 255].map(x => Math.round(x * niveau / 100)).join(',') + ')';
+}
+
+function fixtureNiveau(scene, f) {
+  return Math.max(0, scene.values[f.id + '.disco'] ?? 0, ...f.channels.map(c => scene.values[f.id + '.' + c] ?? 0));
+}
+
+function bouwKanalen(scene) {
+  const host = el('div', {className: 'kanalen'});
+  fixtureList().forEach(f => {
+    const niveau = fixtureNiveau(scene, f);
+    const kleur = sceneColor(scene, f);
+    const vul = el('i', {className: kleur === 'DISCO' ? 'discoVlak' : '',
+      style: 'height:' + niveau + '%' + (kleur === 'DISCO' ? '' : ';background:' + kleur)});
+    host.append(el('div', {className: 'kan'}, [
+      el('div', {className: 'spoor2'}, [vul]),
+      el('small', {textContent: f.naam, title: f.naam + ' \u00b7 ' + niveau + '%'})]));
+  });
+  return host;
 }
 
 function updateLiveScenes() {
@@ -237,10 +372,10 @@ function updateLiveScenes() {
   document.querySelectorAll('#scenes .scene').forEach(card => {
     const on = live.includes(card.dataset.tag);
     card.classList.toggle('actief', on);
-    const name = card.querySelector('.sname');
-    const badge = name.querySelector('.badge');
-    if (on && !badge) name.append(el('span', {className: 'badge', textContent: 'speelt nu'}));
-    if (!on && badge) badge.remove();
+    const tag = card.dataset.tag;
+    const scene = config.scenes[tag];
+    const voet = card.querySelector('.svoet');
+    if (scene && voet) voet.replaceWith(voetVoor(tag, scene, on, bereik(tag)));
   });
 }
 
@@ -272,6 +407,54 @@ function sceneVolgorde() {
   return {inDeck, elders, herkomst, rest, ontbreekt, deck};
 }
 
+const ICOON_KAART = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="7" height="7" rx="2"/><rect x="9" y="0" width="7" height="7" rx="2"/><rect x="0" y="9" width="7" height="7" rx="2"/><rect x="9" y="9" width="7" height="7" rx="2"/></svg>';
+const ICOON_TIJD = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="1" width="11" height="3.4" rx="1.7"/><rect x="3" y="6.3" width="13" height="3.4" rx="1.7"/><rect x="1" y="11.6" width="8" height="3.4" rx="1.7"/></svg>';
+
+function renderDeckkop() {
+  const host = document.getElementById('deckkop');
+  if (tab !== 'scenes' || !config) { host.className = 'hidden'; host.innerHTML = ''; return; }
+  host.className = 'deckkop' + (state.deckName ? '' : ' geen');
+  host.innerHTML = '';
+  const {inDeck, ontbreekt} = sceneVolgorde();
+  host.append(el('div', {}, [
+    el('div', {className: 'label', textContent: 'Huidige presentatie'}),
+    el('h2', {textContent: state.deckName || 'Geen presentatie open'})]));
+  const tellers = el('div', {className: 'tellers'});
+  if (state.deckName) {
+    tellers.append(el('span', {innerHTML: '<b>' + (state.diaTotaal || 0) + "</b> dia's"}),
+      el('span', {innerHTML: '<b>' + inDeck.length + '</b> scene' + (inDeck.length === 1 ? '' : 's')}));
+    if (ontbreekt.length) tellers.append(el('span', {innerHTML: '<b>' + ontbreekt.length + '</b> zonder scene', style: 'color:var(--pink)'}));
+  }
+  const kiezer = el('div', {className: 'kiezer'});
+  [['kaarten', ICOON_KAART, 'Kaarten'], ['tijdlijn', ICOON_TIJD, 'Tijdlijn']].forEach(([w, icoon, titel]) => {
+    const knop = el('button', {className: weergave === w ? 'sel' : '', innerHTML: icoon, title: titel});
+    knop.onclick = () => {
+      weergave = w;
+      localStorage.setItem('weergave', w);
+      navigeer();
+      tekenAlles();
+    };
+    kiezer.append(knop);
+  });
+  host.append(el('div', {className: 'rechts'}, [tellers, kiezer]));
+}
+
+function voetVoor(tag, scene, live, waar) {
+  const voet = el('div', {className: 'svoet'});
+  if (live) {
+    voet.append(el('span', {className: 'nu', textContent: 'nu op dia ' + state.slide}),
+      el('span', {className: 'punt', textContent: '\u00b7'}),
+      el('span', {textContent: scene.fade + ' sec overgang'}));
+  } else if (!waar) {
+    voet.append(el('span', {className: 'chip', textContent: 'niet in de presentatie'}),
+      el('span', {className: 'punt', textContent: '\u00b7'}),
+      el('span', {textContent: scene.fade + ' sec overgang'}));
+  } else {
+    voet.append(el('span', {textContent: scene.fade + ' sec overgang'}));
+  }
+  return voet;
+}
+
 function renderScenes() {
   const host = document.getElementById('scenes');
   host.innerHTML = '';
@@ -291,7 +474,6 @@ function renderScenes() {
     host.append(h);
     return open2;
   };
-  if (elders.length || rest.length) kop(state.deckName ? 'In ' + state.deckName : 'In deze presentatie');
 
   for (const tag of inDeck) {
     const scene = config.scenes[tag];
@@ -299,19 +481,12 @@ function renderScenes() {
     const card = el('div', {className: 'scene' + (live ? ' actief' : '')});
     card.dataset.tag = tag;
     card.onclick = () => { open = {type: 'scene', id: tag}; navigeer(); renderSheet(); };
-    const prev = el('div', {className: 'prev'});
-    fixtureList().forEach(f => {
-      const kleur = sceneColor(scene, f);
-      prev.append(kleur === 'DISCO' ? el('span', {className: 'discoVlak'}) : el('span', {style: 'background:' + kleur}));
-    });
-    const aantal = fixtureList().filter(f => (scene.values[f.id + '.disco'] ?? 0) > 0 || f.channels.some(c => (scene.values[f.id + '.' + c] ?? 0) > 0)).length;
-    card.append(prev, el('div', {className: 'sbody'}, [
-      el('div', {className: 'sname'}, [document.createTextNode(tag), live ? el('span', {className: 'badge', textContent: 'speelt nu'}) : null]),
-      el('div', {className: 'meta'}, [
-        el('span', {textContent: bereik(tag) || 'niet in de presentatie', style: bereik(tag) ? '' : 'color:#dfa8ff'}),
-        el('span', {textContent: aantal + ' lamp' + (aantal === 1 ? '' : 'en')}),
-        el('span', {textContent: scene.fade + ' sec overgang'})]),
-    ]));
+    const waar = bereik(tag);
+    card.append(el('div', {className: 'skop'}, [
+      el('span', {className: 'sname', textContent: tag}),
+      waar ? el('span', {className: 'dia', textContent: waar}) : null]));
+    card.append(bouwKanalen(scene));
+    card.append(voetVoor(tag, scene, live, waar));
     host.append(card);
   }
   for (const d of ontbreekt) {
@@ -323,7 +498,7 @@ function renderScenes() {
     kaart.onclick = () => {
       config.scenes[d.tag] = {fade: 2, values: {}};
       dirtyNow(); sigScenes = ''; renderScenes();
-      open = {type: 'scene', id: d.tag}; navigeer(); renderSheet();
+      wizard = {tag: d.tag, stap: 0}; renderWizard();
     };
     host.append(kaart);
   }
@@ -335,7 +510,8 @@ function renderScenes() {
     const key = naam.trim().toLowerCase().replace(/^#/, '').replace(/[^a-z0-9_.-]/g, '');
     if (!key || config.scenes[key]) return;
     config.scenes[key] = {fade: 2, values: {}};
-    dirtyNow(); renderScenes();
+    dirtyNow(); sigScenes = ''; renderScenes();
+    wizard = {tag: key, stap: 0}; renderWizard();
   };
   host.append(add);
 
@@ -347,20 +523,15 @@ function renderScenes() {
       const card = el('div', {className: 'scene dof'});
       card.dataset.tag = tag;
       card.onclick = () => { open = {type: 'scene', id: tag}; navigeer(); renderSheet(); };
-      const prev = el('div', {className: 'prev'});
-      fixtureList().forEach(f => {
-        const kleur = sceneColor(scene, f);
-        prev.append(kleur === 'DISCO' ? el('span', {className: 'discoVlak'}) : el('span', {style: 'background:' + kleur}));
-      });
-      card.append(prev, el('div', {className: 'sbody'}, [
-        el('div', {className: 'sname'}, [document.createTextNode(tag)]),
-        el('div', {className: 'meta'}, [el('span', {textContent: herkomst[tag] || 'geen presentatie', style: 'color:var(--pink)'})]),
-      ]));
+      card.append(el('div', {className: 'skop'}, [el('span', {className: 'sname', textContent: tag})]));
+      card.append(bouwKanalen(scene));
+      card.append(el('div', {className: 'svoet'}, [
+        el('span', {className: 'chip', textContent: herkomst[tag] || 'geen presentatie'})]));
       host.append(card);
     }
   }
 
-  sigScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.getagd || []) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
+  sigScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.getagd || []) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '') + (state.diaTotaal || 0);
 }
 
 function padKeyFor(index) { return String(midi().origin + bank * midi().padsPerBank + index); }
@@ -383,6 +554,63 @@ function verplaatsPad(vanKey, naarNote) {
   pads[doelKey] = bron;
   if (doel) pads[vanKey] = doel;
   dirtyNow(); sigPads = ''; renderPads();
+}
+
+function statusCel(label, waarde, klasse) {
+  return el('span', {className: 'cel' + (klasse ? ' ' + klasse : '')},
+    [label ? el('span', {className: 'lab', textContent: label}) : null,
+     el('span', {className: 'val', textContent: waarde})]);
+}
+
+function renderStatus() {
+  const host = document.getElementById('statusText');
+  host.innerHTML = '';
+  const geenDeck = state.slide == null;
+  document.getElementById('live').className = 'dot' + (geenDeck ? ' off' : '');
+  if (geenDeck) {
+    host.append(statusCel('', state.blackout ? 'geen presentatie, alles uit' : 'geen presentatie', 'stil'));
+  } else {
+    const tags = state.tags || [];
+    host.append(statusCel('dia', String(state.slide)),
+      statusCel('scene', tags.length ? tags.join(' ') : 'geen', tags.length ? '' : 'stil'));
+  }
+  const bronnen = state.midi || 0;
+  host.append(statusCel('kastje',
+    bronnen ? (bronnen === 1 ? 'verbonden' : bronnen + ' verbonden') : 'niet verbonden',
+    bronnen ? '' : 'let'));
+}
+
+function renderKastje() {
+  const host = document.getElementById('kastje');
+  if (tab !== 'scenes' || !config) { host.className = 'hidden'; host.innerHTML = ''; return; }
+  host.className = '';
+  host.innerHTML = '';
+
+  const knopjes = el('div', {className: 'banken'});
+  for (let b = 0; b < midi().banks; b++) {
+    const knop = el('button', {className: 'kn' + (b === bank ? ' aan' : ''), textContent: String(b + 1)});
+    knop.onclick = e => { e.stopPropagation(); bank = b; sigPads = ''; renderPads(); renderKastje(); };
+    knopjes.append(knop);
+  }
+  host.append(el('div', {className: 'kastkop'}, [el('span', {className: 'merk', textContent: 'SOUNDBOARD'}), knopjes]));
+
+  const bord = el('div', {className: 'kbord'});
+  for (let i = 0; i < midi().padsPerBank; i++) {
+    const found = padFor(i);
+    const sleutel = padKeyFor(i);
+    const speelt = (state.held || []).some(h => h === sleutel || h.endsWith(':' + sleutel));
+    const vak = el('div', {className: 'kpd' + (found ? ' vol' : '') + (speelt ? ' aan' : ''),
+      title: 'knop ' + (i + 1) + ', bank ' + (bank + 1)});
+    if (found) {
+      const isApparaat = padIsApparaat(found.pad);
+      vak.append(el('span', {className: 'teken', textContent: isApparaat ? '🔦' : '🔈'}),
+        el('span', {className: 'nm', textContent: found.pad.label || (found.pad.sample || '').split('/').pop() || 'Pad'}));
+    }
+    bord.append(vak);
+  }
+  host.append(bord);
+
+  host.onclick = () => { tab = 'pads'; syncTabs(); };
 }
 
 function renderTijdlijn() {
@@ -438,14 +666,22 @@ function renderTijdlijn() {
 
 function renderPads() {
   sigPads = stable(config.pads) + bank + stable(state.held || []);
-  const banks = document.getElementById('banks');
-  banks.innerHTML = '';
-  banks.append(el('span', {textContent: 'bank', style: 'color:var(--gray);font-size:14px'}));
+  const kop = document.getElementById('padkop');
+  kop.className = 'deckkop';
+  kop.innerHTML = '';
+  kop.append(el('div', {}, [
+    el('div', {className: 'label', textContent: 'Soundboard'}),
+    el('h2', {textContent: 'Kastje'})]));
+  const banken = el('div', {className: 'banken', id: 'banks', title: 'bank'});
   for (let b = 0; b < midi().banks; b++) {
-    const btn = el('button', {textContent: String(b + 1), className: b === bank ? 'p' : ''});
+    const btn = el('button', {textContent: String(b + 1), className: 'kn' + (b === bank ? ' aan' : '')});
     btn.onclick = () => { bank = b; renderPads(); };
-    banks.append(btn);
+    banken.append(btn);
   }
+  const gevuld = Array.from({length: midi().padsPerBank}, (_, i) => padFor(i)).filter(Boolean).length;
+  kop.append(el('div', {className: 'rechts'}, [
+    el('div', {className: 'tellers'}, [el('span', {innerHTML: '<b>' + gevuld + '</b> van ' + midi().padsPerBank})]),
+    banken]));
   const grid = document.getElementById('padgrid');
   grid.innerHTML = '';
   for (let i = 0; i < midi().padsPerBank; i++) {
@@ -464,7 +700,7 @@ function renderPads() {
     };
 
     if (!found) {
-      const empty = el('div', {className: 'pad leeg', textContent: '+ leeg'});
+      const empty = el('div', {className: 'pad leeg', textContent: '+', title: 'knop ' + (i + 1) + ' is nog leeg'});
       onthaal(empty);
       empty.onclick = () => {
         config.pads = config.pads || {};
@@ -492,6 +728,19 @@ function renderPads() {
   }
 }
 
+function kleurIndex(get) {
+  const current = [get('red'), get('green'), get('blue')];
+  const helder = Math.max(...current);
+  if (helder <= 0) return -1;
+  let beste = -1, besteAfstand = Infinity;
+  COLORS.forEach(([hex], i) => {
+    const [r, g, b] = hexKleur(hex);
+    const afstand = Math.hypot(current[0] - r * helder, current[1] - g * helder, current[2] - b * helder);
+    if (afstand < besteAfstand) { besteAfstand = afstand; beste = i; }
+  });
+  return besteAfstand > 12 ? -1 : beste;
+}
+
 function deviceBox(f, values) {
   const box = el('div', {className: 'box'});
   box.append(el('h3', {textContent: f.naam}), el('p', {textContent: f.note || ''}));
@@ -502,18 +751,9 @@ function deviceBox(f, values) {
   if (k === 'rgb') {
     const sw = el('div', {className: 'swatches'});
     const current = [get('red'), get('green'), get('blue')];
-    const helder = Math.max(...current);
-    let beste = -1, besteAfstand = Infinity;
-    if (helder > 0) {
-      COLORS.forEach(([hex], i) => {
-        const [r, g, b] = hex2rgb(hex);
-        const afstand = Math.hypot(current[0] - r * helder, current[1] - g * helder, current[2] - b * helder);
-        if (afstand < besteAfstand) { besteAfstand = afstand; beste = i; }
-      });
-      if (besteAfstand > 12) beste = -1;
-    }
+    const beste = kleurIndex(get);
     COLORS.forEach(([hex, naam], i) => {
-      const [r, g, b] = hex2rgb(hex);
+      const [r, g, b] = hexKleur(hex);
       const dot = el('div', {className: 'sw' + (i === beste ? ' aan' : ''), title: naam, style: 'background:' + hex});
       dot.onclick = () => {
         const level = Math.max(...current) || 100;
@@ -548,27 +788,32 @@ function deviceBox(f, values) {
     const place = () => {
       const [r, g, b] = ['red', 'green', 'blue'].map(c => get(c));
       const [h, sat] = rgb2hs(r / 100, g / 100, b / 100);
-      const radius = sat * 46, angle = h * Math.PI / 180;
-      marker.style.left = (66 + Math.cos(angle) * radius) + 'px';
-      marker.style.top = (66 + Math.sin(angle) * radius) + 'px';
+      const angle = h * Math.PI / 180;
+      marker.style.left = (50 + Math.cos(angle) * sat * 50) + '%';
+      marker.style.top = (50 + Math.sin(angle) * sat * 50) + '%';
       marker.style.opacity = Math.max(r, g, b) > 0 ? 1 : 0.25;
     };
     place();
     if (!wheelOpen[f.id]) wheel.style.display = 'none';
-    wheel.onclick = e => {
+    const kiesUitWiel = e => {
       const rect = wheel.getBoundingClientRect();
       const dx = e.clientX - rect.left - rect.width / 2, dy = e.clientY - rect.top - rect.height / 2;
       const dist = Math.min(Math.hypot(dx, dy) / (rect.width / 2), 1);
       const hue = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360;
       const level = Math.max(get('red'), get('green'), get('blue')) || 100;
       const [r, g, b] = hsv2rgb(hue, dist);
+      set('disco', 0);
       set('red', Math.round(r * level)); set('green', Math.round(g * level)); set('blue', Math.round(b * level));
-      renderSheet();
+      place();
+      ververPrev();
     };
+    wheel.onpointerdown = e => { e.preventDefault(); wheel.setPointerCapture(e.pointerId); kiesUitWiel(e); };
+    wheel.onpointermove = e => { if (wheel.hasPointerCapture(e.pointerId)) kiesUitWiel(e); };
+    wheel.onpointerup = () => { sigScenes = ''; renderScenes(); renderSheet(); };
     box.append(wheel);
 
     const level = disco ? get('disco') : Math.max(get('red'), get('green'), get('blue'));
-    const range = el('input', {type: 'range', min: 0, max: 100, value: level});
+    const range = el('input', {type: 'range', min: 0, max: 100, step: 10, value: level});
     if (disco) {
       range.oninput = () => {
         set('disco', Number(range.value));
@@ -588,8 +833,8 @@ function deviceBox(f, values) {
   } else if (k === 'warmcool') {
     const level = Math.max(get('warm'), get('cool'));
     const mix = (get('cool') / (get('warm') + get('cool') || 1)) * 100;
-    const b = el('input', {type: 'range', min: 0, max: 100, value: level});
-    const m = el('input', {type: 'range', min: 0, max: 100, value: Math.round(mix)});
+    const b = el('input', {type: 'range', min: 0, max: 100, step: 10, value: level});
+    const m = el('input', {type: 'range', min: 0, max: 100, step: 10, value: Math.round(mix)});
     const apply = () => {
       const L = Number(b.value), M = Number(m.value) / 100;
       set('warm', Math.round(L * (1 - M))); set('cool', Math.round(L * M));
@@ -609,7 +854,7 @@ function deviceBox(f, values) {
 
   const rest = f.channels.filter(c => c && !(GEBRUIKT[k] || []).includes(c) && !(k === 'schakelaar' && c === f.channels[0]));
   rest.forEach(ch => {
-    const r = el('input', {type: 'range', min: 0, max: 100, value: get(ch)});
+    const r = el('input', {type: 'range', min: 0, max: 100, step: 10, value: get(ch)});
     const uit = el('span', {textContent: get(ch) + '%'});
     r.oninput = () => { set(ch, Number(r.value)); uit.textContent = r.value + '%'; };
     box.append(r, el('div', {className: 'row'}, [el('span', {textContent: kanaalLabel(ch)}), uit]));
@@ -633,10 +878,218 @@ function bereikVan(tag) {
   return 'Actief op ' + stukken.map(([a, b]) => a === b ? 'dia ' + a : 'dia ' + a + ' t/m ' + b).join(' en ');
 }
 
+
+
+
+function wizKeuzes(f) {
+  const k = kind(f);
+  if (k === 'rgb') {
+    const lijst = COLORS.map(([hex, naam]) => ({naam, stijl: 'background:' + hex, zet: v => {
+      const [r, g, b] = hexKleur(hex);
+      v[f.id + '.disco'] = 0; delete v[f.id + '.disco'];
+      ['red', 'green', 'blue'].forEach((c, i) => v[f.id + '.' + c] = Math.round([r, g, b][i] * 100));
+    }}));
+    lijst.push({naam: 'disco', klasse: 'disco', zet: v => {
+      ['red', 'green', 'blue'].forEach(c => delete v[f.id + '.' + c]);
+      v[f.id + '.disco'] = 100;
+    }});
+    return lijst;
+  }
+  if (k === 'warmcool') return [
+    {naam: 'warm', stijl: 'background:#ffd9a0', zet: v => { v[f.id + '.warm'] = 100; delete v[f.id + '.cool']; }},
+    {naam: 'neutraal', stijl: 'background:#ffe9c9', zet: v => { v[f.id + '.warm'] = 50; v[f.id + '.cool'] = 50; }},
+    {naam: 'koel', stijl: 'background:#cfe7ff', zet: v => { v[f.id + '.cool'] = 100; delete v[f.id + '.warm']; }}];
+  if (k === 'schakelaar') return [
+    {naam: 'aan', stijl: 'background:' + '#d1ff00', zet: v => v[f.id + '.' + f.channels[0]] = 100}];
+  return [
+    {naam: 'vol', stijl: 'background:#fffcf2', zet: v => v[f.id + '.' + f.channels[0]] = 100},
+    {naam: 'half', stijl: 'background:#8a8a80', zet: v => v[f.id + '.' + f.channels[0]] = 50}];
+}
+
+function wizHuidig(f, values) {
+  const k = kind(f);
+  if (k === 'rgb') {
+    if ((values[f.id + '.disco'] ?? 0) > 0) return COLORS.length;
+    return kleurIndex(ch => values[f.id + '.' + ch] ?? 0);
+  }
+  if (k === 'warmcool') {
+    const w = values[f.id + '.warm'] ?? 0, c = values[f.id + '.cool'] ?? 0;
+    if (!w && !c) return -1;
+    return c === 0 ? 0 : w === 0 ? 2 : 1;
+  }
+  const niveau = values[f.id + '.' + f.channels[0]] ?? 0;
+  if (!niveau) return -1;
+  return k === 'schakelaar' ? 0 : (niveau > 70 ? 0 : 1);
+}
+
+function renderWizard() {
+  const laag = document.getElementById('wizard');
+  laag.innerHTML = '';
+  if (!wizard) return;
+  const scene = config.scenes[wizard.tag];
+  const lampen = fixtureList();
+  if (!scene || !lampen.length) { wizard = null; return; }
+  if (wizard.stap >= lampen.length) {
+    const tag = wizard.tag;
+    wizard = null;
+    open = {type: 'scene', id: tag}; navigeer();
+    sigScenes = ''; renderScenes(); renderSheet();
+    return;
+  }
+
+  const f = lampen[wizard.stap];
+  const doos = el('div', {className: 'wiz'});
+  doos.onclick = e => e.stopPropagation();
+
+  const balk = el('div', {className: 'stappen'});
+  lampen.forEach((_, i) => balk.append(el('i', {className: i <= wizard.stap ? 'aan' : ''})));
+  doos.append(balk,
+    el('div', {className: 'vraag', textContent: 'Wat doet ' + f.naam + ' in deze scene?'}),
+    el('p', {className: 'sub2', textContent: 'Scene ' + wizard.tag + ' \u00b7 stap ' + (wizard.stap + 1) + ' van ' + lampen.length}));
+
+  const huidig = wizHuidig(f, scene.values);
+  const rij = el('div', {className: 'groot'});
+  wizKeuzes(f).forEach((keus, i) => {
+    const vak = el('div', {className: 'keus' + (keus.klasse ? ' ' + keus.klasse : '') + (i === huidig ? ' aan' : ''),
+      title: keus.naam, style: keus.stijl || ''});
+    vak.onclick = () => {
+      keus.zet(scene.values);
+      dirtyNow(); sigScenes = ''; renderScenes();
+      wizard.stap++; renderWizard();
+    };
+    rij.append(vak);
+  });
+  const uit = el('div', {className: 'keus leeg' + (huidig === -1 ? ' aan' : ''), textContent: 'uit', title: 'uit'});
+  uit.onclick = () => {
+    f.channels.concat('disco').forEach(c => delete scene.values[f.id + '.' + c]);
+    dirtyNow(); sigScenes = ''; renderScenes();
+    wizard.stap++; renderWizard();
+  };
+  rij.append(uit);
+  doos.append(rij);
+
+  const voet = el('div', {className: 'foot'});
+  if (wizard.stap === 0) {
+    const zelf = el('button', {textContent: 'Ik doe het zelf'});
+    zelf.onclick = () => {
+      const tag = wizard.tag;
+      wizard = null;
+      open = {type: 'scene', id: tag}; navigeer(); renderSheet();
+    };
+    voet.append(zelf);
+  } else {
+    const terug = el('button', {textContent: '\u2190 Terug'});
+    terug.onclick = () => { wizard.stap--; renderWizard(); };
+    voet.append(terug);
+  }
+  const sla = el('button', {textContent: 'Overslaan'});
+  sla.onclick = () => { wizard.stap++; renderWizard(); };
+  const door = el('button', {textContent: wizard.stap === lampen.length - 1 ? 'Klaar' : 'Volgende \u2192', className: 'p'});
+  door.onclick = () => { wizard.stap++; renderWizard(); };
+  voet.append(el('span', {className: 'spacer'}), sla, door);
+  doos.append(voet);
+
+  const schim = el('div', {className: 'schim'}, [doos]);
+  schim.onclick = () => { wizard = null; renderWizard(); };
+  laag.append(schim);
+}
+
+function huidigObject() {
+  if (!open) return null;
+  return open.type === 'scene' ? config.scenes[open.id] : (config.pads || {})[open.id];
+}
+
+function zorgSnapshot() {
+  if (!open) { snapshot = null; snapshotVoor = ''; return; }
+  const sleutel = open.type + ':' + open.id;
+  if (sleutel === snapshotVoor) return;
+  const bron = huidigObject();
+  snapshot = bron ? JSON.parse(JSON.stringify(bron)) : null;
+  snapshotVoor = sleutel;
+}
+
+function isGewijzigd() {
+  const bron = huidigObject();
+  return !!(snapshot && bron) && stable(bron) !== stable(snapshot);
+}
+
+function zetTerug() {
+  const kopie = JSON.parse(JSON.stringify(snapshot));
+  if (open.type === 'scene') config.scenes[open.id] = kopie; else config.pads[open.id] = kopie;
+  dirty = true;
+  sigScenes = ''; sigPads = '';
+}
+
+function sluitVraag() {
+  const laag = document.getElementById('vraag');
+  laag.className = 'hidden';
+  laag.innerHTML = '';
+}
+
+function probeerSluiten() {
+  if (!open || !isGewijzigd()) { sluit(); return; }
+  const naam = open.type === 'scene' ? open.id : (huidigObject().label || 'dit pad');
+  const weg = el('button', {textContent: 'Weggooien'});
+  weg.onclick = () => { zetTerug(); sluitVraag(); sluit(); };
+  const terug = el('button', {textContent: 'Terug'});
+  terug.onclick = sluitVraag;
+  const bewaren = el('button', {textContent: 'Bewaren', className: 'p'});
+  bewaren.onclick = () => { sluitVraag(); sluit(); };
+  const doos = el('div', {className: 'vraagdoos'}, [
+    el('h3', {textContent: 'Nog niet bewaard'}),
+    el('p', {textContent: 'Je hebt \u201c' + naam + '\u201d aangepast. Wat moet ermee gebeuren?'}),
+    el('div', {className: 'foot'}, [weg, el('span', {className: 'spacer'}), terug, bewaren])]);
+  const laag = document.getElementById('vraag');
+  laag.className = 'schim';
+  laag.innerHTML = '';
+  laag.append(doos);
+  laag.onclick = e => { if (e.target === laag) sluitVraag(); };
+}
+
+function werkHerstelBij() {
+  const b = document.querySelector('#sheet .herstel');
+  if (!b) return;
+  const gewijzigd = isGewijzigd();
+  b.disabled = !gewijzigd;
+  b.title = gewijzigd ? 'Wijzigingen ongedaan maken' : 'Niets gewijzigd';
+  const k = document.querySelector('#sheet .klaar');
+  if (k) k.textContent = gewijzigd ? 'Bewaren' : 'Sluiten';
+}
+
+function herstelKnop() {
+  const gewijzigd = isGewijzigd();
+  const b = icoKnop('herstel', gewijzigd ? 'Wijzigingen ongedaan maken' : 'Niets gewijzigd');
+  b.disabled = !gewijzigd;
+  b.onclick = () => {
+    if (!isGewijzigd()) return;
+    const naam = open.type === 'scene' ? open.id
+      : (huidigObject().label || 'dit pad');
+    if (!confirm('Alles wat je sinds het openen aan \u201c' + naam + '\u201d hebt veranderd, terugzetten?')) return;
+    const kopie = JSON.parse(JSON.stringify(snapshot));
+    if (open.type === 'scene') config.scenes[open.id] = kopie; else config.pads[open.id] = kopie;
+    dirtyNow();
+    sigScenes = ''; sigPads = '';
+    renderScenes(); renderPads(); renderSheet();
+    setNote('teruggezet', 'ok');
+  };
+  return b;
+}
+
+function schuifVul(i) { i.style.setProperty('--f', Number(i.value) / 100); }
+
+function ververPrev() {
+  if (!open || open.type !== 'scene') return;
+  const scene = config.scenes[open.id];
+  const oud = document.querySelector('#sheet .groei > .kanalen');
+  if (!scene || !oud) return;
+  oud.replaceWith(bouwKanalen(scene));
+}
+
 function renderSheet() {
   const host = document.getElementById('sheet');
   host.innerHTML = '';
   if (!open) return;
+  zorgSnapshot();
 
   const sheet = el('div', {className: 'sheet'});
   if (open.type === 'scene') {
@@ -667,17 +1120,28 @@ function renderSheet() {
       b.onclick = () => { scene.fade = sec; dirtyNow(); renderSheet(); };
       foot.append(b);
     });
-    const del = el('button', {textContent: 'Verwijderen'});
-    del.onclick = () => { delete config.scenes[open.id]; dirty = true; sluit(); };
-    const test = el('button', {textContent: 'Uitproberen'});
+    const del = icoKnop('weg', 'Scene verwijderen');
+    del.onclick = () => {
+      if (!confirm('Scene \u201c' + open.id + '\u201d verwijderen? Dit kun je niet terugdraaien.')) return;
+      delete config.scenes[open.id]; dirty = true; sluit();
+    };
+    const test = icoKnop('speel', 'Uitproberen');
     test.onclick = async () => {
       if (dirty) await bewaar();
       const r = await (await fetch('/api/preview', {method: 'POST', body: JSON.stringify({tag: open.id})})).json();
       setNote(r.artnet ? 'scene speelt' : 'zet Art-Net aan in Techniek', r.artnet ? 'ok' : 'gray');
     };
-    const done = el('button', {textContent: 'Klaar', className: 'p'});
+    const kopie = icoKnop('kopie', 'Scene dupliceren');
+    kopie.onclick = () => {
+      let key = open.id + '-kopie', n = 2;
+      while (config.scenes[key]) key = open.id + '-kopie' + (n++);
+      config.scenes[key] = {fade: scene.fade, values: Object.assign({}, scene.values)};
+      open = {type: 'scene', id: key};
+      dirtyNow(); navigeer(); sigScenes = ''; renderScenes(); renderSheet();
+    };
+    const done = el('button', {textContent: isGewijzigd() ? 'Bewaren' : 'Sluiten', className: 'p klaar'});
     done.onclick = sluit;
-    foot.append(el('span', {className: 'spacer'}), del, test, done);
+    foot.append(el('span', {className: 'spacer'}), del, herstelKnop(), kopie, test, done);
     sheet.append(foot);
   } else {
     const pad = (config.pads || {})[open.id];
@@ -735,7 +1199,7 @@ function renderSheet() {
       const weg = el('button', {textContent: 'Wissen'});
       weg.onclick = () => { delete pad.sample; dirtyNow(); renderSheet(); };
       const vol = pad.volume ?? 100;
-      const volSlider = el('input', {type: 'range', min: 0, max: 100, value: vol});
+      const volSlider = el('input', {type: 'range', min: 0, max: 100, step: 10, value: vol});
       const volUit = el('span', {textContent: Math.round(vol) + '%'});
       volSlider.oninput = () => { pad.volume = Number(volSlider.value); volUit.textContent = volSlider.value + '%'; dirtyNow(); };
       cols.append(el('div', {className: 'box'}, [
@@ -750,16 +1214,25 @@ function renderSheet() {
     sheet.append(cols);
 
     const foot = el('div', {className: 'foot'});
-    const del = el('button', {textContent: 'Verwijderen'});
-    del.onclick = () => { delete config.pads[open.id]; dirty = true; sluit(); };
-    const test = el('button', {textContent: 'Uitproberen'});
+    const del = icoKnop('weg', 'Pad verwijderen');
+    del.onclick = () => {
+      if (!confirm('Pad \u201c' + (pad.label || 'zonder naam') + '\u201d verwijderen? Dit kun je niet terugdraaien.')) return;
+      delete config.pads[open.id]; dirty = true; sluit();
+    };
+    const test = icoKnop('speel', 'Uitproberen');
     test.onclick = async () => { if (dirty) await bewaar(); fetch('/api/pad', {method: 'POST', body: JSON.stringify({pad: open.id})}); };
-    const done = el('button', {textContent: 'Klaar', className: 'p'});
+    const done = el('button', {textContent: isGewijzigd() ? 'Bewaren' : 'Sluiten', className: 'p klaar'});
     done.onclick = sluit;
-    foot.append(del, el('span', {className: 'spacer'}), test, done);
+    foot.append(del, el('span', {className: 'spacer'}), herstelKnop(), test, done);
     sheet.append(foot);
   }
-  host.append(sheet);
+  const groei = el('div', {className: 'groei'});
+  if (open.type === 'scene') groei.append(bouwKanalen(config.scenes[open.id]));
+  groei.append(sheet);
+  const schim = el('div', {className: 'schim'}, [groei]);
+  schim.onclick = e => { if (e.target === schim) probeerSluiten(); };
+  host.append(schim);
+  host.querySelectorAll('input[type=range]').forEach(schuifVul);
 }
 
 function renderTech() {
@@ -865,7 +1338,7 @@ function renderTech() {
 function url() {
   if (techZichtbaar) return '/techniek';
   if (open) return (open.type === 'scene' ? '/scene/' : '/pad/') + encodeURIComponent(open.id);
-  return tab === 'pads' ? '/soundboard' : tab === 'tijd' ? '/tijdlijn' : '/scenes';
+  return tab === 'pads' ? '/soundboard' : weergave === 'tijdlijn' ? '/tijdlijn' : '/scenes';
 }
 function navigeer(vervang = false) {
   const pad = url();
@@ -877,24 +1350,42 @@ function pasUrlToe() {
   techZichtbaar = delen[0] === 'techniek';
   if (delen[0] === 'scene' && delen[1]) { open = {type: 'scene', id: delen[1]}; if (tab === 'pads') tab = 'scenes'; }
   else if (delen[0] === 'pad' && delen[1]) { open = {type: 'pad', id: delen[1]}; tab = 'pads'; }
-  else { open = null; tab = delen[0] === 'soundboard' ? 'pads' : delen[0] === 'tijdlijn' ? 'tijd' : 'scenes'; }
+  else {
+    open = null;
+    tab = delen[0] === 'soundboard' ? 'pads' : 'scenes';
+    if (delen[0] === 'tijdlijn') weergave = 'tijdlijn';
+    else if (delen[0] === 'scenes') weergave = 'kaarten';
+  }
   tekenAlles();
 }
 function tekenAlles() {
-  document.getElementById('tab-scenes').className = tab === 'scenes' ? 'sel' : '';
-  document.getElementById('tab-pads').className = tab === 'pads' ? 'sel' : '';
-  document.getElementById('tab-tijd').className = tab === 'tijd' ? 'sel' : '';
-  document.getElementById('view-scenes').className = tab === 'scenes' ? '' : 'hidden';
+  document.getElementById('view-scenes').className = tab === 'scenes' && weergave === 'kaarten' ? '' : 'hidden';
   document.getElementById('view-pads').className = tab === 'pads' ? '' : 'hidden';
-  document.getElementById('view-tijd').className = tab === 'tijd' ? '' : 'hidden';
+  document.getElementById('view-tijd').className = tab === 'scenes' && weergave === 'tijdlijn' ? '' : 'hidden';
+  if (config) renderDeckkop();
+  else document.getElementById('deckkop').className = 'hidden';
   if (config) { renderScenes(); renderPads(); renderTijdlijn(); renderSheet(); }
+  renderKastje();
   if (techZichtbaar) renderTech(); else document.getElementById('tech').className = 'hidden';
 }
 window.onpopstate = pasUrlToe;
 
-document.getElementById('tab-scenes').onclick = () => { tab = 'scenes'; syncTabs(); };
-document.getElementById('tab-pads').onclick = () => { tab = 'pads'; syncTabs(); };
-document.getElementById('tab-tijd').onclick = () => { tab = 'tijd'; syncTabs(); };
+document.addEventListener('input', e => {
+  if (e.target.type !== 'range') return;
+  schuifVul(e.target);
+  ververPrev();
+});
+document.addEventListener('change', e => {
+  if (e.target.type !== 'range' || !open || open.type !== 'scene') return;
+  sigScenes = ''; renderScenes();
+});
+addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!document.getElementById('vraag').classList.contains('hidden')) { sluitVraag(); return; }
+  if (wizard) { wizard = null; renderWizard(); }
+  else if (open) probeerSluiten();
+});
+document.getElementById('terugNaarScenes').onclick = () => { tab = 'scenes'; syncTabs(); };
 function syncTabs() {
   if (open && dirty) bewaar();
   open = null;
@@ -908,9 +1399,7 @@ window.onbeforeunload = () => { if (dirty) { clearTimeout(saveTimer); navigator.
 async function poll() {
   try {
     state = await (await fetch('/api/state')).json();
-    document.getElementById('live').className = 'dot' + (state.slide == null ? ' off' : '');
-    document.getElementById('statusText').innerHTML = state.slide == null ? (state.blackout ? 'geen presentatie — alles uit' : 'geen presentatie')
-      : 'dia <b>' + state.slide + '</b>' + ((state.tags || []).length ? ' · <b>' + state.tags.join(' ') + '</b>' : '') + ' · MIDI <b>' + state.midi + '</b>';
+    renderStatus();
 
     if (learning && state.lastNote && state.lastNote.age < 1.5) {
       const nieuw = String(state.lastNote.note);
@@ -921,13 +1410,17 @@ async function poll() {
         learning = null; dirtyNow(); setNote('pad gekoppeld', 'ok'); renderPads(); renderSheet();
       }
     }
-    const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.getagd || []) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '');
+    const nextScenes = stable(config.scenes) + stable(config.fixtures) + stable(state.getagd || []) + stable(state.deck || []) + stable(state.origins || {}) + (state.deckName || '') + (state.diaTotaal || 0);
     const nextPads = stable(config.pads) + bank + stable(state.held || []);
-    if (tab === 'scenes') {
+    const nextKop = (state.deckName || '') + '|' + (state.diaTotaal || 0) + '|' +
+      stable(Object.keys(config.scenes || {})) + '|' + stable(state.deck || []);
+    if (tab === 'scenes' && nextKop !== sigKop) { sigKop = nextKop; renderDeckkop(); }
+    if (tab === 'scenes' && weergave === 'kaarten') {
       if (nextScenes !== sigScenes) { sigScenes = nextScenes; renderScenes(); } else updateLiveScenes();
     }
     if (tab === 'pads' && nextPads !== sigPads) { sigPads = nextPads; renderPads(); }
-    if (tab === 'tijd') {
+    if (tab === 'scenes') renderKastje();
+    if (tab === 'scenes' && weergave === 'tijdlijn') {
       const nextTijd = nextScenes + stable(state.tags || []);
       if (nextTijd !== sigTijd) { sigTijd = nextTijd; renderTijdlijn(); }
     }

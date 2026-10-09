@@ -1,0 +1,42 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>03 &mdash; Soundboard onderin (4&times;4 blijft vierkant)</title>
+<link rel="stylesheet" href="kaliber.css"><link rel="stylesheet" href="edit-shared.css">
+<style>
+body{margin:0}
+.app{display:flex;flex-direction:column;height:100vh}
+.balk{display:flex;align-items:center;gap:18px;padding:14px 26px;border-bottom:1px solid var(--green-400);flex:none}
+.balk h1{font-size:20px}
+.status{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--gray-500);font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);display:block}
+.kiezer{display:flex;gap:2px;background:var(--green-800);border:1px solid var(--green-400);border-radius:11px;padding:3px}
+.kiezer button{width:34px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--gray-500);display:grid;place-items:center;padding:0}
+.kiezer button.sel{background:var(--green-400);color:var(--isit-green)}
+.kiezer svg{width:17px;height:17px;display:block}
+.paneelkop{display:flex;align-items:baseline;gap:14px;padding-bottom:13px;border-bottom:1px solid var(--green-400);margin-bottom:16px}
+.paneelkop .label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--gray-500)}
+.paneelkop h2{font-family:var(--font-display);font-size:26px;font-weight:300}
+.paneelkop .tellers{margin-left:auto;display:flex;gap:16px;color:var(--gray-500);font-size:12.5px;align-self:center}
+.paneelkop .tellers b{color:var(--berry);font-weight:400}
+.vak{overflow:auto;padding:22px 26px}
+.banken{display:flex;gap:7px;margin-bottom:14px}
+.bk{width:30px;height:28px;border-radius:9px;border:1px solid var(--green-400);background:transparent;color:var(--gray-500);font-size:13px;padding:0}
+.bk.sel{border-color:var(--isit-green);color:var(--isit-green)}
+.bord{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bord .pad{aspect-ratio:1;border-radius:14px;border:1px solid var(--green-400);background:var(--blackish);padding:10px;display:flex;flex-direction:column;cursor:pointer;font-size:13px}
+.bord .pad.leeg{border-style:dashed;color:var(--gray-500);align-items:center;justify-content:center}
+.bord .teken{font-size:15px;opacity:.75}
+.bord .nm{margin-top:auto;line-height:1.15;overflow-wrap:anywhere}
+.spoor{position:relative;height:26px;background:#0f1a1a;border-radius:8px;overflow:hidden;flex:1}
+.vlak{position:absolute;top:0;bottom:0;border-radius:8px;display:flex;align-items:center;padding:0 9px;font-size:11.5px;color:#0d1a1a;font-weight:500}
+.tlrij{display:flex;align-items:center;gap:14px;padding:9px 0;border-top:1px solid var(--green-400);cursor:pointer}
+.tlrij:hover{background:#ffffff06}
+.tlnaam{font-family:var(--font-display);font-size:18px;width:108px;flex:none}
+.tlmeta{color:var(--gray-500);font-size:12px;width:86px;flex:none;text-align:right}
+.liniaal{display:flex;gap:14px;align-items:center;color:var(--gray-500);font-size:11px;padding-bottom:6px}
+.liniaal .spoor{background:transparent;display:flex;justify-content:space-between;align-items:center;padding:0 2px}
+.naam{position:fixed;top:0;left:0;background:var(--isit-green);color:var(--green-800);padding:4px 10px;border-radius:0 0 8px 0;z-index:99;font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:500}
+.boven{flex:1;min-height:0}.onder{flex:none;border-top:1px solid var(--green-400);max-height:46vh}</style></head><body>
+<span class="naam">03 &middot; Soundboard onderin (4&times;4 blijft vierkant)</span>
+<div class="app"><div class="balk"><h1>WeekOff</h1>
+<div class="status"><span class="dot"></span><span>dia <b>4</b> &middot; <b>warm</b> &middot; MIDI aan</span>
+<button>Alles uit</button><button>&#9881; Techniek</button></div></div><div class="vak boven"><div class="paneelkop"><div><div class="label">Huidige presentatie</div><h2>WeekOff</h2></div><div class="tellers"><span><b>12</b> dia&rsquo;s</span><span><b>4</b> scenes</span></div><div class="kiezer"><button class="sel" title="Kaarten"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="7" height="7" rx="2"/><rect x="9" y="0" width="7" height="7" rx="2"/><rect x="0" y="9" width="7" height="7" rx="2"/><rect x="9" y="9" width="7" height="7" rx="2"/></svg></button><button class="" title="Tijdlijn"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="1" width="11" height="3.4" rx="1.7"/><rect x="3" y="6.3" width="13" height="3.4" rx="1.7"/><rect x="1" y="11.6" width="8" height="3.4" rx="1.7"/></svg></button></div></div><div class="grid"><div class="scene sel"><div class="prev"><span style="background:#ffe9c9"></span><span style="background:#8fd0a0"></span></div><div class="sbody"><div class="sname">start</div><div class="meta"><span>dia 1</span><span>2 lampen</span><span>2 sec</span></div></div></div><div class="scene"><div class="prev"><span style="background:#ffd9a0"></span><span style="background:#ffc46b"></span></div><div class="sbody"><div class="sname">warm</div><div class="meta"><span>dia 4-7</span><span>2 lampen</span><span>2 sec</span></div></div></div><div class="scene"><div class="prev"><span class="disco"></span><span class="disco"></span></div><div class="sbody"><div class="sname">disco</div><div class="meta"><span>dia 8</span><span>2 lampen</span><span>2 sec</span></div></div></div><div class="scene"><div class="prev"><span style="background:#101c1c"></span><span style="background:#101c1c"></span></div><div class="sbody"><div class="sname">uit</div><div class="meta"><span>dia 12</span><span>2 lampen</span><span>2 sec</span></div></div></div></div></div><div class="vak onder"><div class="paneelkop"><div><div class="label">Soundboard</div><h2>Kastje</h2></div><div class="tellers"><span><b>10</b> van 16</span><span>bank <b>1</b>/3</span></div></div><div class="banken"><button class="bk sel">1</button><button class="bk">2</button><button class="bk">3</button></div><div class="bord" style="max-width:330px"><div class="pad"><span class="teken">&#128264;</span><span class="nm">Applaus</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Tromgeroffel</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Curb</span></div><div class="pad"><span class="teken">&#128161;</span><span class="nm">Rook</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Fanfare</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Buzzer</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Boe</span></div><div class="pad"><span class="teken">&#128161;</span><span class="nm">Strobe</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Jingle</span></div><div class="pad"><span class="teken">&#128264;</span><span class="nm">Tada</span></div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div><div class="pad leeg">+</div></div></div></div>
+</body></html>

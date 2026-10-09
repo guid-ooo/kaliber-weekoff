@@ -1,0 +1,104 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Schuiven met stappen</title>
+<link rel="stylesheet" href="kaliber.css">
+<style>
+body{padding:40px;max-width:1120px;margin:0 auto}
+h1{font-size:33px;margin-bottom:6px}
+p.lead{color:var(--gray-500);margin:0 0 34px;max-width:620px;line-height:1.6}
+.v{background:var(--blackish);border:1px solid var(--green-400);border-radius:18px;padding:22px 26px 24px;margin-bottom:16px}
+.vkop{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.vkop h2{font-size:21px}
+.vkop .letter{font-family:'SF Mono',monospace;font-size:12px;color:var(--isit-green);border:1px solid var(--isit-green);border-radius:7px;padding:1px 7px}
+.uitleg{color:var(--gray-500);font-size:13.5px;line-height:1.6;margin:0 0 20px;max-width:640px}
+.rij{display:flex;align-items:center;gap:10px;color:var(--gray-500);font-size:13px;margin-top:9px}
+.rij .op{margin-left:auto;color:var(--berry);font-variant-numeric:tabular-nums}
+.stippen,.tks2{display:flex;justify-content:space-between;margin:0 7px;align-items:center;height:8px}
+.demo{max-width:560px}
+
+.A .baan{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer}
+.A .baan::-webkit-slider-runnable-track{height:30px;border-radius:10px;background-color:var(--green-300);
+background-image:repeating-linear-gradient(90deg,#00000055 0 2px,transparent 2px 10%),linear-gradient(90deg,#00000055 0 2px);
+background-position:7px 0,calc(100% - 9px) 0;background-size:calc(100% - 16px) 100%,2px 100%;background-repeat:no-repeat}
+.A .baan::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:28px;border-radius:7px;background:var(--isit-green);border:1px solid #0006;margin-top:1px}
+
+.B .baan{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer}
+.B .baan::-webkit-slider-runnable-track{height:6px;border-radius:999px;margin-top:10px;
+background:linear-gradient(90deg,var(--isit-green) 0 var(--v),var(--green-300) var(--v))}
+.B .baan::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:26px;border-radius:5px;background:var(--isit-green);margin-top:-10px}
+.B .stippen i{width:3px;height:3px;border-radius:50%;background:var(--green-300)}
+.B .stippen i.aan{background:var(--isit-green)}
+
+.C .baan{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer}
+.C .baan::-webkit-slider-runnable-track{height:10px;border-radius:999px;margin-top:9px;
+background-color:var(--green-300);
+background-image:linear-gradient(90deg,var(--isit-green) 0 var(--v),transparent var(--v)),
+repeating-linear-gradient(90deg,#0a1414 0 3px,transparent 3px 10%),linear-gradient(90deg,#0a1414 0 3px);
+background-position:0 0,6.5px 0,calc(100% - 9.5px) 0;
+background-size:100% 100%,calc(100% - 16px) 100%,3px 100%;background-repeat:no-repeat}
+.C .baan::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:28px;border-radius:6px;background:var(--berry);margin-top:-9px;box-shadow:0 0 0 1px #0006}
+
+.D .baan{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer}
+.D .baan::-webkit-slider-runnable-track{height:30px;border-radius:7px;
+background-color:var(--green-800);
+background-image:repeating-linear-gradient(90deg,transparent 0 calc(10% - 4px),var(--green-800) calc(10% - 4px) 10%),
+linear-gradient(90deg,var(--isit-green) 0 var(--v),var(--green-300) var(--v));
+background-size:100% 100%,100% 100%}
+.D .baan::-webkit-slider-thumb{-webkit-appearance:none;width:0;height:30px}
+
+.E .baan{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer}
+.E .baan::-webkit-slider-runnable-track{height:30px;border-radius:7px;
+background-color:var(--green-800);
+background-image:repeating-linear-gradient(90deg,transparent 0 calc(10% - 4px),var(--green-800) calc(10% - 4px) 10%),
+linear-gradient(90deg,#d1ff0055 0 var(--v),var(--green-300) var(--v));
+background-size:100% 100%,100% 100%}
+.E .baan::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:34px;border-radius:8px;background:var(--isit-green);margin-top:-2px;box-shadow:0 2px 6px #0008}
+
+.F .wrap2{position:relative}
+.F .baan{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer;position:relative;z-index:2}
+.F .baan::-webkit-slider-runnable-track{height:30px;border-radius:10px;background:transparent}
+.F .baan::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:28px;border-radius:6px;background:var(--isit-green);margin-top:1px}
+.F .achter{position:absolute;inset:0;border-radius:10px;overflow:hidden;background:var(--green-300)}
+.F .achter .vol{position:absolute;left:0;top:0;bottom:0;width:var(--v);background:var(--isit-green)}
+.F .achter .tks{position:absolute;left:0;right:0;top:0;bottom:0;margin:0 7px;display:flex;justify-content:space-between}
+.F .achter .tks i{width:2px;background:#0000003d}
+.F .achter .tks i.weg{opacity:0}
+
+.G .baan{-webkit-appearance:none;appearance:none;width:100%;height:34px;background:transparent;cursor:pointer}
+.G .baan::-webkit-slider-runnable-track{height:4px;border-radius:999px;margin-top:15px;
+background:linear-gradient(90deg,var(--isit-green) 0 var(--v),var(--green-300) var(--v))}
+.G .baan::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:34px;border-radius:7px;margin-top:-15px;
+background:linear-gradient(180deg,#e4ff57,#b8e000);
+background-image:linear-gradient(180deg,#e4ff57,#b8e000),repeating-linear-gradient(90deg,transparent 0 6px,#00000033 6px 7px);
+box-shadow:0 2px 5px #0008}
+.G .tks2 i{width:1px;height:6px;background:var(--green-300)}
+.G .tks2 i.aan{background:var(--isit-green)}
+
+.H .baan{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer}
+.H .baan::-webkit-slider-runnable-track{height:30px;border-radius:10px;
+background:linear-gradient(90deg,var(--isit-green) 0 var(--v),var(--green-300) var(--v))}
+.H .baan::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:28px;border-radius:6px;background:var(--berry);margin-top:1px;box-shadow:0 0 0 1px #0006}
+</style></head><body>
+<h1>Schuiven met stappen van 10%</h1>
+<p class="lead">Acht manieren om tien stappen te tonen. Alle schuiven werken echt &mdash; sleep ze om het verschil te voelen. A is wat er nu in de app staat.</p>
+<div class="v A"><div class="vkop"><span class="letter">A</span><h2>Huidig</h2></div><p class="uitleg">Wat er nu in de app zit: de streepjes snijden door de volle baan, waardoor het als een hek leest in plaats van als een schuif.</p><div class="demo"><input type="range" class="baan" min="0" max="100" step="10" value="30"><div class="rij"><span>helderheid</span><span class="op">30%</span></div></div></div><div class="v B"><div class="vkop"><span class="letter">B</span><h2>Dunne baan, stippen eronder</h2></div><p class="uitleg">De klassieke oplossing: de baan blijft rustig en de stappen staan er los onder. De gevulde stippen lopen mee met de waarde, dus je ziet in welke stap je zit zonder dat de baan versnipperd raakt.</p><div class="demo"><input type="range" class="baan" min="0" max="100" step="10" value="40"><div class="stippen"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="rij"><span>helderheid</span><span class="op">40%</span></div></div></div><div class="v C"><div class="vkop"><span class="letter">C</span><h2>Stippen op de baan</h2></div><p class="uitleg">Zelfde idee, maar de stappen zitten in de baan als kleine inkepingen. Compacter; de markering verdwijnt onder het gevulde deel, wat de voortgang juist benadrukt.</p><div class="demo"><input type="range" class="baan" min="0" max="100" step="10" value="60"><div class="rij"><span>helderheid</span><span class="op">60%</span></div></div></div><div class="v D"><div class="vkop"><span class="letter">D</span><h2>Segmentenmeter</h2></div><p class="uitleg">Geen schuif maar een niveaumeter: tien blokjes die vollopen. Bij tien stappen is dit het eerlijkst &mdash; de vorm v&eacute;rtelt al dat er tien standen zijn, dus je hebt geen aparte streepjes nodig.</p><div class="demo"><input type="range" class="baan" min="0" max="100" step="10" value="70"><div class="rij"><span>helderheid</span><span class="op">70%</span></div></div></div><div class="v E"><div class="vkop"><span class="letter">E</span><h2>Segmenten met greep</h2></div><p class="uitleg">De meter uit D, maar met een zichtbare greep zodat duidelijk blijft dat je hem kunt pakken. Beste van twee: aftelbare stappen &eacute;n een grijppunt.</p><div class="demo"><input type="range" class="baan" min="0" max="100" step="10" value="50"><div class="rij"><span>helderheid</span><span class="op">50%</span></div></div></div><div class="v F"><div class="vkop"><span class="letter">F</span><h2>Streepjes alleen in het lege deel</h2></div><p class="uitleg">De markeringen staan alleen rechts van de greep. Wat je al ingesteld hebt is schoon, wat je nog kunt kiezen is afleesbaar. Minder visuele ruis dan A, zelfde informatie.</p><div class="demo"><div class="wrap2"><div class="achter"><div class="vol"></div><div class="tks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><input type="range" class="baan" min="0" max="100" step="10" value="30"></div><div class="rij"><span>helderheid</span><span class="op">30%</span></div></div></div><div class="v G"><div class="vkop"><span class="letter">G</span><h2>Greep met ribbels</h2></div><p class="uitleg">Dunne baan, maar een forse greep met ribbels zoals op een echte fader. De stappen staan als korte streepjes onder de baan, buiten het kleurvlak.</p><div class="demo"><input type="range" class="baan" min="0" max="100" step="10" value="80"><div class="tks2"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="rij"><span>helderheid</span><span class="op">80%</span></div></div></div><div class="v H"><div class="vkop"><span class="letter">H</span><h2>Alleen de waarde</h2></div><p class="uitleg">Radicaalste optie: geen streepjes. Omdat de stap toch 10% is, kan de waarde nooit iets anders tonen dan een tiental &mdash; het getal is de markering. De rust die je overhoudt is aanzienlijk.</p><div class="demo"><input type="range" class="baan" min="0" max="100" step="10" value="60"><div class="rij"><span>helderheid</span><span class="op">60%</span></div></div></div>
+<script>
+function pct(i){return i.value + "%";}
+document.querySelectorAll(".demo").forEach(function(d){
+  var i = d.querySelector("input"), op = d.querySelector(".op");
+  function bij(){
+    i.style.setProperty("--v", (i.value/100*(i.offsetWidth-16) + 8) + "px");
+    if (op) op.textContent = pct(i);
+    d.querySelectorAll(".stippen i, .tks2 i").forEach(function(t,k){
+      t.classList.toggle("aan", k*10 <= Number(i.value));
+    });
+    d.querySelectorAll(".achter .tks i").forEach(function(t,k){
+      t.classList.toggle("weg", k*10 <= Number(i.value));
+    });
+    var vol = d.querySelector(".achter .vol");
+    if (vol) vol.style.width = (i.value/100*(i.offsetWidth-16) + 8) + "px";
+  }
+  i.addEventListener("input", bij);
+  addEventListener("resize", bij);
+  bij();
+});
+</script>
+</body></html>

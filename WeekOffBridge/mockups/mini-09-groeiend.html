@@ -1,0 +1,53 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>09 &mdash; Ingeschoven, groeit met labels</title>
+<link rel="stylesheet" href="kaliber.css"><link rel="stylesheet" href="edit-shared.css">
+<style>
+body{margin:0}
+header{display:flex;align-items:center;gap:20px;padding:16px 28px;border-bottom:1px solid var(--green-400)}
+header h1{font-size:21px}
+.status{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--gray-500);font-size:13px}
+.status b{color:var(--berry);font-weight:400}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--isit-green);display:block}
+main{padding:26px 30px 120px;max-width:1240px}
+.lead{color:var(--gray-500);margin:0 0 22px;font-size:16px}
+.deckkop{display:flex;align-items:flex-end;gap:18px;padding-bottom:15px;border-bottom:1px solid var(--green-400);margin-bottom:18px}
+.deckkop .label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--gray-500);margin-bottom:4px}
+.deckkop h2{font-family:var(--font-display);font-size:29px;font-weight:300}
+.deckkop .tellers{margin-left:auto;display:flex;gap:18px;color:var(--gray-500);font-size:13px;align-self:center}
+.deckkop .tellers b{color:var(--berry);font-weight:400}
+.kiezer{display:flex;gap:2px;background:var(--green-800);border:1px solid var(--green-400);border-radius:11px;padding:3px;align-self:center}
+.kiezer button{width:34px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--gray-500);display:grid;place-items:center;padding:0}
+.kiezer button.sel{background:var(--green-400);color:var(--isit-green)}
+.kiezer svg{width:17px;height:17px;display:block}
+.naam{position:fixed;top:0;left:0;background:var(--isit-green);color:var(--green-800);padding:4px 10px;border-radius:0 0 8px 0;z-index:99;font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:500}
+.hint{position:fixed;left:30px;bottom:22px;color:var(--gray-500);font-size:12.5px;border-left:2px solid var(--green-400);padding-left:12px;max-width:290px;line-height:1.5}
+
+.mini{position:fixed;right:30px;bottom:0;z-index:20;cursor:pointer;
+  background:linear-gradient(180deg,#1b2d2c,#122020);border:1px solid var(--green-400);border-bottom:0;
+  border-radius:20px 20px 0 0;padding:10px 14px 18px;
+  box-shadow:0 -6px 26px #0007;
+  transition:transform .34s cubic-bezier(.22,1,.36,1),box-shadow .34s,border-color .2s}
+.mini:hover{border-color:var(--isit-green);box-shadow:0 26px 70px #000c,0 -1px 0 #d1ff0040}
+.greep{width:38px;height:4px;border-radius:999px;background:var(--green-300);margin:0 auto 11px;transition:background .2s}
+.mini:hover .greep{background:var(--isit-green)}
+.minikop{display:flex;align-items:center;gap:8px;margin-bottom:11px;font-size:12px;color:var(--gray-500)}
+.minikop .punt{width:7px;height:7px;border-radius:50%;background:var(--isit-green);display:block;box-shadow:0 0 8px #d1ff0099}
+.minikop em{font-style:normal;margin-left:auto;font-size:11.5px;opacity:.8}
+.miniraster{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.mp{border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#30403f,#263433);box-shadow:inset 0 1px 0 #ffffff14;
+  transition:transform .18s,background .18s}
+.mp.leeg{background:none;box-shadow:none;border:1px dashed #ffffff1a}
+.mp.aan{background:var(--isit-green);color:var(--green-800);box-shadow:0 0 18px #d1ff0066}
+.mini:hover .mp:hover{transform:scale(1.08);background:linear-gradient(180deg,#3b4e4c,#2e3e3d)}
+
+.mini{transform:translateY(160px)}
+.mini:hover{transform:translateY(-20px)}
+.mp{width:34px;height:34px;font-size:13px;transition:width .34s cubic-bezier(.22,1,.36,1),height .34s cubic-bezier(.22,1,.36,1),font-size .34s,background .18s,transform .18s}
+.mp small{display:none;font-size:9px;opacity:.7;line-height:1;margin-top:3px}
+.mini:hover .mp{width:62px;height:62px;font-size:17px}
+.mini:hover .mp small{display:block}
+.mp.aan small{opacity:.85}
+</style></head><body>
+<span class="naam">09 &middot; Ingeschoven, groeit met labels</span>
+<header><h1>WeekOff</h1><div class="status"><span class="dot"></span><span>dia <b>10</b> &middot; <b>spotlight</b> &middot; MIDI <b>0</b></span><button>Alles uit</button><button>&#9881; Techniek</button></div></header><main><p class="lead">Elke scene hoort bij een dia. Klik op een scene om hem aan te passen.</p><div class="deckkop"><div><div class="label">Huidige presentatie</div><h2>WeekOff</h2></div><div class="tellers"><span><b>16</b> dia&rsquo;s</span><span><b>6</b> scenes</span></div><div class="kiezer"><button class="sel" title="Kaarten"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="7" height="7" rx="2"/><rect x="9" y="0" width="7" height="7" rx="2"/><rect x="0" y="9" width="7" height="7" rx="2"/><rect x="9" y="9" width="7" height="7" rx="2"/></svg></button><button title="Tijdlijn"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="1" width="11" height="3.4" rx="1.7"/><rect x="3" y="6.3" width="13" height="3.4" rx="1.7"/><rect x="1" y="11.6" width="8" height="3.4" rx="1.7"/></svg></button></div></div><div class="grid"><div class="scene"><div class="prev"><span style="background:linear-gradient(110deg,#8fd98f,#7fd0f0,#c9a6f0)"></span><span style="background:#f7ddc3"></span></div><div class="sbody"><div class="sname">start</div><div class="meta"><span>dia 1</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#141f1f"></span><span style="background:#f7ddc3"></span></div><div class="sbody"><div class="sname">twak</div><div class="meta"><span>dia 2&ndash;9</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="scene sel"><div class="prev"><span style="background:#a83232"></span><span style="background:#fdf3f6"></span></div><div class="sbody"><div class="sname">spotlight <span class="badge">speelt nu</span></div><div class="meta"><span>dia 10&ndash;11</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#2a2aa8"></span><span style="background:#fdf3f6"></span></div><div class="sbody"><div class="sname">dilemma</div><div class="meta"><span>dia 12&ndash;13</span><span>2 lampen</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#e8321e"></span><span style="background:#141f1f"></span></div><div class="sbody"><div class="sname">shoutouts</div><div class="meta"><span>dia 14&ndash;15</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="scene"><div class="prev"><span style="background:#f5f53c"></span><span style="background:#141f1f"></span></div><div class="sbody"><div class="sname">tag</div><div class="meta"><span>dia 16</span><span>1 lamp</span><span>2 sec overgang</span></div></div></div><div class="add">+ Nieuwe scene</div></div></main><div class="mini"><div class="greep"></div><div class="minikop"><span class="punt"></span>Soundboard<em>10/16 &middot; bank 1</em></div><div class="miniraster"><div class="mp">&#128264;<small>Applaus</small></div><div class="mp">&#128264;<small>Trommel</small></div><div class="mp">&#128264;<small>Curb</small></div><div class="mp">&#128161;<small>Rook</small></div><div class="mp aan">&#128264;<small>Fanfare</small></div><div class="mp">&#128264;<small>Buzzer</small></div><div class="mp">&#128264;<small>Boe</small></div><div class="mp">&#128161;<small>Strobe</small></div><div class="mp">&#128264;<small>Jingle</small></div><div class="mp">&#128264;<small>Tada</small></div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div><div class="mp leeg"></div></div></div><p class="hint">Hier groeien de tegels mee omhoog, zodat je bij hover ook de namen leest. Verder hetzelfde gedrag.</p>
+</body></html>
